@@ -263,11 +263,15 @@ def check(c):
         return c, "error:" + type(e).__name__, None
 
 # ---------------- Google Sheet ----------------
+DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWsFlBCrg-7bWt35pbDLNzHY3_8mudPtmr8jBnKWUcgnBVcM6iWXhEu-OmsYO7Z14d/exec"
+
 def post_to_sheet(leads):
     clean = lambda v: (v or "").strip().strip('"').strip("'").strip()
     url, token = clean(os.environ.get("SHEET_URL")), clean(os.environ.get("SHEET_TOKEN"))
-    m = re.search(r"https://script\.google\.com/macros/s/[A-Za-z0-9_-]+/exec", url)
-    url = m.group(0) if m else url
+    # The web-app URL isn't secret (it does nothing without the token), so fall back to the known one if the
+    # SHEET_URL secret is mangled. Only the token must come from secrets.
+    m = re.search(r"macros/s/([A-Za-z0-9_-]{20,})", url)
+    url = f"https://script.google.com/macros/s/{m.group(1)}/exec" if m else DEFAULT_SHEET_URL
     if not url or not token or not leads:
         return 0
     added = 0
