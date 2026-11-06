@@ -28,6 +28,10 @@ UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like 
 OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter",
             "https://maps.mail.ru/osm/tools/overpass/api/interpreter"]
 YEAR = dt.date.today().year
+CONTACTED = set()
+def fp(x):
+    import hashlib
+    return hashlib.sha256(x.strip().lower().encode()).hexdigest()[:20]
 FIELDS = ["date", "business", "category", "town", "province", "website", "email", "email_source", "phone",
           "text_line", "dated_score", "why_dated", "osm_id"]
 
@@ -54,6 +58,12 @@ def steps():
 
 def load_seen():
     seen_ids, seen_domains = set(), set()
+    ac = os.path.join(ROOT, "data", "already_contacted.txt")
+    if os.path.exists(ac):
+        for line in open(ac):
+            line = line.strip()
+            if line and not line.startswith("#"):
+                CONTACTED.add(line)
     if os.path.exists(SEEN):
         for r in csv.DictReader(open(SEEN)):
             seen_ids.add(r["osm_id"]); seen_domains.add(r["domain"])
@@ -178,7 +188,6 @@ def score(html, final_url, https_ok):
         pts += 1; reasons.append("table layout")
     if ".swf" in low or "shockwave" in low: pts += 2; reasons.append("Flash")
     if "<font" in low: pts += 1; reasons.append("old <font> tags")
-    if "marquee" in low: pts += 1; reasons.append("marquee")
     # Owner-built / DIY builders: the sweet spot (most of our hand-picked leads were Wix, Weebly, GoDaddy).
     diy = [("Wix", ("static.wixstatic.com", "wix.com website builder")), ("Weebly", ("weebly.com", "editmysite.com")),
            ("GoDaddy builder", ("img1.wsimg.com", "starfield technologies")), ("Site123", ("site123",)),
@@ -243,6 +252,8 @@ def check(c):
                     pass
         if not emails:
             return c, f"dated-no-email({pts})", None
+        if fp(c["domain"]) in CONTACTED or any(fp(e) in CONTACTED for e in emails):
+            return c, "already-contacted", None
         own = [e for e in emails if e.endswith(c["domain"])]
         best = (own or emails)[0]
         return c, "LEAD", {"date": TODAY, "business": c["business"], "category": c["category"], "town": c["town"],
