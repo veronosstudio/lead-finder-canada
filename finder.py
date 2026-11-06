@@ -29,7 +29,7 @@ OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.sy
             "https://maps.mail.ru/osm/tools/overpass/api/interpreter"]
 YEAR = dt.date.today().year
 FIELDS = ["date", "business", "category", "town", "province", "website", "email", "email_source", "phone",
-          "dated_score", "why_dated", "osm_id"]
+          "text_line", "dated_score", "why_dated", "osm_id"]
 
 def log(*a):
     print(f"[{int(time.time()-START):>5}s]", *a, flush=True)
@@ -109,7 +109,7 @@ def candidates(elements, province, group, seen_ids, seen_domains):
         site = norm_site(t.get("website") or t.get("contact:website"))
         if not name or not site: continue
         if t.get("brand") or t.get("brand:wikidata"): continue
-        if any(w in name.lower() for w in words): continue
+        if any(re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", name.lower()) for w in words): continue
         if any(b in site.lower() for b in BAD_HOSTS): continue
         d = domain(site)
         if not d: continue
@@ -121,7 +121,7 @@ def candidates(elements, province, group, seen_ids, seen_domains):
         if oid in seen_ids or d in seen_domains: continue
         t = e["tags"]
         out.append({
-            "osm_id": oid, "business": t.get("name", "").strip(), "category": t.get("craft") or t.get("shop") or t.get("healthcare") or t.get("office") or group,
+            "osm_id": oid, "business": t.get("name", "").strip(), "category": t.get("craft") or t.get("shop") or t.get("healthcare") or t.get("office") or ("church" if t.get("amenity") == "place_of_worship" else group),
             "town": t.get("addr:city", ""), "province": province.split("-")[1],
             "website": norm_site(t.get("website") or t.get("contact:website")), "domain": d,
             "phone": t.get("phone") or t.get("contact:phone", ""),
@@ -138,6 +138,19 @@ FREE_MAIL = ("gmail.com", "hotmail.com", "outlook.com", "yahoo.", "telus.net", "
              "live.com", "live.ca", "icloud.com", "me.com", "sasktel.net", "mts.net", "eastlink.ca", "bell.net",
              "sympatico.ca", "rogers.com", "cogeco.ca", "xplornet.com", "netago.ca", "cable-lynx.net", "msn.com",
              "aol.com", "videotron.ca", "nb.sympatico.ca", "persona.ca", "accesscomm.ca")
+
+PHONE_RE = re.compile(r"(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}")
+
+def text_line(html):
+    """A number the business says you can TEXT: an sms: link, or 'text us' / 'call or text' next to a number."""
+    m = re.search(r'href=["\']sms:([+\d\s().-]{10,20})', html, re.I)
+    if m: return re.sub(r"[^\d+]", "", m.group(1))
+    plain = re.sub(r"<[^>]+>", " ", html)
+    for k in re.finditer(r"(text\s+us|call\s+or\s+text|text\s+or\s+call|txt\s+us|send\s+us\s+a\s+text|text\s+only|texts?\s+welcome)", plain, re.I):
+        near = plain[max(0, k.start() - 80): k.end() + 80]
+        p = PHONE_RE.search(near)
+        if p: return p.group(0).strip()
+    return ""
 
 def get(url, s):
     return s.get(url, timeout=15, headers={"User-Agent": UA}, allow_redirects=True)
@@ -212,6 +225,7 @@ def check(c):
         if pts < CFG["min_dated_score"]:
             return c, f"modern({pts})", None
         emails, src = emails_from(html, c["domain"]), r.url
+        txt = text_line(html)
         if not emails:
             links = re.findall(r'href=["\']([^"\'#]+)', html, re.I)
             pages = [urljoin(r.url, l) for l in links if re.search(r"contact|about|reach|location|find-us", l, re.I)]
@@ -223,6 +237,7 @@ def check(c):
                     pr = get(p, s)
                     if pr.status_code < 400:
                         emails = emails_from(pr.text[:400000], c["domain"])
+                        txt = txt or text_line(pr.text[:400000])
                         if emails: src = pr.url; break
                 except Exception:
                     pass
@@ -232,9 +247,25 @@ def check(c):
         best = (own or emails)[0]
         return c, "LEAD", {"date": TODAY, "business": c["business"], "category": c["category"], "town": c["town"],
                            "province": c["province"], "website": r.url, "email": best, "email_source": src,
-                           "phone": c["phone"], "dated_score": pts, "why_dated": "; ".join(why), "osm_id": c["osm_id"]}
+                           "phone": c["phone"], "text_line": txt, "dated_score": pts, "why_dated": "; ".join(why), "osm_id": c["osm_id"]}
     except Exception as e:
         return c, "error:" + type(e).__name__, None
+
+# ---------------- Google Sheet ----------------
+def post_to_sheet(leads):
+    url, token = os.environ.get("SHEET_URL"), os.environ.get("SHEET_TOKEN")
+    if not url or not token or not leads:
+        return 0
+    added = 0
+    for i in range(0, len(leads), 200):
+        try:
+            r = requests.post(url, data=json.dumps({"token": token, "rows": leads[i:i + 200]}),
+                              headers={"Content-Type": "application/json"}, timeout=120, allow_redirects=True)
+            added += r.json().get("added", 0)
+        except Exception as e:
+            log("sheet post failed:", str(e)[:150])
+    log("sheet: added", added)
+    return added
 
 # ---------------- run ----------------
 def main():
@@ -276,8 +307,9 @@ def main():
         w.writerows(leads)
     append_seen(seen_rows)
     save_state(state)
+    sheet_added = post_to_sheet(leads)
     summary = {"date": TODAY, "checked": checked, "leads": len(leads), "step": state["step"], "of": len(plan),
-               "at": plan[min(state["step"], len(plan) - 1)], "minutes": round((time.time() - START) / 60, 1)}
+               "at": plan[min(state["step"], len(plan) - 1)], "minutes": round((time.time() - START) / 60, 1), "sheet_added": sheet_added}
     json.dump(summary, open(os.path.join(ROOT, "state", "last_run.json"), "w"), indent=1)
     log("DONE", summary)
 
