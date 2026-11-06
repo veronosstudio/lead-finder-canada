@@ -281,12 +281,55 @@ def post_to_sheet(leads):
     log("sheet: added", added)
     return added
 
+# ---------------- source 2: city business licences ----------------
+def licence_pass(seen_ids, seen_domains, leads, seen_rows, budget_s):
+    """Calgary, Edmonton, Red Deer and Vancouver licence lists -> website -> same check. Oldest licences first."""
+    import licences as L
+    stop_at = time.time() + budget_s
+    pool = []
+    for name, fn in L.SOURCES.items():
+        if name not in CFG.get("licence_sources", list(L.SOURCES)): continue
+        n0 = len(pool)
+        try:
+            for b in fn():
+                if b["key"] not in seen_ids: pool.append(b)
+        except Exception as e:
+            log(f"licence source {name} failed: {str(e)[:120]}")
+        log(f"licences: {name} -> {len(pool) - n0} not yet checked")
+    pool.sort(key=lambda b: b["since"] or "9999")
+    checked = found = 0
+    def one(b):
+        site = L.find_website(b["name"], b["city"], UA)
+        if not site: return b, None, "no-site", None
+        d = domain(site)
+        if d in seen_domains or fp(d) in CONTACTED: return b, d, "already-seen", None
+        c = {"osm_id": b["key"], "business": b["name"].title() if b["name"].isupper() else b["name"], "category": b["cat"],
+             "town": b["city"], "province": L.PROVINCE.get(b["city"], ""), "website": site, "domain": d, "phone": "", "osm_email": ""}
+        _, res, lead = check(c)
+        if lead and b["since"]: lead["why_dated"] += f"; licensed since {b['since']}"
+        return b, d, res, lead
+    i = 0
+    with ThreadPoolExecutor(CFG.get("licence_workers", 32)) as ex:
+        while i < len(pool) and time.time() < stop_at and time_left() > 300 and len(leads) < CFG["daily_target"]:
+            batch = pool[i:i + 200]; i += len(batch)
+            for fut in as_completed([ex.submit(one, b) for b in batch]):
+                b, d, res, lead = fut.result(); checked += 1
+                seen_ids.add(b["key"])
+                if d: seen_domains.add(d); found += 1
+                seen_rows.append([b["key"], d or "", TODAY, res])
+                if lead and len(leads) < CFG["daily_target"]:
+                    leads.append(lead); log(f"  LEAD [licence] {lead['business']} ({lead['town']}) {lead['email']} :: {lead['why_dated']}")
+    log(f"licences: checked {checked}, websites found {found}, {len(pool) - i} left for tomorrow")
+    return checked
+
 # ---------------- run ----------------
 def main():
     state = load_state(); plan = steps()
     seen_ids, seen_domains = load_seen()
     leads, seen_rows, checked = [], [], 0
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    # Source 2 first (it finds far more), then OpenStreetMap with the time that's left.
+    checked += licence_pass(seen_ids, seen_domains, leads, seen_rows, CFG.get("licence_minutes", 34) * 60)
     while len(leads) < CFG["daily_target"] and time_left() > 240:
         if state["step"] >= len(plan):
             log("All provinces and categories done. Add categories or reset state/progress.json."); break

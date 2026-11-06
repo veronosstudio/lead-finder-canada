@@ -98,5 +98,13 @@
     "carstar",
     "fix auto",
     "maaco"
+  ],
+  "licence_minutes": 34,
+  "licence_workers": 32,
+  "licence_sources": [
+    "calgary",
+    "edmonton",
+    "red_deer",
+    "vancouver"
   ]
 }
