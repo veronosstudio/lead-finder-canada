@@ -1,13 +1,13 @@
 {
  "date": "2026-11-06",
- "checked": 4101,
- "leads": 500,
- "step": 12,
+ "checked": 4007,
+ "leads": 303,
+ "step": 17,
  "of": 80,
  "at": [
-  "CA-BC",
-  "home_shops"
+  "CA-SK",
+  "auto"
  ],
- "minutes": 47.4,
+ "minutes": 55.1,
  "sheet_added": 0
 }
