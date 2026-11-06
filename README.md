@@ -17,3 +17,8 @@ Runs every night on GitHub (about 1:17 AM Edmonton) and costs nothing: no paid s
 **Change the daily number or categories:** edit `config.json`.
 
 US businesses are handled by a separate app, so the two never overlap.
+
+## Instantly export (with email hook)
+`SHEET_URL=... SHEET_TOKEN=... python export_instantly.py status=new out=instantly.csv`
+Adds a `hook` column (from `hooks.py`) that fits "Noticed your site {{hook}}." — e.g. "is pretty tough to read on a phone",
+'shows a "Not secure" warning in Chrome', "still says ©2019 at the bottom", or "was getting a bit dated". Only states what the check found.
