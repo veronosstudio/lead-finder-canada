@@ -264,7 +264,10 @@ def check(c):
 
 # ---------------- Google Sheet ----------------
 def post_to_sheet(leads):
-    url, token = os.environ.get("SHEET_URL"), os.environ.get("SHEET_TOKEN")
+    clean = lambda v: (v or "").strip().strip('"').strip("'").strip()
+    url, token = clean(os.environ.get("SHEET_URL")), clean(os.environ.get("SHEET_TOKEN"))
+    m = re.search(r"https://script\.google\.com/macros/s/[A-Za-z0-9_-]+/exec", url)
+    url = m.group(0) if m else url
     if not url or not token or not leads:
         return 0
     added = 0
