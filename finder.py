@@ -282,7 +282,8 @@ def post_to_sheet(leads):
         try:
             r = requests.post(url, data=json.dumps({"token": token, "rows": leads[i:i + 200]}),
                               headers={"Content-Type": "application/json"}, timeout=120, allow_redirects=True)
-            added += r.json().get("added", 0)
+            j = r.json(); added += j.get("added", 0)
+            if not j.get("ok"): log("sheet refused:", str(j.get("error"))[:80], "(check the SHEET_TOKEN secret)")
         except Exception as e:
             log("sheet post failed:", str(e)[:150])
     log("sheet: added", added)
