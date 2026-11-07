@@ -22,3 +22,6 @@ US businesses are handled by a separate app, so the two never overlap.
 `SHEET_URL=... SHEET_TOKEN=... python export_instantly.py status=new out=instantly.csv`
 Adds a `hook` column (from `hooks.py`) that fits "Noticed your site {{hook}}." — e.g. "is pretty tough to read on a phone",
 'shows a "Not secure" warning in Chrome', "still says ©2019 at the bottom", or "was getting a bit dated". Only states what the check found.
+Tiers (column `tier` in the sheet, set automatically): **A** = clearly old at a glance (not phone-friendly, "Not secure",
+©2022 or older, Flash/table/font layouts, ancient builders) → send first. **B** = borderline (DIY builders + invisible signals)
+→ send later with a softer pitch that doesn't call the site old. `export_instantly.py tier=A` exports A only.

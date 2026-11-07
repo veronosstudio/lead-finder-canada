@@ -20,3 +20,13 @@ def hook(why_dated: str) -> str:
         return f"still says ©{m.group(1)} at the bottom"
     # Flash is not used: a leftover .swf reference doesn't prove anything is broken.
     return GENERIC
+
+def tier(why_dated: str) -> str:
+    """A = clearly old to the owner at a glance. B = borderline (send later, softer pitch). Same rule as the sheet script."""
+    w = (why_dated or "").lower()
+    if re.search(r"not built for phones|no secure https|flash|table layout|<font|old builder", w):
+        return "A"
+    m = re.search(r"copyright ((?:19|20)\d{2})", w)
+    if m and int(m.group(1)) <= OLD_YEAR:
+        return "A"
+    return "B"
