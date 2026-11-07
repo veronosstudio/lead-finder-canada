@@ -85,15 +85,18 @@ area["ISO3166-2"="{province}"]["admin_level"="4"]->.a;
 ({sel}["website"](area.a);{sel}["contact:website"](area.a););
 out tags center;"""
     for attempt in range(6):
+        if time_left() < 480:  # not enough time left to query and still check sites; save what we have
+            log("overpass: out of time for today"); return None
         url = OVERPASS[attempt % len(OVERPASS)]
         try:
-            r = requests.post(url, data={"data": q}, timeout=300, headers={"User-Agent": "veronos-lead-finder/1.0"})
+            r = requests.post(url, data={"data": q}, timeout=min(300, max(60, time_left() - 360)),
+                              headers={"User-Agent": "veronos-lead-finder/1.0"})
             if r.status_code == 200:
                 return r.json().get("elements", [])
             log("overpass", url, r.status_code)
         except Exception as e:
             log("overpass error", url, str(e)[:120])
-        time.sleep(20 + attempt * 15)
+        time.sleep(min(20 + attempt * 15, max(0, time_left() - 480)))
     return None
 
 def norm_site(u):
@@ -327,6 +330,23 @@ def licence_pass(seen_ids, seen_domains, leads, seen_rows, budget_s):
     return checked
 
 # ---------------- run ----------------
+_FLUSHED = {"leads": 0, "seen": 0}
+def flush(leads, seen_rows, state):
+    """Write new leads to the CSV, record checked sites, save progress, post new leads to the sheet. Safe to call repeatedly."""
+    new_leads, new_seen = leads[_FLUSHED["leads"]:], seen_rows[_FLUSHED["seen"]:]
+    _FLUSHED["leads"], _FLUSHED["seen"] = len(leads), len(seen_rows)
+    if new_leads:
+        write = os.path.exists(OUT)
+        with open(OUT, "a", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=FIELDS)
+            if not write: w.writeheader()
+            w.writerows(new_leads)
+    if new_seen: append_seen(new_seen)
+    save_state(state)
+    added = post_to_sheet(new_leads) if new_leads else 0
+    log(f"saved {len(new_leads)} leads, sheet added {added}")
+    return added
+
 def main():
     state = load_state(); plan = steps()
     seen_ids, seen_domains = load_seen()
@@ -334,7 +354,8 @@ def main():
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     # Source 2 first (it finds far more), then OpenStreetMap with the time that's left.
     checked += licence_pass(seen_ids, seen_domains, leads, seen_rows, CFG.get("licence_minutes", 34) * 60)
-    while len(leads) < CFG["daily_target"] and time_left() > 240:
+    posted = flush(leads, seen_rows, state)  # checkpoint: licence leads are safe in the sheet before the map part starts
+    while len(leads) < CFG["daily_target"] and time_left() > 360:
         if state["step"] >= len(plan):
             log("All provinces and categories done. Add categories or reset state/progress.json."); break
         prov, group = plan[state["step"]]
@@ -361,14 +382,7 @@ def main():
             state["step"] += 1; state["pool"] = []
         save_state(state)
         if not batch: continue
-    write = os.path.exists(OUT)
-    with open(OUT, "a", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=FIELDS)
-        if not write: w.writeheader()
-        w.writerows(leads)
-    append_seen(seen_rows)
-    save_state(state)
-    sheet_added = post_to_sheet(leads)
+    sheet_added = posted + flush(leads, seen_rows, state)
     summary = {"date": TODAY, "checked": checked, "leads": len(leads), "step": state["step"], "of": len(plan),
                "at": plan[min(state["step"], len(plan) - 1)], "minutes": round((time.time() - START) / 60, 1), "sheet_added": sheet_added}
     json.dump(summary, open(os.path.join(ROOT, "state", "last_run.json"), "w"), indent=1)
