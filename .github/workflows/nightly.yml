@@ -3,7 +3,12 @@ name: Nightly lead finder (Canada)
 on:
   schedule:
     - cron: "17 8 * * *"   # about 1:17 AM Edmonton (MST) every day
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      test_leads:
+        description: "Quick test: stop after this many leads (leave empty for a full run)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -26,6 +31,7 @@ jobs:
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+          TEST_LEADS: ${{ github.event.inputs.test_leads }}
         run: python finder.py
       - name: Save results
         if: always()

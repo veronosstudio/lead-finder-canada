@@ -18,6 +18,8 @@ import requests
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 CFG = json.load(open(os.path.join(ROOT, "config.json")))
+if os.environ.get("TEST_LEADS", "").strip().isdigit():  # quick test run: stop after N leads (manual runs only)
+    CFG["daily_target"] = int(os.environ["TEST_LEADS"]); CFG["licence_minutes"] = 12
 STATE = os.path.join(ROOT, "state", "progress.json")
 SEEN = os.path.join(ROOT, "data", "seen.csv")
 TODAY = dt.date.today().isoformat()
