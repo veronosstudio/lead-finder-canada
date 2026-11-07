@@ -147,7 +147,7 @@ def candidates(elements, province, group, seen_ids, seen_domains):
 
 # ---------------- 2. how dated is the site ----------------
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
-JUNK_EMAIL = ("example.", "sentry", "wixpress", "domain.com", "email.com", "yourname", "name@", "user@", "@2x",
+JUNK_EMAIL = ("example.", "sample@", "test@", "youremail", "your@", "email@", "johndoe", "janedoe", "john.doe", "mysite", "yoursite", "placeholder", "sentry", "wixpress", "domain.com", "email.com", "yourname", "name@", "user@", "@2x",
               ".png", ".jpg", ".gif", ".webp", ".svg", "godaddy", "squarespace", "noreply", "no-reply")
 FREE_MAIL = ("gmail.com", "hotmail.com", "outlook.com", "yahoo.", "telus.net", "telusplanet.net", "shaw.ca",
              "live.com", "live.ca", "icloud.com", "me.com", "sasktel.net", "mts.net", "eastlink.ca", "bell.net",
