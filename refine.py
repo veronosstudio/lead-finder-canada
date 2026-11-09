@@ -31,7 +31,7 @@ SERVICES = {
     "architect":      (r"architect", 0.85, '["office"="architect"]'),
     "insurance":      (r"insurance", 0.7, '["office"="insurance"]'),
     "realtor":        (r"realt|real estate|estate_agent", 0.7, '["office"="estate_agent"]'),
-    "landscaper":     (r"landscap|lawn|garden(er|ing)|tree (service|care)|snow removal|irrigation", 0.85, '["craft"~"^(gardener|landscaper)$"]'),
+    "landscaper":     (r"landscap|lawn|yard|garden(er|ing)|tree (service|care)|snow removal|irrigation", 0.85, '["craft"~"^(gardener|landscaper)$"]'),
     "painter":        (r"paint(er|ing)", 0.75, '["craft"="painter"]'),
     "flooring":       (r"floor|carpet|tile|tiler|hardwood", 0.8, '["shop"="flooring"]'),
     "windows":        (r"window|glass|glazi|door", 0.8, '["craft"~"^(glaziery|window_construction)$"]'),
@@ -48,11 +48,14 @@ SERVICES = {
     "pet":            (r"\bpet\b|groom|kennel|veterin", 0.55, '["shop"="pet"]'),
     "bicycle":        (r"bicycle|bike", 0.5, '["shop"="bicycle"]'),
     "hardware":       (r"hardware|doityourself", 0.6, '["shop"~"^(hardware|doityourself)$"]'),
+    "pest":           (r"pest|exterminat|termite|bed ?bug", 0.75, '["craft"="pest_control"]'),
+    "dry_cleaner":    (r"dry ?clean|laundr|tailor", 0.4, '["shop"~"^(dry_cleaning|laundry)$"]'),
+    "moving":         (r"\bmov(ing|ers)\b|junk|haul|bin clean|disposal", 0.6, '["office"="moving_company"]'),
     "church":         (r"church|place_of_worship|chapel|parish|ministr|fellowship|congregation", 0.5,
                        '["amenity"="place_of_worship"]["religion"="christian"]'),
 }
 # order matters: more specific first
-ORDER = ["auto_body", "tires", "dentist", "chiropractor", "physio", "optometrist", "lawyer", "accountant", "architect", "insurance",
+ORDER = ["pest", "dry_cleaner", "moving", "auto_body", "tires", "dentist", "chiropractor", "physio", "optometrist", "lawyer", "accountant", "architect", "insurance",
          "realtor", "roofer", "plumber", "electrician", "hvac", "landscaper", "painter", "flooring", "windows", "cleaner", "locksmith",
          "welding", "renovation", "auto_repair", "hair", "beauty", "massage", "tattoo", "florist", "furniture", "jewelry", "pet",
          "bicycle", "hardware", "church"]

@@ -1,12 +1,3 @@
 service,town,province,business,website,domain,lat,lon,good,quality,checked
-cleaner,calgary,AB,Hellamaid Cleaning Services Calgary,https://hellamaid.ca/house-cleaning-services-calgary/,hellamaid.ca,51.0441748,-114.0818814,1,19,2026-11-09
-cleaner,calgary,AB,Maids in Pink,https://maidsinpink.ca,maidsinpink.ca,51.0671947,-114.0825168,1,13,2026-11-09
-cleaner,calgary,AB,Services Pro,https://servicespro.ca/,servicespro.ca,51.0753644,-114.0116779,0,0,2026-11-09
-cleaner,calgary,AB,Peregrine General Pest Control Inc.,https://www.peregrinepestcontrol.ca/,peregrinepestcontrol.ca,50.9923157,-114.0645508,1,16,2026-11-09
-cleaner,calgary,AB,Ritz Dry Cleaners,https://ritzdrycleaner.com,ritzdrycleaner.com,51.0707902,-113.980886,0,0,2026-11-09
-cleaner,calgary,AB,Ram Cleaning Services,https://www.ramservice.com/,ramservice.com,51.0847935,-113.9953516,0,0,2026-11-09
-cleaner,calgary,AB,CottageCare,https://cottagecare.com/locations/calgary-west/,cottagecare.com,51.1158268,-114.1806597,0,0,2026-11-09
-cleaner,calgary,AB,A Magic Wand,https://amagicwandcarpetcleaning.com,amagicwandcarpetcleaning.com,50.8887007,-114.0488318,1,16,2026-11-09
-cleaner,calgary,AB,Epic Bin Cleaning and Pressure Washing Services,https://epicbins.ca,epicbins.ca,51.0093119,-113.7806062,0,0,2026-11-09
 plumber,calgary,AB,ProStar Plumbing & Heating,https://prostarplumbing.ca/,prostarplumbing.ca,51.0380587,-114.1034336,1,16,2026-11-09
 plumber,calgary,AB,Pete the Plumber,https://www.petetheplumber.com/,petetheplumber.com,50.9524323,-113.9706417,1,16,2026-11-09

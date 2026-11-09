@@ -94,6 +94,11 @@ out tags center 40;"""
         t = e.get("tags", {}); name = (t.get("name") or "").strip()
         site = finder.norm_site(t.get("website") or t.get("contact:website"))
         if not name or not site or t.get("brand") or t.get("brand:wikidata") or R.is_chain(name): continue
+        other = R.service_of("", name)
+        if other and other != service: continue                  # e.g. a pest-control company tagged as "cleaning"
+        path = site.split("//", 1)[-1].split("/", 1)[1].lower() if "/" in site.split("//", 1)[-1] else ""
+        if "location" in path or norm_town(town).replace(" ", "-") in path or norm_town(town).replace(" ", "") in path:
+            continue                                               # a city page on a multi-city brand's site, not a local business
         d = finder.domain(site)
         if not d or d in seen or d in exclude_domains or any(b in site.lower() for b in finder.BAD_HOSTS): continue
         seen.add(d)
