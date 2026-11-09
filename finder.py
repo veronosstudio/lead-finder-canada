@@ -19,7 +19,7 @@ import requests
 ROOT = os.path.dirname(os.path.abspath(__file__))
 CFG = json.load(open(os.path.join(ROOT, "config.json")))
 if os.environ.get("TEST_LEADS", "").strip().isdigit():  # quick test run: stop after N leads (manual runs only)
-    CFG["daily_target"] = int(os.environ["TEST_LEADS"]); CFG["licence_minutes"] = 12
+    CFG["daily_target"] = int(os.environ["TEST_LEADS"]); CFG["licence_minutes"] = 12; CFG["competitor_minutes"] = 4
 STATE = os.path.join(ROOT, "state", "progress.json")
 SEEN = os.path.join(ROOT, "data", "seen.csv")
 TODAY = dt.date.today().isoformat()
@@ -35,7 +35,11 @@ def fp(x):
     import hashlib
     return hashlib.sha256(x.strip().lower().encode()).hexdigest()[:20]
 FIELDS = ["date", "business", "category", "town", "province", "website", "email", "email_source", "phone",
-          "text_line", "dated_score", "why_dated", "osm_id"]
+          "text_line", "dated_score", "why_dated", "osm_id", "service", "first_name", "score", "score_parts", "tier",
+          "competitor", "competitor_site"]
+import refine as R
+if os.path.exists(OUT) and open(OUT).readline().strip().split(",") != FIELDS:  # header changed today: start a second file
+    OUT = os.path.join(ROOT, "leads", f"{TODAY}-v2.csv")
 
 def log(*a):
     print(f"[{int(time.time()-START):>5}s]", *a, flush=True)
@@ -141,6 +145,7 @@ def candidates(elements, province, group, seen_ids, seen_domains):
             "website": norm_site(t.get("website") or t.get("contact:website")), "domain": d,
             "phone": t.get("phone") or t.get("contact:phone", ""),
             "osm_email": t.get("email") or t.get("contact:email", ""),
+            "lat": e.get("lat") or (e.get("center") or {}).get("lat", ""), "lon": e.get("lon") or (e.get("center") or {}).get("lon", ""),
         })
     random.shuffle(out)
     return out
@@ -236,6 +241,8 @@ def check(c):
         if domain(r.url) != c["domain"] and any(b in r.url for b in BAD_HOSTS):
             return c, "redirects-away", None
         pts, why = score(html, r.url, https_ok)
+        if R.is_chain(c["business"], html):
+            return c, "chain", None
         if pts < CFG["min_dated_score"]:
             return c, f"modern({pts})", None
         emails, src = emails_from(html, c["domain"]), r.url
@@ -260,15 +267,79 @@ def check(c):
         if fp(c["domain"]) in CONTACTED or any(fp(e) in CONTACTED for e in emails):
             return c, "already-contacted", None
         own = [e for e in emails if e.endswith(c["domain"])]
-        best = (own or emails)[0]
+        best = sorted(own or emails, key=lambda e: not R.personal_email(e))[0]   # a person's address beats info@
+        why_s = "; ".join(why) + (f"; licensed since {c['since']}" if c.get("since") else "")
+        title = (re.search(r"<title[^>]*>([^<]{0,200})", html, re.I) or [None, ""])[1]
+        plain = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)[\s\S]*?</\1>", " ", html))
+        svc = R.service_of(c["category"], c["business"], title)
+        fname = R.first_name(best, plain)
+        sig = R.site_signals(html)
+        total, parts = R.score(why_s, svc, c.get("since", ""), sig, "", best, fname, c["phone"], c["category"])
+        tier = R.tier_of(total, parts["need"])
+        if tier == "skip":
+            return c, f"weak({total})", None
         return c, "LEAD", {"date": TODAY, "business": c["business"], "category": c["category"], "town": c["town"],
                            "province": c["province"], "website": r.url, "email": best, "email_source": src,
-                           "phone": c["phone"], "text_line": txt, "dated_score": pts, "why_dated": "; ".join(why), "osm_id": c["osm_id"]}
+                           "phone": c["phone"], "text_line": txt, "dated_score": pts, "why_dated": why_s, "osm_id": c["osm_id"],
+                           "service": svc, "first_name": fname, "score": total,
+                           "score_parts": " ".join(f"{k}={v}" for k, v in parts.items()), "tier": tier,
+                           "competitor": "", "competitor_site": "", "_lat": c.get("lat", ""), "_lon": c.get("lon", "")}
     except Exception as e:
         return c, "error:" + type(e).__name__, None
 
 # ---------------- Google Sheet ----------------
 DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWsFlBCrg-7bWt35pbDLNzHY3_8mudPtmr8jBnKWUcgnBVcM6iWXhEu-OmsYO7Z14d/exec"
+
+def sheet_creds():
+    clean = lambda v: (v or "").strip().strip('"').strip("'").strip()
+    url, token = clean(os.environ.get("SHEET_URL")), clean(os.environ.get("SHEET_TOKEN"))
+    m = re.search(r"macros/s/([A-Za-z0-9_-]{20,})", url)
+    return (f"https://script.google.com/macros/s/{m.group(1)}/exec" if m else DEFAULT_SHEET_URL), token
+
+def sheet_get(status="new", limit=5000):
+    url, token = sheet_creds()
+    if not token: return []
+    try:
+        return requests.get(url, params={"token": token, "status": status, "limit": limit}, timeout=120).json().get("rows", [])
+    except Exception as e:
+        log("sheet read failed:", str(e)[:120]); return []
+
+def sheet_update(updates):
+    url, token = sheet_creds()
+    if not token or not updates: return 0
+    done = 0
+    for i in range(0, len(updates), 300):
+        try:
+            j = requests.post(url, data=json.dumps({"token": token, "action": "update", "updates": updates[i:i + 300]}),
+                              headers={"Content-Type": "application/json"}, timeout=300).json()
+            done += j.get("updated", 0)
+            if not j.get("ok"): log("sheet refused update:", str(j.get("error"))[:80])
+        except Exception as e:
+            log("sheet update failed:", str(e)[:150])
+    return done
+
+def parse_parts(s):
+    return {k: int(v) for k, v in re.findall(r"(\w+)=(\d+)", s or "")}
+
+def competitor_step(leads, budget_s):
+    """Give contacts (tonight's + the sheet's backlog) an exact competitor with a genuinely good site; re-score them."""
+    import competitors as C
+    rows = {l["osm_id"]: l for l in leads if l.get("service")}
+    for r in sheet_get("new", 5000):
+        if r.get("service") and not r.get("competitor") and r.get("tier") in ("A+", "A", "B") and r["osm_id"] not in rows:
+            rows[r["osm_id"]] = r
+    contacts = sorted(rows.values(), key=lambda r: -int(r.get("score") or 0))
+    if not contacts: return 0
+    found = C.match(contacts, sys.modules[__name__], budget_s, log)
+    ups = []
+    for oid, (name, site) in found.items():
+        parts = parse_parts(rows[oid].get("score_parts")); parts["pressure"] = 15
+        total = sum(parts.values())
+        ups.append({"osm_id": oid, "competitor": name, "competitor_site": site, "score": total,
+                    "score_parts": " ".join(f"{k}={v}" for k, v in parts.items()), "tier": R.tier_of(total, parts.get("need", 0))})
+    n = sheet_update(ups)
+    log(f"competitors: sheet updated {n}")
+    return n
 
 def post_to_sheet(leads):
     clean = lambda v: (v or "").strip().strip('"').strip("'").strip()
@@ -314,9 +385,9 @@ def licence_pass(seen_ids, seen_domains, leads, seen_rows, budget_s):
         d = domain(site)
         if d in seen_domains or fp(d) in CONTACTED: return b, d, "already-seen", None
         c = {"osm_id": b["key"], "business": b["name"].title() if b["name"].isupper() else b["name"], "category": b["cat"],
-             "town": b["city"], "province": L.PROVINCE.get(b["city"], ""), "website": site, "domain": d, "phone": "", "osm_email": ""}
+             "town": b["city"], "province": L.PROVINCE.get(b["city"], ""), "website": site, "domain": d, "phone": "", "osm_email": "",
+             "since": b["since"]}
         _, res, lead = check(c)
-        if lead and b["since"]: lead["why_dated"] += f"; licensed since {b['since']}"
         return b, d, res, lead
     i = 0
     with ThreadPoolExecutor(CFG.get("licence_workers", 32)) as ex:
@@ -341,12 +412,12 @@ def flush(leads, seen_rows, state):
     if new_leads:
         write = os.path.exists(OUT)
         with open(OUT, "a", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=FIELDS)
+            w = csv.DictWriter(f, fieldnames=FIELDS, extrasaction="ignore")
             if not write: w.writeheader()
             w.writerows(new_leads)
     if new_seen: append_seen(new_seen)
     save_state(state)
-    added = post_to_sheet(new_leads) if new_leads else 0
+    added = post_to_sheet([{k: v for k, v in l.items() if not k.startswith("_")} for l in new_leads]) if new_leads else 0
     log(f"saved {len(new_leads)} leads, sheet added {added}")
     return added
 
@@ -358,7 +429,8 @@ def main():
     # Source 2 first (it finds far more), then OpenStreetMap with the time that's left.
     checked += licence_pass(seen_ids, seen_domains, leads, seen_rows, CFG.get("licence_minutes", 34) * 60)
     posted = flush(leads, seen_rows, state)  # checkpoint: licence leads are safe in the sheet before the map part starts
-    while len(leads) < CFG["daily_target"] and time_left() > 360:
+    reserve = 0 if os.environ.get("TEST_LEADS") else CFG.get("competitor_minutes", 12) * 60
+    while len(leads) < CFG["daily_target"] and time_left() > 360 + reserve:
         if state["step"] >= len(plan):
             log("All provinces and categories done. Add categories or reset state/progress.json."); break
         prov, group = plan[state["step"]]
@@ -386,6 +458,8 @@ def main():
         save_state(state)
         if not batch: continue
     sheet_added = posted + flush(leads, seen_rows, state)
+    if time_left() > 180:
+        competitor_step(leads, min(CFG.get("competitor_minutes", 12) * 60, time_left() - 120))
     summary = {"date": TODAY, "checked": checked, "leads": len(leads), "step": state["step"], "of": len(plan),
                "at": plan[min(state["step"], len(plan) - 1)], "minutes": round((time.time() - START) / 60, 1), "sheet_added": sheet_added}
     json.dump(summary, open(os.path.join(ROOT, "state", "last_run.json"), "w"), indent=1)

@@ -99,12 +99,13 @@
     "fix auto",
     "maaco"
   ],
-  "licence_minutes": 34,
+  "licence_minutes": 28,
   "licence_workers": 32,
   "licence_sources": [
     "calgary",
     "edmonton",
     "red_deer",
     "vancouver"
-  ]
+  ],
+  "competitor_minutes": 12
 }

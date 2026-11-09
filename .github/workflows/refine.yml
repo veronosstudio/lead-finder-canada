@@ -1,0 +1,36 @@
+name: Upgrade existing contacts (score + competitors)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: finder
+  cancel-in-progress: false
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 62
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Upgrade contacts
+        env:
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+        run: python refine_existing.py
+      - name: Save competitor pool
+        if: always()
+        run: |
+          git config user.name "veronos-finder"
+          git config user.email "finder@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Competitor pool $(date -u +%F)"
+          git pull --rebase -q || true
+          git push
