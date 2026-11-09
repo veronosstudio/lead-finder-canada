@@ -1,1 +1,283 @@
 service,town,province,business,website,domain,lat,lon,good,quality,checked
+renovation,edmonton,AB,Cash In Time,https://cashintime.ca,cashintime.ca,,,0,0,2026-11-09
+renovation,edmonton,AB,Sure-Form Contracting,https://sureform.ca,sureform.ca,,,0,0,2026-11-09
+renovation,edmonton,AB,Alltron Systems,https://alltronsystems.com,alltronsystems.com,,,0,0,2026-11-09
+renovation,edmonton,AB,Top Tech Mechanical Ltd,https://toptechmechanical.com,toptechmechanical.com,,,0,0,2026-11-09
+renovation,edmonton,AB,Triad Electric Ltd,https://triadelectricltd.ca,triadelectricltd.ca,,,0,0,2026-11-09
+renovation,edmonton,AB,Triton Power Wash,https://tritonpowerwash.ca,tritonpowerwash.ca,,,0,0,2026-11-09
+renovation,edmonton,AB,Pk Builders Inc,https://pkbuilders.ca,pkbuilders.ca,,,0,0,2026-11-09
+renovation,edmonton,AB,Underpressure Welding,https://underpressurewelding.com,underpressurewelding.com,,,0,0,2026-11-09
+dealership,calgary,AB,Ski West,https://skiwest.ca,skiwest.ca,,,1,16,2026-11-09
+dealership,calgary,AB,Fish Tales Fly Shop,https://fishtalesflyshop.com,fishtalesflyshop.com,,,0,0,2026-11-09
+dealership,calgary,AB,Prestige Dance Academy,https://prestigedance.com,prestigedance.com,,,0,0,2026-11-09
+dealership,calgary,AB,Heritage Funeral Home,https://heritagecares.com,heritagecares.com,,,0,0,2026-11-09
+dealership,calgary,AB,Enmax,https://enmax.com,enmax.com,,,1,16,2026-11-09
+dealership,calgary,AB,Pet Planet,https://petplanet.ca,petplanet.ca,,,0,0,2026-11-09
+dealership,calgary,AB,Toyota,https://toyota.ca,toyota.ca,,,1,13,2026-11-09
+dealership,calgary,AB,Children'S Place (The),https://childrens.net,childrens.net,,,1,13,2026-11-09
+auto_repair,calgary,AB,Canyon Meadows Auto Service,https://canyonmeadowsauto.com,canyonmeadowsauto.com,,,1,19,2026-11-09
+auto_repair,calgary,AB,41St Auto,https://41stauto.ca,41stauto.ca,,,0,0,2026-11-09
+auto_repair,calgary,AB,Bates Mechanical,https://batesmechanical.ca,batesmechanical.ca,,,0,0,2026-11-09
+auto_repair,calgary,AB,Allmakes Auto Repairs,https://allmakesautorepairs.com,allmakesautorepairs.com,,,0,0,2026-11-09
+auto_repair,calgary,AB,Gigantelli Auto Services,https://gigantelliautoservices.ca,gigantelliautoservices.ca,,,0,0,2026-11-09
+auto_repair,calgary,AB,Mri Auto Care,https://mriautocare.com,mriautocare.com,,,1,16,2026-11-09
+auto_repair,calgary,AB,Knibbe Automotive Repair,https://knibbeautomotive.com,knibbeautomotive.com,,,1,19,2026-11-09
+auto_repair,calgary,AB,All Auto Battery 2007,https://allautobattery2007.com,allautobattery2007.com,,,0,0,2026-11-09
+welding,edmonton,AB,Boreal Machine,https://borealmachine.com,borealmachine.com,,,0,0,2026-11-09
+welding,edmonton,AB,Oil City Machining Ltd,https://oilcitymachining.com,oilcitymachining.com,,,1,19,2026-11-09
+welding,edmonton,AB,Kernow Machining Services,https://kernow.ca,kernow.ca,,,0,0,2026-11-09
+welding,edmonton,AB,Sth Welding,https://sthwelding.com,sthwelding.com,,,0,0,2026-11-09
+welding,edmonton,AB,Nexus Cnc Machining Services,https://nexuscnc.com,nexuscnc.com,,,0,0,2026-11-09
+welding,edmonton,AB,Saturn Machine Works Ltd,https://saturnmachineworks.com,saturnmachineworks.com,,,0,0,2026-11-09
+welding,edmonton,AB,Dimension Machine Inc,https://dimensionmachine.com,dimensionmachine.com,,,1,16,2026-11-09
+welding,edmonton,AB,Maxum Machine & Manufacturing Ltd,https://maxummachine.ca,maxummachine.ca,,,0,0,2026-11-09
+renovation,calgary,AB,Collins Construction,https://collins-construction.net,collins-construction.net,,,0,0,2026-11-09
+renovation,calgary,AB,Tamarack Fine Woodwork & Construction,https://tamarackfinewoodwork.ca,tamarackfinewoodwork.ca,,,0,0,2026-11-09
+renovation,calgary,AB,Cf Construction,https://cfconstruction.ca,cfconstruction.ca,,,0,0,2026-11-09
+renovation,calgary,AB,Ekko Cabinetry,https://ekkocabinetry.com,ekkocabinetry.com,,,1,22,2026-11-09
+renovation,calgary,AB,Brentwood Custom Millwork,https://brentwood.ca,brentwood.ca,,,1,16,2026-11-09
+renovation,calgary,AB,Perfection Millwork,https://perfectionmillwork.com,perfectionmillwork.com,,,1,16,2026-11-09
+renovation,calgary,AB,Executive Millwork,https://executivemillwork.com,executivemillwork.com,,,1,18,2026-11-09
+renovation,calgary,AB,Ultimate Renovations,https://ultimaterenovations.com,ultimaterenovations.com,,,0,0,2026-11-09
+welding,calgary,AB,Novapro Machining,https://novapromachining.com,novapromachining.com,,,1,13,2026-11-09
+welding,calgary,AB,Aaron Machine Shop,https://aaronmachineshop.com,aaronmachineshop.com,,,1,16,2026-11-09
+welding,calgary,AB,Metro Machine Works,https://metromachineworks.ca,metromachineworks.ca,,,1,13,2026-11-09
+welding,calgary,AB,Aero-Tech Machining,https://aerotechmachining.ca,aerotechmachining.ca,,,0,0,2026-11-09
+welding,calgary,AB,Stalwart Machining Services,https://stalwartmachining.ca,stalwartmachining.ca,,,0,0,2026-11-09
+welding,calgary,AB,Alpek Machine Works,https://alpekmachineworks.com,alpekmachineworks.com,,,0,0,2026-11-09
+welding,calgary,AB,Glenmore Fabricators,https://glenmorefabricators.com,glenmorefabricators.com,,,0,0,2026-11-09
+welding,calgary,AB,Pacific Stone Fabrication,https://pacificstone.ca,pacificstone.ca,,,0,0,2026-11-09
+massage,calgary,AB,Coach Hill Chiropractic And Sports Therapy Clinic,https://encompasscalgary.com,encompasscalgary.com,,,0,0,2026-11-09
+massage,calgary,AB,Acupuncture & Health Group,https://acupuncturehealthcalgary.com,acupuncturehealthcalgary.com,,,0,0,2026-11-09
+massage,calgary,AB,Natural Art Of Skin Care (The),https://thenaturalartofskincare.ca,thenaturalartofskincare.ca,,,0,0,2026-11-09
+massage,calgary,AB,Essential Health Massage Centre,https://essentialhealthcalgary.com,essentialhealthcalgary.com,,,0,0,2026-11-09
+massage,calgary,AB,Dr For Moms Wellness Center,https://drformoms.com,drformoms.com,,,0,0,2026-11-09
+massage,calgary,AB,Strive Physiotherapy,https://strivephysiotherapy.ca,strivephysiotherapy.ca,,,0,0,2026-11-09
+massage,calgary,AB,Calgary Winter Club*,https://calgarywinterclub.com,calgarywinterclub.com,,,0,0,2026-11-09
+massage,calgary,AB,Vicars School Of Massage Therapy,https://vicarsschool.com,vicarsschool.com,,,1,16,2026-11-09
+insurance,vancouver,BC,,,,,,0,0,2026-11-09
+roofer,calgary,AB,Bricor Roofing,https://bricorroofing.com,bricorroofing.com,,,1,16,2026-11-09
+roofer,calgary,AB,Peter Ross Roofing,https://peterrossgroup.com,peterrossgroup.com,,,0,0,2026-11-09
+roofer,calgary,AB,Central Roofing,https://centralroofingcalgary.org,centralroofingcalgary.org,,,0,0,2026-11-09
+roofer,calgary,AB,Epic Roofing & Exteriors,https://epicroofing.ca,epicroofing.ca,,,1,16,2026-11-09
+auto_repair,edmonton,AB,Best Buy Auto Direct,https://bestbuyautodirect.ca,bestbuyautodirect.ca,,,0,0,2026-11-09
+auto_repair,edmonton,AB,Cali Automotive,https://caliautomotive.com,caliautomotive.com,,,0,0,2026-11-09
+auto_repair,edmonton,AB,Action Auto & Custom Exhaust,https://actionauto.ca,actionauto.ca,,,0,0,2026-11-09
+auto_repair,edmonton,AB,Optimum Auto Service Corp,https://optimumautoservice.net,optimumautoservice.net,,,0,0,2026-11-09
+auto_repair,edmonton,AB,Keystone Automotive Industries On Inc,https://lkqcorp.com,lkqcorp.com,,,0,0,2026-11-09
+auto_repair,edmonton,AB,Mcmath Controls And Automation Inc,https://mcmathcontrols.com,mcmathcontrols.com,,,0,0,2026-11-09
+auto_repair,edmonton,AB,Cars Clinic Auto Repair,https://carsclinic.net,carsclinic.net,,,1,15,2026-11-09
+auto_repair,edmonton,AB,Delta Automotive,https://deltaautomotive.ca,deltaautomotive.ca,,,1,13,2026-11-09
+auto_body,calgary,AB,Renu Auto Appearance,https://renuauto.ca,renuauto.ca,,,0,0,2026-11-09
+auto_body,calgary,AB,Great West Kenworth,https://greatwestkenworth.ca,greatwestkenworth.ca,,,0,0,2026-11-09
+auto_body,calgary,AB,International Exotic Cars Import & Export,https://internationalexoticcars.ca,internationalexoticcars.ca,,,0,0,2026-11-09
+auto_body,calgary,AB,Feliks Auto Body,https://feliksautobody.com,feliksautobody.com,,,0,0,2026-11-09
+auto_body,calgary,AB,Bumper Medic,https://bumpermedicinc.ca,bumpermedicinc.ca,,,1,16,2026-11-09
+auto_body,calgary,AB,Calgary Peterbilt,https://peterbiltofsouthernalberta.com,peterbiltofsouthernalberta.com,,,1,13,2026-11-09
+auto_body,calgary,AB,Dilawri Collision Centre,https://dilawri.ca,dilawri.ca,,,1,18,2026-11-09
+auto_body,calgary,AB,Rig Pro Painting,https://rigpropainting.ca,rigpropainting.ca,,,0,0,2026-11-09
+windows,edmonton,AB,All Reach Glass Services Inc,https://allreachglass.com,allreachglass.com,,,1,13,2026-11-09
+windows,edmonton,AB,Alliance Door Products,https://alliancedoorproducts.com,alliancedoorproducts.com,,,0,0,2026-11-09
+windows,edmonton,AB,Top Shelf Closets & Glass,https://topshelfclosets.net,topshelfclosets.net,,,0,0,2026-11-09
+windows,edmonton,AB,Brite-View Glass,https://briteviewglass.com,briteviewglass.com,,,1,13,2026-11-09
+windows,edmonton,AB,All Weather Windows Commercial,https://allweatherathome.ca,allweatherathome.ca,,,0,0,2026-11-09
+windows,edmonton,AB,Supreme Windows & Doors (2005) Ltd,https://supremewindows.net,supremewindows.net,,,0,0,2026-11-09
+windows,edmonton,AB,All Weather Windows Commercial,https://allweatherathome.ca,allweatherathome.ca,,,0,0,2026-11-09
+furniture,calgary,AB,Bershars Enterprises,https://bershars.com,bershars.com,,,0,0,2026-11-09
+furniture,calgary,AB,Finishing Traditions,https://finishingtraditions.com,finishingtraditions.com,,,0,0,2026-11-09
+furniture,calgary,AB,Bentley'S Furniture Refinishing,https://bentleysfurniturerefinishing.ca,bentleysfurniturerefinishing.ca,,,0,0,2026-11-09
+hvac,calgary,AB,Chinook Refrigeration & Air Conditioning,https://chinookrefrigeration.com,chinookrefrigeration.com,,,0,0,2026-11-09
+hvac,calgary,AB,Expert Hvac Solutions,https://experthvac.ca,experthvac.ca,,,0,0,2026-11-09
+hvac,calgary,AB,Horizon Heating,https://horizonheating.ca,horizonheating.ca,,,1,19,2026-11-09
+hvac,calgary,AB,Refrigerative Supply,https://rsl.ca,rsl.ca,,,1,14,2026-11-09
+hvac,calgary,AB,Alaska Refrigeration & Air Conditioning,https://alaskarefrigeration.ca,alaskarefrigeration.ca,,,0,0,2026-11-09
+hvac,calgary,AB,Watson Refrigeration,https://watsonrefrigerationltd.com,watsonrefrigerationltd.com,,,0,0,2026-11-09
+hvac,calgary,AB,Fagnan'S Furnace Service,https://fagnansfurnace.ca,fagnansfurnace.ca,,,0,0,2026-11-09
+hvac,calgary,AB,"Arctic Air Refrigeration, Air Conditioning & Heating",https://arcticair.ca,arcticair.ca,,,0,0,2026-11-09
+cleaner,calgary,AB,Newtons Fine Drycleaning,https://newtonsfinedrycleaning.ca,newtonsfinedrycleaning.ca,,,0,0,2026-11-09
+cleaner,calgary,AB,Unifirst Canada,https://unifirst.ca,unifirst.ca,,,1,16,2026-11-09
+cleaner,calgary,AB,White Spot Janitorial Services,https://whitespotjanitorial.com,whitespotjanitorial.com,,,1,16,2026-11-09
+cleaner,calgary,AB,Alberta Building Maintenance,https://albertabuildingmaintenance.com,albertabuildingmaintenance.com,,,0,0,2026-11-09
+cleaner,calgary,AB,Hallmark Housekeeping Services,https://hallmarkclean.com,hallmarkclean.com,,,0,0,2026-11-09
+cleaner,calgary,AB,Servicemaster Of Calgary,https://servicemastercalgary.com,servicemastercalgary.com,,,0,0,2026-11-09
+cleaner,calgary,AB,Cintas,https://cintas.ca,cintas.ca,,,0,0,2026-11-09
+cleaner,calgary,AB,Extreme Quality Restoration,https://extremequality.ca,extremequality.ca,,,0,0,2026-11-09
+windows,calgary,AB,Aurora Window Systems,https://aurorawindowsystems.ca,aurorawindowsystems.ca,,,0,0,2026-11-09
+windows,calgary,AB,Crystal Glass,https://crystalglass.ca,crystalglass.ca,,,1,19,2026-11-09
+windows,calgary,AB,Metro Glass & Aluminum Products,https://metroglass.ca,metroglass.ca,,,0,0,2026-11-09
+windows,calgary,AB,Creative Door Services,https://creativedoor.com,creativedoor.com,,,0,0,2026-11-09
+windows,calgary,AB,Easy Auto Glass,https://easyautoglass.ca,easyautoglass.ca,,,1,19,2026-11-09
+windows,calgary,AB,Alpine Glass,https://alpineglass.ca,alpineglass.ca,,,0,0,2026-11-09
+windows,calgary,AB,Lux Windows And Glass,https://luxwindows.com,luxwindows.com,,,0,0,2026-11-09
+windows,calgary,AB,Western Window Coverings,https://thepaintpros.ca,thepaintpros.ca,,,1,13,2026-11-09
+church,calgary,AB,Crossings Dance Ministries,https://crossingsdance.com,crossingsdance.com,,,0,0,2026-11-09
+accountant,edmonton,AB,Pal Accounting,https://palaccounting.ca,palaccounting.ca,,,0,0,2026-11-09
+accountant,edmonton,AB,Capital Accounting Services Ltd,https://capitalaccounting.ca,capitalaccounting.ca,,,0,0,2026-11-09
+accountant,edmonton,AB,Alberta Tax Service,https://taxrush.ca,taxrush.ca,,,1,13,2026-11-09
+landscaper,calgary,AB,Foothills Landscaping,https://foothillslandscaping.ca,foothillslandscaping.ca,,,0,0,2026-11-09
+landscaper,calgary,AB,Clintar Landscape Management,https://clintar.com,clintar.com,,,0,0,2026-11-09
+landscaper,calgary,AB,Alpha Better Landscaping,https://alphabetter.ca,alphabetter.ca,,,1,13,2026-11-09
+landscaper,calgary,AB,J V R Landscape,https://jvrlandscape.com,jvrlandscape.com,,,0,0,2026-11-09
+landscaper,calgary,AB,Lawns Etc,https://lawnsetc.net,lawnsetc.net,,,0,0,2026-11-09
+landscaper,calgary,AB,Adair Tree Care,https://adairtreecare.com,adairtreecare.com,,,1,13,2026-11-09
+dentist,calgary,AB,Orthocraft Dental Lab,https://orthocraft.ca,orthocraft.ca,,,0,0,2026-11-09
+hair,edmonton,AB,Echo Hair Design,https://echohairdesign.com,echohairdesign.com,,,0,0,2026-11-09
+hair,edmonton,AB,Johnnie Barber Shop,https://johnniebarbershop.ca,johnniebarbershop.ca,,,0,0,2026-11-09
+hair,edmonton,AB,Mr. Barber Shop,https://mrbarber.ca,mrbarber.ca,,,0,0,2026-11-09
+hair,edmonton,AB,Rain Salon & Spa Inc.,https://rainsalon.ca,rainsalon.ca,,,1,16,2026-11-09
+hair,edmonton,AB,Gentlemens Barbershop,https://gentlemensbarbershop.ca,gentlemensbarbershop.ca,,,1,19,2026-11-09
+hair,edmonton,AB,Hizkel Barbershop,https://hizkelbarbershop.com,hizkelbarbershop.com,,,0,0,2026-11-09
+hair,edmonton,AB,Kinetic Salon,https://kineticsalon.com,kineticsalon.com,,,1,16,2026-11-09
+hair,edmonton,AB,Matrix Hair & Esthetics,https://matrixhair.ca,matrixhair.ca,,,0,0,2026-11-09
+dentist,edmonton,AB,Mira Dental Laboratory Ltd,https://sites.google.com,sites.google.com,,,0,0,2026-11-09
+dentist,edmonton,AB,Oasis Dental Lab,https://oasisdental.ca,oasisdental.ca,,,1,16,2026-11-09
+beauty,vancouver,BC,,,,,,0,0,2026-11-09
+optometrist,vancouver,BC,,,,,,0,0,2026-11-09
+auto_repair,surrey,BC,,,,,,0,0,2026-11-09
+chiropractor,richmond,BC,,,,,,0,0,2026-11-09
+electrician,coquitlam,BC,,,,,,0,0,2026-11-09
+accountant,swan river,MB,,,,,,0,0,2026-11-09
+pet,edmonton,AB,Homes Alive Pet Centre,https://homesalive.ca,homesalive.ca,,,0,0,2026-11-09
+pet,edmonton,AB,Global Pet Foods #317,https://globalpetfoods.com,globalpetfoods.com,,,0,0,2026-11-09
+pet,edmonton,AB,Teacher'S Pet,https://teacherspet.net,teacherspet.net,,,0,0,2026-11-09
+pet,edmonton,AB,Happy Paws Dog Grooming,https://happypaws.com,happypaws.com,,,1,18,2026-11-09
+dentist,vancouver,BC,,,,,,0,0,2026-11-09
+auto_repair,chase,BC,,,,,,0,0,2026-11-09
+auto_repair,south taylor,BC,,,,,,0,0,2026-11-09
+tattoo,calgary,AB,Joker'S Tattoo & Body F/X,https://jokerstattoocalgary.com,jokerstattoocalgary.com,,,0,0,2026-11-09
+tattoo,calgary,AB,Eternal Image Tattoo,https://eternalimage.ca,eternalimage.ca,,,0,0,2026-11-09
+tattoo,calgary,AB,Angles Hair Design,https://angleshair.ca,angleshair.ca,,,0,0,2026-11-09
+tattoo,calgary,AB,Strange World Tattoo,https://strangeworldtattoo.ca,strangeworldtattoo.ca,,,0,0,2026-11-09
+tattoo,calgary,AB,Bushido,https://bushido.ca,bushido.ca,,,1,19,2026-11-09
+flooring,portage la prairie,MB,,,,,,0,0,2026-11-09
+auto_repair,portage la prairie,MB,,,,,,0,0,2026-11-09
+lawyer,langley,BC,,,,,,0,0,2026-11-09
+tires,calgary,AB,Tire Pirates Chinook,https://tirepirates.ca,tirepirates.ca,,,1,13,2026-11-09
+tires,calgary,AB,Pro Tire,https://protirecanada.com,protirecanada.com,,,0,0,2026-11-09
+tires,calgary,AB,Integra Tire & Auto Centre,https://integratire.com,integratire.com,,,0,0,2026-11-09
+tires,calgary,AB,Heritage Autopro Chinook/Napa Autopro/Tireland Auto Centre/Heritage Auto & Tire Chinook,https://heritageautopro.com,heritageautopro.com,,,0,0,2026-11-09
+tires,calgary,AB,Zee Tire Services,https://zeetire.com,zeetire.com,,,1,19,2026-11-09
+tires,calgary,AB,Heritage Auto & Tire Service,https://heritageauto.com,heritageauto.com,,,0,0,2026-11-09
+tires,calgary,AB,Tire Surplus,https://tiresurplus.ca,tiresurplus.ca,,,1,13,2026-11-09
+tires,calgary,AB,Integra Tire Douglasdale,https://integratiredouglasdale.ca,integratiredouglasdale.ca,,,0,0,2026-11-09
+plumber,calgary,AB,Canyon Plumbing & Heating*,https://canyonplumbing.com,canyonplumbing.com,,,1,16,2026-11-09
+plumber,calgary,AB,Neptune Plumbing & Heating,https://neptuneplumbing.ca,neptuneplumbing.ca,,,1,19,2026-11-09
+plumber,calgary,AB,Benner Plumbing & Heating,https://bennerplumbing.com,bennerplumbing.com,,,1,16,2026-11-09
+plumber,calgary,AB,Hoover Mechanical Plumbing & Heating,https://hoovermechanical.com,hoovermechanical.com,,,0,0,2026-11-09
+plumber,calgary,AB,Lone Star Plumbing,https://lonestarplumbing.ca,lonestarplumbing.ca,,,0,0,2026-11-09
+plumber,calgary,AB,Pete The Plumber,https://petetheplumber.com,petetheplumber.com,,,1,16,2026-11-09
+plumber,calgary,AB,Imagine Plumbing & Appliance,https://imagineplumbing.com,imagineplumbing.com,,,0,0,2026-11-09
+plumber,calgary,AB,Clearview Plumbing & Heating,https://clearviewplumbing.ca,clearviewplumbing.ca,,,1,16,2026-11-09
+dentist,chilliwack,BC,,,,,,0,0,2026-11-09
+church,port coquitlam,BC,,,,,,0,0,2026-11-09
+auto_repair,winnipeg,MB,,,,,,0,0,2026-11-09
+church,burnaby,BC,,,,,,0,0,2026-11-09
+insurance,calgary,AB,,,,,,0,0,2026-11-09
+realtor,langley,BC,,,,,,0,0,2026-11-09
+church,gabriola,BC,,,,,,0,0,2026-11-09
+physio,spruce grove,AB,,,,,,0,0,2026-11-09
+tires,edmonton,AB,T C Industrial Tire Ltd,https://tcindustrialtire.com,tcindustrialtire.com,,,1,16,2026-11-09
+tires,edmonton,AB,Kirk'S Tire,https://kirkstire.ca,kirkstire.ca,,,1,13,2026-11-09
+lawyer,delburne,AB,,,,,,0,0,2026-11-09
+church,st. albert,AB,,,,,,0,0,2026-11-09
+auto_repair,vancouver,BC,,,,,,0,0,2026-11-09
+auto_repair,coquitlam,BC,,,,,,0,0,2026-11-09
+auto_parts,calgary,AB,Westcan Recyclers,https://westcanrecyclers.com,westcanrecyclers.com,,,1,13,2026-11-09
+auto_parts,calgary,AB,Blackfoot Metals,https://blackfootmetals.ca,blackfootmetals.ca,,,0,0,2026-11-09
+auto_parts,calgary,AB,Cascades Recovery,https://cascades.com,cascades.com,,,0,0,2026-11-09
+auto_parts,calgary,AB,Federal Metals,https://federalmetals.ca,federalmetals.ca,,,0,0,2026-11-09
+auto_parts,calgary,AB,Recon Metal,https://reconmetal.com,reconmetal.com,,,0,0,2026-11-09
+beauty,edmonton,AB,Sephora Beauty Canada,https://ww1.sephorabeauty.com,ww1.sephorabeauty.com,,,0,0,2026-11-09
+beauty,edmonton,AB,Lash Up,https://lashup.ca,lashup.ca,,,0,0,2026-11-09
+beauty,edmonton,AB,Studio Nails Londonderry,https://studionailsedmonton.com,studionailsedmonton.com,,,0,0,2026-11-09
+beauty,edmonton,AB,Glamour Nails,https://glamour-nails.net,glamour-nails.net,,,1,16,2026-11-09
+beauty,edmonton,AB,Lipstick Empire Laserspa Ltd.,https://lipstickempire.ca,lipstickempire.ca,,,1,16,2026-11-09
+beauty,edmonton,AB,Binh'S Nails,https://binhsnails.com,binhsnails.com,,,1,13,2026-11-09
+beauty,edmonton,AB,Lasting Impressions Laser Spa Corp.,https://lastingimpressionslaser.ca,lastingimpressionslaser.ca,,,1,16,2026-11-09
+beauty,edmonton,AB,Flower Spirit Natural Beauty,https://flowerspiritnaturalbeauty.com,flowerspiritnaturalbeauty.com,,,1,18,2026-11-09
+bicycle,langley,BC,,,,,,0,0,2026-11-09
+moving,calgary,AB,Polejunkies,https://polejunkies.com,polejunkies.com,,,0,0,2026-11-09
+moving,calgary,AB,Buhlers Moving & Storage,https://buhlersmoving.ca,buhlersmoving.ca,,,1,13,2026-11-09
+moving,calgary,AB,Mid-West Moving And Storage Services,https://midwestmoving.ca,midwestmoving.ca,,,0,0,2026-11-09
+auto_body,edmonton,AB,City Collision,https://citycollision.ca,citycollision.ca,,,0,0,2026-11-09
+auto_body,edmonton,AB,Harry'S Auto Body,https://harrys.com,harrys.com,,,0,0,2026-11-09
+auto_body,edmonton,AB,Londonderry Collision & Paint,https://londonderrycollision.com,londonderrycollision.com,,,0,0,2026-11-09
+auto_body,edmonton,AB,O'Brian'S Place Collision Repairs,https://obriansplacecollision.ca,obriansplacecollision.ca,,,0,0,2026-11-09
+auto_body,edmonton,AB,Big Rig Collision,https://bigrig.ca,bigrig.ca,,,1,16,2026-11-09
+auto_body,edmonton,AB,Accord Collision & Painting Ltd,https://accordcollision.ca,accordcollision.ca,,,0,0,2026-11-09
+auto_body,edmonton,AB,Freeway Auto Body Ltd,https://freewayautobody.ca,freewayautobody.ca,,,1,13,2026-11-09
+flooring,calgary,AB,Magna Hardwood Floors International,https://magnahardwoodfloors.com,magnahardwoodfloors.com,,,1,13,2026-11-09
+flooring,calgary,AB,Hardwood Gallery & Design Center,https://hardwoodgallery.com,hardwoodgallery.com,,,1,13,2026-11-09
+flooring,calgary,AB,Lenbeth Weeping Tile,https://lenbeth.com,lenbeth.com,,,0,0,2026-11-09
+flooring,calgary,AB,Deerfoot Carpet & Flooring,https://deerfootcarpet.com,deerfootcarpet.com,,,1,16,2026-11-09
+flooring,calgary,AB,Floorscapes,https://floorscapes.net,floorscapes.net,,,1,19,2026-11-09
+flooring,calgary,AB,Porter Tile & Marble,https://portertile.com,portertile.com,,,0,0,2026-11-09
+flooring,calgary,AB,Alberta Marble & Tile Co,https://albertamarble.com,albertamarble.com,,,0,0,2026-11-09
+flooring,calgary,AB,Calgary Carpet Empire,https://carpetempire.ca,carpetempire.ca,,,1,19,2026-11-09
+accountant,vancouver,BC,,,,,,0,0,2026-11-09
+architect,vancouver,BC,,,,,,0,0,2026-11-09
+church,edmonton,AB,Edmonton City Centre Church,https://edmontoncitycentre.com,edmontoncitycentre.com,,,0,0,2026-11-09
+hvac,surrey,BC,,,,,,0,0,2026-11-09
+hvac,edmonton,AB,Brimstone Furnace Works,https://brimstonefurnace.com,brimstonefurnace.com,,,0,0,2026-11-09
+electrician,winnipeg,MB,,,,,,0,0,2026-11-09
+physio,fort st. john,BC,,,,,,0,0,2026-11-09
+florist,edmonton,AB,,,,,,0,0,2026-11-09
+lawyer,edmonton,AB,Outlaw Automation,https://outlaw.ca,outlaw.ca,,,0,0,2026-11-09
+hair,nanaimo,BC,,,,,,0,0,2026-11-09
+physio,calgary,AB,,,,,,0,0,2026-11-09
+flooring,vancouver,BC,,,,,,0,0,2026-11-09
+renovation,saskatoon,SK,,,,,,0,0,2026-11-09
+auto_repair,abbotsford,BC,,,,,,0,0,2026-11-09
+cleaner,edmonton,AB,Page The Cleaner,https://pagethecleaner.com,pagethecleaner.com,,,0,0,2026-11-09
+cleaner,edmonton,AB,Be Shine Cleaning Company Ltd,https://beshinecleaning.com,beshinecleaning.com,,,1,17,2026-11-09
+hair,calgary,AB,Rapunzel'S Hair & Esthetics,https://rapunzelshairsalonspa.ca,rapunzelshairsalonspa.ca,,,1,19,2026-11-09
+hair,calgary,AB,Razors Edge Barbershop,https://razorsedgecalgary.com,razorsedgecalgary.com,,,0,0,2026-11-09
+hair,calgary,AB,Mane House Of Hair,https://manehouseofhair.com,manehouseofhair.com,,,0,0,2026-11-09
+hair,calgary,AB,Vigi'S Hair,https://vigishair.com,vigishair.com,,,0,0,2026-11-09
+hair,calgary,AB,Artistic Hair Design,https://artistichairdesign.com,artistichairdesign.com,,,1,13,2026-11-09
+hair,calgary,AB,La Vie Nails & Hair,https://lavienailshair.com,lavienailshair.com,,,1,13,2026-11-09
+hair,calgary,AB,Robys Barber Shop,https://robysbarbershop.com,robysbarbershop.com,,,0,0,2026-11-09
+hair,calgary,AB,Purple Jade Hair Design,https://purplejade.ca,purplejade.ca,,,0,0,2026-11-09
+realtor,winnipeg,MB,,,,,,0,0,2026-11-09
+accountant,calgary,AB,,,,,,0,0,2026-11-09
+dentist,airdrie,AB,,,,,,0,0,2026-11-09
+beauty,fort st. john,BC,,,,,,0,0,2026-11-09
+church,heisler,AB,,,,,,0,0,2026-11-09
+lawyer,vancouver,BC,,,,,,0,0,2026-11-09
+locksmith,calgary,AB,Symphonic Integrated Security*,https://symphonic.ca,symphonic.ca,,,0,0,2026-11-09
+locksmith,calgary,AB,Dickson Security Systems*,https://dicksonsecuritysystems.ca,dicksonsecuritysystems.ca,,,0,0,2026-11-09
+locksmith,calgary,AB,Ae Security*,https://aesecurity.ca,aesecurity.ca,,,0,0,2026-11-09
+locksmith,calgary,AB,Paladin Security Group*,https://paladinsecurity.com,paladinsecurity.com,,,0,0,2026-11-09
+locksmith,calgary,AB,Impact Security Group,https://impactsecuritygroup.ca,impactsecuritygroup.ca,,,1,19,2026-11-09
+architect,manitou,MB,,,,,,0,0,2026-11-09
+dentist,langley,BC,,,,,,0,0,2026-11-09
+church,saskatoon,SK,,,,,,0,0,2026-11-09
+furniture,winnipeg,MB,,,,,,0,0,2026-11-09
+massage,richmond,BC,,,,,,0,0,2026-11-09
+jewelry,sherwood park,AB,,,,,,0,0,2026-11-09
+church,outlook,SK,,,,,,0,0,2026-11-09
+church,vancouver,BC,,,,,,0,0,2026-11-09
+jewelry,calgary,AB,Golden Touch Jewellery,https://golden.ca,golden.ca,,,0,0,2026-11-09
+lawyer,stony plain,AB,,,,,,0,0,2026-11-09
+church,rocky mountain house,AB,,,,,,0,0,2026-11-09
+welding,ponoka county,AB,,,,,,0,0,2026-11-09
+beauty,calgary,AB,Born Beautiful Laser Clinic And Spa,https://bornbeautiful.ca,bornbeautiful.ca,,,0,0,2026-11-09
+beauty,calgary,AB,Riverside Spa,https://riversidespa.ca,riversidespa.ca,,,1,16,2026-11-09
+beauty,calgary,AB,Pearl Nails & Spa,https://pearlnails.ca,pearlnails.ca,,,1,16,2026-11-09
+beauty,calgary,AB,Lovely Nails,https://lovelynails.ca,lovelynails.ca,,,0,0,2026-11-09
+beauty,calgary,AB,Bombshells Beauty Bar,https://bombshellsbeautybar.net,bombshellsbeautybar.net,,,0,0,2026-11-09
+beauty,calgary,AB,Creative Nail Design Shop,https://creativenail.com,creativenail.com,,,0,0,2026-11-09
+beauty,calgary,AB,Phoenix Nails & Spa,https://phoenix.ca,phoenix.ca,,,1,18,2026-11-09
+beauty,calgary,AB,Top Nails,https://topnails.net,topnails.net,,,0,0,2026-11-09
+dealership,edmonton,AB,Platinum Salvage Recyclers Inc,https://platinumsalvage.com,platinumsalvage.com,,,1,19,2026-11-09
+dealership,edmonton,AB,Koch Ford Lincoln Sales,https://kochfordlincoln.com,kochfordlincoln.com,,,0,0,2026-11-09
+dealership,edmonton,AB,Bissell Thrift Shop,https://bissellthriftshop.com,bissellthriftshop.com,,,0,0,2026-11-09
+dealership,edmonton,AB,Ibon Antiques,https://ibonantiques.ca,ibonantiques.ca,,,0,0,2026-11-09
+dealership,edmonton,AB,Rivercity Motors,https://rivercitymotors.ca,rivercitymotors.ca,,,0,0,2026-11-09
+dealership,edmonton,AB,"Northstar Hyundai, Go Northstar Hyundai",https://northstarhyundai.com,northstarhyundai.com,,,1,16,2026-11-09
+dealership,edmonton,AB,Beck Antiques & Jewellery,https://beckantiques.com,beckantiques.com,,,0,0,2026-11-09
+dealership,edmonton,AB,Alberta Honda,https://honda.ca,honda.ca,,,0,0,2026-11-09
+physio,shellbrook,SK,,,,,,0,0,2026-11-09
+physio,burnaby,BC,,,,,,0,0,2026-11-09
+hair,coquitlam,BC,,,,,,0,0,2026-11-09
+chiropractor,kelowna,BC,,,,,,0,0,2026-11-09
