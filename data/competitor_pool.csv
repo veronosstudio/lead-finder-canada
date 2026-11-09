@@ -1,3 +1,4 @@
 service,town,province,business,website,domain,lat,lon,good,quality,checked
 plumber,calgary,AB,ProStar Plumbing & Heating,https://prostarplumbing.ca/,prostarplumbing.ca,51.0380587,-114.1034336,1,16,2026-11-09
 plumber,calgary,AB,Pete the Plumber,https://www.petetheplumber.com/,petetheplumber.com,50.9524323,-113.9706417,1,16,2026-11-09
+renovation,edmonton,AB,,,,,,0,0,2026-11-09
