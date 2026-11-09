@@ -1,7 +1,7 @@
 """One-off (re-runnable) upgrade of contacts already in Master Contacts (status=new):
 re-check each site, then set service, first_name, score, score_parts, tier (A+/A/B/skip), and find competitors.
 Sites that died, got redesigned, or turn out to be chains/franchises become tier "skip" (never deleted)."""
-import os, re, time
+import os, re, sys, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import finder as F
@@ -36,13 +36,17 @@ def recheck(r):
         return r, None   # network hiccup: leave the row as it is
 
 def main():
-    rows = [r for r in F.sheet_get("new", 10000) if not r.get("score")]
+    redo = "redo" in sys.argv
+    rows = [r for r in F.sheet_get("new", 10000) if redo or not r.get("score")]
     F.log(f"refine: {len(rows)} contacts to upgrade")
     ups = []
     with ThreadPoolExecutor(16) as ex:
         for fut in as_completed([ex.submit(recheck, r) for r in rows]):
             r, u = fut.result()
-            if u: u["osm_id"] = r["osm_id"]; ups.append(u)
+            if u:
+                u["osm_id"] = r["osm_id"]
+                if redo: u.update({"competitor": "", "competitor_site": ""})
+                ups.append(u)
     from collections import Counter
     F.log("refine: tiers", dict(Counter(u["tier"] for u in ups)))
     F.log("refine: sheet updated", F.sheet_update(ups))

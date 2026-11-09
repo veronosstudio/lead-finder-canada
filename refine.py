@@ -21,6 +21,8 @@ SERVICES = {
     "auto_body":      (r"collision|auto ?body|body ?shop|paint ?&? ?body", 1.0, '["shop"="car_repair"]["service:vehicle:body_repair"="yes"]'),
     "auto_repair":    (r"auto|automotive|mechanic|car_repair|car repair|truck repair|transmission|motorcycle_repair|truck_repair", 0.85,
                        '["shop"="car_repair"]'),
+    "auto_parts":     (r"auto parts|car_parts|parts|salvage|wrecker", 0.5, '["shop"="car_parts"]'),
+    "dealership":     (r"dealer|motors\b|\bford\b|toyota|honda|hyundai|chevrolet|\bgm\b|nissan|mazda|kia\b|subaru|volkswagen|dodge|chrysler|\bram\b|jeep|go auto", 0.3, '["shop"="car"]'),
     "tires":          (r"\btyres?\b|\btires?\b", 0.7, '["shop"="tyres"]'),
     "dentist":        (r"dent(al|ist)|orthodont", 1.0, '["healthcare"="dentist"]'),
     "lawyer":         (r"law(yer)?\b|legal|barrister|solicitor|notary", 1.0, '["office"~"^(lawyer|notary)$"]'),
@@ -51,11 +53,11 @@ SERVICES = {
     "pest":           (r"pest|exterminat|termite|bed ?bug", 0.75, '["craft"="pest_control"]'),
     "dry_cleaner":    (r"dry ?clean|laundr|tailor", 0.4, '["shop"~"^(dry_cleaning|laundry)$"]'),
     "moving":         (r"\bmov(ing|ers)\b|junk|haul|bin clean|disposal", 0.6, '["office"="moving_company"]'),
-    "church":         (r"church|place_of_worship|chapel|parish|ministr|fellowship|congregation", 0.5,
+    "church":         (r"\bchurch|place_of_worship|\bchapel\b|\bparish\b|\bministr(y|ies)\b|\bfellowship\b|congregation", 0.5,
                        '["amenity"="place_of_worship"]["religion"="christian"]'),
 }
 # order matters: more specific first
-ORDER = ["pest", "dry_cleaner", "moving", "auto_body", "tires", "dentist", "chiropractor", "physio", "optometrist", "lawyer", "accountant", "architect", "insurance",
+ORDER = ["pest", "dry_cleaner", "moving", "dealership", "auto_parts", "auto_body", "tires", "dentist", "chiropractor", "physio", "optometrist", "lawyer", "accountant", "architect", "insurance",
          "realtor", "roofer", "plumber", "electrician", "hvac", "landscaper", "painter", "flooring", "windows", "cleaner", "locksmith",
          "welding", "renovation", "auto_repair", "hair", "beauty", "massage", "tattoo", "florist", "furniture", "jewelry", "pet",
          "bicycle", "hardware", "church"]
@@ -122,7 +124,7 @@ def personal_email(email):
     return bool(local) and local.split(".")[0] not in ROLE_WORDS and not any(r == local for r in ROLE_WORDS)
 
 # ---------------- chains / franchises ----------------
-CHAIN_WORDS = ["mr. rooter", "mr rooter", "roto-rooter", "benjamin franklin", "one hour heating", "aire serv", "molly maid", "merry maids",
+CHAIN_WORDS = ["go auto", "go ford", "autocanada", "auto canada", "kal tire", "canadian tire", "mr. rooter", "mr rooter", "roto-rooter", "benjamin franklin", "one hour heating", "aire serv", "molly maid", "merry maids",
                "the cleaning authority", "jan-pro", "coit", "chem-dry", "chemdry", "two men and a truck", "college pro", "student works",
                "certapro", "five star painting", "window genie", "men in kilts", "1-800-got-junk", "junk king", "weed man", "lawn doctor",
                "nutri-lawn", "kumon", "sylvan", "orangetheory", "anytime fitness", "goodlife", "f45", "snap fitness", "massage addict",
