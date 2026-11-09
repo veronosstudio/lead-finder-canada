@@ -195,7 +195,7 @@ def tier_of(total, need):
     if total >= 70: return "A+"
     if total >= 55: return "A"
     if total >= 40: return "B"
-    return "skip"
+    return "C"                            # visibly dated but lower value: hold, never thrown away
 
 def greeting(fname, company=""):
     return f"Hi {fname}," if fname else "Hi there,"

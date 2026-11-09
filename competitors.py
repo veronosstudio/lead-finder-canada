@@ -19,6 +19,11 @@ BIG = {"calgary": 22000, "edmonton": 22000, "vancouver": 14000, "surrey": 12000,
 
 def norm_town(t): return re.sub(r"\s+", " ", (t or "").strip().lower())
 
+def clean_name(n):
+    n = re.sub(r"[*#]+", "", n or "").strip()
+    n = re.sub(r",?\s+(ltd|inc|corp|limited|incorporated|co|ulc)\.?$", "", n, flags=re.I).strip()
+    return n
+
 def load_pool():
     if not os.path.exists(POOL): return []
     return list(csv.DictReader(open(POOL)))
@@ -112,6 +117,45 @@ out tags center 40;"""
         r.update({"good": "1" if q_ else "0", "quality": q_ or 0, "checked": finder.TODAY})
     return [r for r in rows if "good" in r]
 
+LICENCE_CITIES = {"calgary": ("calgary", "lic/cal/"), "edmonton": ("edmonton", "lic/edm/"), "red deer": ("red_deer", "lic/rd/"),
+                  "vancouver": ("vancouver", "lic/van/")}
+_LIC = {}
+
+def licence_candidates(service, town, finder, deadline, exclude_domains, log=print):
+    """Backup source that doesn't need OpenStreetMap: same-city licensed businesses of the same service whose site the
+    finder already found and judged modern (data/seen.csv), re-verified now with check_good()."""
+    src = LICENCE_CITIES.get(norm_town(town))
+    if not src: return []
+    if src[0] not in _LIC:
+        import licences as L
+        modern = {}
+        seen = os.path.join(ROOT, "data", "seen.csv")
+        if os.path.exists(seen):
+            for r in csv.DictReader(open(seen)):
+                if r["osm_id"].startswith(src[1]) and r["result"].startswith("modern(") and r["domain"]:
+                    modern[r["osm_id"]] = r["domain"]
+        biz = []
+        try:
+            for b in L.SOURCES[src[0]]():
+                if b["key"] in modern: biz.append((b["name"], b["cat"], modern[b["key"]]))
+        except Exception as e:
+            log(f"competitors: licence list {src[0]} failed: {str(e)[:80]}")
+        _LIC[src[0]] = biz
+        log(f"competitors: {len(biz)} verified-modern licensed sites in {town}")
+    rows = []
+    for name, cat, d in _LIC[src[0]]:
+        if d in exclude_domains or R.is_chain(name): continue
+        if R.service_of(cat, name) != service: continue
+        rows.append({"service": service, "town": norm_town(town), "province": "", "business": name.title() if name.isupper() else name,
+                     "website": f"https://{d}", "domain": d, "lat": "", "lon": ""})
+    out = []
+    for r in rows[:8]:
+        if time.time() > deadline - 20: break
+        q_ = check_good(r["website"], finder)
+        r.update({"good": "1" if q_ else "0", "quality": q_ or 0, "checked": finder.TODAY})
+        out.append(r)
+    return out
+
 def match(contacts, finder, budget_s, log=print):
     """contacts: rows with osm_id, service, town, province, website, business. Returns {osm_id: (name, site)}."""
     deadline = time.time() + budget_s
@@ -125,15 +169,19 @@ def match(contacts, finder, budget_s, log=print):
     # biggest groups first, so one search serves the most contacts
     order = sorted(groups.items(), key=lambda kv: -len(kv[1]))
     found, searched, new_rows = {}, 0, []
+    overpass_down = False
     for (svc, town, prov), cs in order:
         if time.time() > deadline - 30: break
-        have = [p for p in pool + new_rows if p["service"] == svc and p["town"] == town and p["province"] == prov]
-        if not have:
-            centre = town_centre(town, prov, towns, deadline)
-            if centre is None: break           # Overpass unavailable: try again next run
-            if not centre: continue
-            rows = search_area(svc, town, prov, centre, finder, deadline, contact_domains)
-            if rows is None: break
+        have = [p for p in pool + new_rows if p["service"] == svc and p["town"] == town and p["province"] in (prov, "")]
+        if not [p for p in have if p.get("good") == "1"] and not any(p.get("checked") == finder.TODAY for p in have):
+            rows = [dict(r, province=prov) for r in licence_candidates(svc, town, finder, deadline, contact_domains, log)]
+            if not any(r.get("good") == "1" for r in rows) and not overpass_down:
+                centre = town_centre(town, prov, towns, deadline)
+                if centre is None: overpass_down = True; log("competitors: OpenStreetMap unavailable, using licence lists only")
+                elif centre:
+                    more = search_area(svc, town, prov, centre, finder, deadline, contact_domains)
+                    if more is None: overpass_down = True
+                    else: rows += more
             if not rows:  # remember "nobody found" so we don't search again tonight
                 rows = [{"service": svc, "town": town, "province": prov, "business": "", "website": "", "domain": "",
                          "lat": "", "lon": "", "good": "0", "quality": 0, "checked": finder.TODAY}]
@@ -142,7 +190,7 @@ def match(contacts, finder, budget_s, log=print):
         for c in cs:
             own = finder.domain(c.get("website", ""))
             pick = next((p for p in good if p["domain"] != own and p["domain"] not in contact_domains), None)
-            if pick: found[c["osm_id"]] = (pick["business"], pick["website"])
+            if pick: found[c["osm_id"]] = (clean_name(pick["business"]), pick["website"])
     if new_rows: save_pool_rows(new_rows)
     json.dump(towns, open(TOWNS, "w"))
     log(f"competitors: {len(groups)} service/town groups, searched {searched}, matched {len(found)} contacts")
