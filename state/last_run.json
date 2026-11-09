@@ -1,13 +1,13 @@
 {
- "date": "2026-11-08",
- "checked": 2577,
- "leads": 160,
+ "date": "2026-11-09",
+ "checked": 200,
+ "leads": 5,
  "step": 31,
  "of": 80,
  "at": [
   "CA-MB",
   "trade_shops"
  ],
- "minutes": 51.4,
- "sheet_added": 136
+ "minutes": 6.7,
+ "sheet_added": 5
 }
