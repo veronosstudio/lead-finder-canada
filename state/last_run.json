@@ -1,13 +1,13 @@
 {
- "date": "2026-11-09",
- "checked": 2507,
- "leads": 138,
- "step": 33,
+ "date": "2026-11-10",
+ "checked": 2435,
+ "leads": 136,
+ "step": 35,
  "of": 80,
  "at": [
   "CA-ON",
-  "auto"
+  "health"
  ],
- "minutes": 43.2,
- "sheet_added": 136
+ "minutes": 55.0,
+ "sheet_added": 134
 }
