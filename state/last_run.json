@@ -1,13 +1,13 @@
 {
- "date": "2026-11-12",
- "checked": 3622,
- "leads": 183,
- "step": 37,
+ "date": "2026-11-13",
+ "checked": 3990,
+ "leads": 263,
+ "step": 40,
  "of": 80,
  "at": [
-  "CA-ON",
-  "services"
+  "CA-NS",
+  "trades"
  ],
- "minutes": 53.9,
- "sheet_added": 183
+ "minutes": 45.8,
+ "sheet_added": 258
 }
