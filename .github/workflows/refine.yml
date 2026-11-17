@@ -7,6 +7,10 @@ on:
         description: "Re-check and re-match every contact (yes/no)"
         required: false
         default: "no"
+      retier:
+        description: "Only re-label yay/nay from stored scores (yes/no)"
+        required: false
+        default: "no"
 
 permissions:
   contents: write
@@ -29,7 +33,7 @@ jobs:
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
-        run: python refine_existing.py ${{ github.event.inputs.redo == 'yes' && 'redo' || '' }}
+        run: python refine_existing.py ${{ github.event.inputs.redo == 'yes' && 'redo' || '' }} ${{ github.event.inputs.retier == 'yes' && 'retier' || '' }}
       - name: Save competitor pool
         if: always()
         run: |

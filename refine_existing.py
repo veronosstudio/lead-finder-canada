@@ -35,7 +35,22 @@ def recheck(r):
     except Exception as e:
         return r, None   # network hiccup: leave the row as it is
 
+def retier():
+    """Re-label existing contacts with the yay/nay rule, from their stored score (no site re-checks)."""
+    ups = []
+    for r in F.sheet_get("new", 10000):
+        sp = r.get("score_parts") or ""
+        if not sp.startswith("need"): continue          # hard skips (site down / chain / redesigned) stay skipped
+        parts = F.parse_parts(sp)
+        t = R.tier_of(sum(parts.values()), parts.get("need", 0))
+        if t != r.get("tier"): ups.append({"osm_id": r["osm_id"], "tier": t})
+    from collections import Counter
+    F.log("retier:", len(ups), "changed", dict(Counter(u["tier"] for u in ups)))
+    F.log("retier: sheet updated", F.sheet_update(ups))
+
 def main():
+    if "retier" in sys.argv:
+        return retier()
     redo = "redo" in sys.argv
     rows = [r for r in F.sheet_get("new", 10000) if redo or not r.get("score")]
     F.log(f"refine: {len(rows)} contacts to upgrade")

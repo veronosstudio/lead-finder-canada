@@ -193,11 +193,9 @@ def score(why_dated="", service="", since="", signals=None, competitor="", email
     return total, parts
 
 def tier_of(total, need):
-    if need < 8: return "C" if total >= 30 else "skip"   # nothing an owner would notice: hold for a softer pitch later
-    if total >= 70: return "A+"
-    if total >= 55: return "A"
-    if total >= 40: return "B"
-    return "C"                            # visibly dated but lower value: hold, never thrown away
+    """Yay or nay. Every lead here already passed the dated-site check, so it's a YES (A = send first, B = send next).
+    The only NOs ("skip") come from hard reasons set elsewhere: site down, chain/franchise, site redesigned since."""
+    return "A" if total >= 50 else "B"
 
 def greeting(fname, company=""):
     return f"Hi {fname}," if fname else "Hi there,"

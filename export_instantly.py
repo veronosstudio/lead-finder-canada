@@ -23,7 +23,7 @@ def main():
     r = requests.get(url, params={"token": token, "status": args.get("status", "new"), "limit": args.get("limit", "5000")}, timeout=120)
     r.raise_for_status()
     rows = r.json().get("rows", [])
-    tiers = [t.strip().upper() for t in args.get("tiers", "A+,A").split(",")]
+    tiers = [t.strip().upper() for t in args.get("tiers", "A+,A,B").split(",")]
     rows = [x for x in rows if (x.get("tier") or old_tier(x.get("why_dated", ""))).upper() in tiers]
     rows.sort(key=lambda x: -int(x.get("score") or 0))
     out = args.get("out", "instantly")
