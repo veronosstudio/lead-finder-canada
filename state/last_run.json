@@ -1,13 +1,13 @@
 {
- "date": "2026-11-17",
- "checked": 3087,
- "leads": 91,
- "step": 53,
+ "date": "2026-11-18",
+ "checked": 3056,
+ "leads": 93,
+ "step": 57,
  "of": 80,
  "at": [
-  "CA-NB",
-  "services"
+  "CA-NL",
+  "auto"
  ],
- "minutes": 55.7,
- "sheet_added": 90
+ "minutes": 50.5,
+ "sheet_added": 91
 }
