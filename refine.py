@@ -18,46 +18,58 @@ SERVICES = {
     "roofer":         (r"roof", 1.0, '["craft"="roofer"]'),
     "renovation":     (r"renovat|remodel|woodcraft|millwork|builder|construction|carpent|cabinet|kitchen|bath(room)?s?\b|basement|home improvement", 0.95,
                        '["craft"~"^(builder|carpenter)$"]'),
-    "auto_body":      (r"collision|auto ?body|body ?shop|paint ?&? ?body", 1.0, '["shop"="car_repair"]["service:vehicle:body_repair"="yes"]'),
-    "auto_repair":    (r"auto|automotive|mechanic|car_repair|car repair|truck repair|transmission|motorcycle_repair|truck_repair", 0.85,
+    "auto_body":      (r"collision|auto ?body|body ?shop|paint ?&? ?body", 0.9, '["shop"="car_repair"]["service:vehicle:body_repair"="yes"]'),
+    "auto_repair":    (r"auto|automotive|mechanic|car_repair|car repair|truck repair|transmission|motorcycle_repair|truck_repair", 0.8,
                        '["shop"="car_repair"]'),
     "auto_parts":     (r"auto parts|car_parts|parts|salvage|wrecker", 0.5, '["shop"="car_parts"]'),
     "dealership":     (r"dealer|motors\b|\bford\b|toyota|honda|hyundai|chevrolet|\bgm\b|nissan|mazda|kia\b|subaru|volkswagen|dodge|chrysler|\bram\b|jeep|go auto", 0.3, '["shop"="car"]'),
-    "tires":          (r"\btyres?\b|\btires?\b", 0.7, '["shop"="tyres"]'),
+    "tires":          (r"\btyres?\b|\btires?\b", 0.6, '["shop"="tyres"]'),
     "dentist":        (r"dent(al|ist)|orthodont", 1.0, '["healthcare"="dentist"]'),
     "lawyer":         (r"law(yer)?\b|legal|barrister|solicitor|notary", 1.0, '["office"~"^(lawyer|notary)$"]'),
-    "chiropractor":   (r"chiropract", 0.85, '["healthcare"="chiropractor"]'),
-    "physio":         (r"physio|physical therap|rehab", 0.85, '["healthcare"="physiotherapist"]'),
-    "optometrist":    (r"optomet|optician|eye care|eyewear", 0.75, '["healthcare"="optometrist"]'),
-    "accountant":     (r"account|bookkeep|\btax\b|\bcpa\b", 0.85, '["office"="accountant"]'),
+    "chiropractor":   (r"chiropract", 0.95, '["healthcare"="chiropractor"]'),
+    "physio":         (r"physio|physical therap|rehab", 0.9, '["healthcare"="physiotherapist"]'),
+    "optometrist":    (r"optomet|optician|eye care|eyewear", 0.85, '["healthcare"="optometrist"]'),
+    "accountant":     (r"account|bookkeep|\btax\b|\bcpa\b", 0.9, '["office"="accountant"]'),
     "architect":      (r"architect", 0.85, '["office"="architect"]'),
-    "insurance":      (r"insurance", 0.7, '["office"="insurance"]'),
-    "realtor":        (r"realt|real estate|estate_agent", 0.7, '["office"="estate_agent"]'),
+    "insurance":      (r"insurance", 0.8, '["office"="insurance"]'),
+    "realtor":        (r"realt|real estate|estate_agent", 0.5, '["office"="estate_agent"]'),
     "landscaper":     (r"landscap|lawn|yard|garden(er|ing)|tree (service|care)|snow removal|irrigation", 0.85, '["craft"~"^(gardener|landscaper)$"]'),
     "painter":        (r"paint(er|ing)", 0.75, '["craft"="painter"]'),
     "flooring":       (r"floor|carpet|tile|tiler|hardwood", 0.8, '["shop"="flooring"]'),
-    "windows":        (r"window|glass|glazi|door", 0.8, '["craft"~"^(glaziery|window_construction)$"]'),
+    "windows":        (r"window|glass|glazi|door", 0.9, '["craft"~"^(glaziery|window_construction)$"]'),
     "cleaner":        (r"clean|janitor|maid|carpet cleaning", 0.7, '["craft"="cleaning"]'),
     "locksmith":      (r"locksmith|security", 0.7, '["craft"="locksmith"]'),
     "welding":        (r"weld|fabricat|metal_construction|machin", 0.8, '["craft"~"^(welder|metal_construction)$"]'),
-    "hair":           (r"hair|barber|salon", 0.45, '["shop"="hairdresser"]'),
+    "hair":           (r"hair|barber|salon", 0.4, '["shop"="hairdresser"]'),
     "beauty":         (r"beauty|spa\b|esthetic|nail|lash|cosmetic", 0.45, '["shop"="beauty"]'),
     "massage":        (r"massage", 0.5, '["shop"="massage"]'),
-    "tattoo":         (r"tattoo", 0.45, '["shop"="tattoo"]'),
-    "florist":        (r"florist|flower", 0.45, '["shop"="florist"]'),
-    "furniture":      (r"furniture|mattress", 0.6, '["shop"="furniture"]'),
-    "jewelry":        (r"jewel", 0.5, '["shop"="jewelry"]'),
-    "pet":            (r"\bpet\b|groom|kennel|veterin", 0.55, '["shop"="pet"]'),
-    "bicycle":        (r"bicycle|bike", 0.5, '["shop"="bicycle"]'),
-    "hardware":       (r"hardware|doityourself", 0.6, '["shop"~"^(hardware|doityourself)$"]'),
+    "tattoo":         (r"tattoo", 0.35, '["shop"="tattoo"]'),
+    "florist":        (r"florist|flower", 0.35, '["shop"="florist"]'),
+    "furniture":      (r"furniture|mattress", 0.5, '["shop"="furniture"]'),
+    "jewelry":        (r"jewel", 0.45, '["shop"="jewelry"]'),
+    "pet":            (r"\bpet\b|groom|kennel|veterin", 0.45, '["shop"="pet"]'),
+    "bicycle":        (r"bicycle|bike", 0.35, '["shop"="bicycle"]'),
+    "hardware":       (r"hardware|doityourself", 0.4, '["shop"~"^(hardware|doityourself)$"]'),
     "pest":           (r"pest|exterminat|termite|bed ?bug", 0.75, '["craft"="pest_control"]'),
     "dry_cleaner":    (r"dry ?clean|laundr|tailor", 0.4, '["shop"~"^(dry_cleaning|laundry)$"]'),
     "moving":         (r"\bmov(ing|ers)\b|junk|haul|bin clean|disposal", 0.6, '["office"="moving_company"]'),
-    "church":         (r"\bchurch|place_of_worship|\bchapel\b|\bparish\b|\bministr(y|ies)\b|\bfellowship\b|congregation", 0.5,
+    "orthodontist":   (r"orthodont", 1.0, '["healthcare"="orthodontist"]'),
+    "vet":            (r"veterin|animal hospital|pet clinic|\bvet\b", 0.9, '["amenity"="veterinary"]'),
+    "medical":        (r"medical|clinic|physician|family practice|doctors?\b|med ?spa|aesthetic|laser|botox|dermatolog|cosmetic surg", 0.9, '["amenity"~"^(clinic|doctors)$"]'),
+    "financial":      (r"financial|wealth|tax_advisor|tax advis|investment|mortgage", 0.9, '["office"~"^(financial|financial_advisor|tax_advisor)$"]'),
+    "pool":           (r"\bpools?\b|swimming_pool|hot tub", 0.95, '["shop"="swimming_pool"]'),
+    "solar":          (r"solar|photovoltaic", 1.0, '["craft"~"^(photovoltaic|solar)$"]'),
+    "fencing":        (r"fenc|deck", 0.85, '["craft"="fence_maker"]'),
+    "garage_doors":   (r"garage door", 0.85, '["shop"="doors"]'),
+    "photographer":   (r"photograph|photo studio|videograph", 0.7, '["craft"="photographer"]'),
+    "venue":          (r"venue|banquet|event (centre|center|space)|wedding|events_venue", 0.75, '["amenity"~"^(events_venue|conference_centre)$"]'),
+    "funeral":        (r"funeral|memorial|cremat|mortuar", 0.9, '["shop"="funeral_directors"]'),
+    "school":         (r"driving school|music school|dance|academy|tutor|language school|driving_school|music_school|dancing_school", 0.6, '["amenity"~"^(driving_school|music_school|dancing_school|language_school)$"]'),
+    "church":         (r"\bchurch|place_of_worship|\bchapel\b|\bparish\b|\bministr(y|ies)\b|\bfellowship\b|congregation", 0.35,
                        '["amenity"="place_of_worship"]["religion"="christian"]'),
 }
 # order matters: more specific first
-ORDER = ["pest", "dry_cleaner", "moving", "dealership", "auto_parts", "auto_body", "tires", "dentist", "chiropractor", "physio", "optometrist", "lawyer", "accountant", "architect", "insurance",
+ORDER = ["funeral", "vet", "orthodontist", "pest", "solar", "pool", "garage_doors", "fencing", "photographer", "venue", "financial", "dry_cleaner", "moving", "dealership", "auto_parts", "auto_body", "tires", "dentist", "chiropractor", "physio", "optometrist", "lawyer", "accountant", "medical", "school", "architect", "insurance",
          "realtor", "roofer", "plumber", "electrician", "hvac", "landscaper", "painter", "flooring", "windows", "cleaner", "locksmith",
          "welding", "renovation", "auto_repair", "hair", "beauty", "massage", "tattoo", "florist", "furniture", "jewelry", "pet",
          "bicycle", "hardware", "church"]
@@ -143,6 +155,20 @@ def is_chain(business="", html_text=""):
         return True
     return bool(html_text and FRANCHISE_SIGNS.search(html_text[:300000]))
 
+
+# ---------- is it clearly dated? (only problems a person would notice) ----------
+def strong_reasons(why_dated=""):
+    """The site only counts if at least one of these is true. Weak signals (Wix, no headline, phone not tappable,
+    old jQuery, a 2023 copyright) can rank a site but can never qualify it on their own."""
+    w = (why_dated or "").lower(); out = []
+    if "not built for phones" in w: out.append("phones")
+    if "no secure https" in w: out.append("not secure")
+    m = re.search(r"copyright (\d{4})", w)
+    if m and int(m.group(1)) <= YEAR - 4: out.append("old year")
+    for k in ("flash", "table layout", "<font", "old builder", "old default theme", "old wordpress"):
+        if k in w: out.append(k)
+    return out
+
 # ---------------- site signals (from the page we already fetched) ----------------
 def site_signals(html):
     low = (html or "").lower()
@@ -153,6 +179,7 @@ def site_signals(html):
         "contact_form": "<form" in low and bool(re.search(r'type=["\']?email|<textarea', low)),
         "booking": bool(re.search(r"book (now|online|an appointment)|schedule (online|an appointment)|calendly|jane\.app|"
                                   r"housecallpro|jobber|setmore|square\.site/book|acuityscheduling", low)),
+        "ads": bool(re.search(r"aw-\d{6,}|googleadservices|googleads\.g\.doubleclick|fbq\(['\"]init|connect\.facebook\.net/[^\"']*fbevents", low)),
         "team": bool(re.search(r"our team|meet the team|our staff|meet our|our technicians|our crew|employees|trucks", text)),
     }
 
@@ -177,6 +204,7 @@ def score(why_dated="", service="", since="", signals=None, competitor="", email
         m2 = re.search(r"licensed since (\d{4})", w); yrs = (YEAR - int(m2.group(1))) if m2 else None
     value = round(15 * value_weight(service, category)) + (6 if yrs and yrs >= 10 else 4 if yrs and yrs >= 5 else 2 if yrs else 1)
     if s.get("team"): value += 4
+    if s.get("ads"): value += 6          # already paying for Google/Facebook ads: has a budget, and is wasting clicks
     parts["value"] = min(25, value)
     # alive (20): proof they're still trading
     alive = 8

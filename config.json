@@ -17,14 +17,19 @@
     "CA-QC"
   ],
   "category_groups": {
-    "trades": "nwr[\"craft\"~\"^(electrician|plumber|hvac|heating_engineer|roofer|carpenter|painter|plasterer|tiler|floorer|glaziery|insulation|stonemason|metal_construction|welder|window_construction|builder|gardener|landscaper|locksmith|cleaning|chimney_sweeper)$\"]",
-    "auto": "nwr[\"shop\"~\"^(car_repair|tyres|car_parts|motorcycle_repair|truck_repair|car)$\"]",
+    "clinics": "nwr[\"healthcare\"~\"^(dentist|orthodontist|chiropractor|physiotherapist|optometrist|podiatrist|psychotherapist|audiologist|occupational_therapist|speech_therapist)$\"]",
+    "clinics_medical": "nwr[\"amenity\"~\"^(dentist|clinic|doctors|veterinary)$\"]",
+    "home_services": "nwr[\"craft\"~\"^(roofer|hvac|heating_engineer|plumber|electrician|builder|carpenter|window_construction|glaziery|insulation|stonemason|landscaper|gardener|pest_control|photovoltaic|solar|fence_maker|swimming_pool|tiler|floorer|painter|metal_construction)$\"]",
+    "home_services_shops": "nwr[\"shop\"~\"^(swimming_pool|doors|windows|kitchen|bathroom_furnishing|flooring|fireplace|hvac|security|garage)$\"]",
+    "legal_financial": "nwr[\"office\"~\"^(lawyer|accountant|tax_advisor|financial|financial_advisor|insurance|notary)$\"]",
+    "auto_service": "nwr[\"shop\"~\"^(car_repair|tyres|motorcycle_repair|truck_repair)$\"]",
+    "events_personal": "nwr[\"craft\"~\"^(photographer|caterer)$\"]",
+    "venues_funeral": "nwr[\"amenity\"~\"^(events_venue|conference_centre|funeral_hall)$\"]",
+    "funeral_homes": "nwr[\"shop\"=\"funeral_directors\"]",
+    "schools": "nwr[\"amenity\"~\"^(driving_school|music_school|dancing_school|language_school)$\"]",
     "beauty": "nwr[\"shop\"~\"^(hairdresser|beauty|massage|tattoo|cosmetics)$\"]",
-    "health": "nwr[\"healthcare\"~\"^(physiotherapist|chiropractor|dentist|optometrist|podiatrist|psychotherapist|alternative)$\"]",
-    "home_shops": "nwr[\"shop\"~\"^(flooring|furniture|hardware|doityourself|kitchen|bathroom_furnishing|paint|appliance|curtain|garden_centre|florist|gift|bicycle|outdoor|pet|jewelry|optician)$\"]",
-    "services": "nwr[\"office\"~\"^(accountant|insurance|lawyer|estate_agent|architect|surveyor)$\"]",
-    "churches": "nwr[\"amenity\"=\"place_of_worship\"][\"religion\"=\"christian\"]",
-    "trade_shops": "nwr[\"shop\"~\"^(trade|electrical|plumbing|hvac|security|fireplace|water|boat|agrarian)$\"]"
+    "retail": "nwr[\"shop\"~\"^(furniture|jewelry|florist|gift|bicycle|outdoor|pet|optician|hardware|appliance)$\"]",
+    "churches": "nwr[\"amenity\"=\"place_of_worship\"][\"religion\"=\"christian\"]"
   },
   "skip_name_words": [
     "walmart",

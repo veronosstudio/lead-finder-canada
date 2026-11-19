@@ -248,6 +248,8 @@ def check(c):
             return c, "chain", None
         if pts < CFG["min_dated_score"]:
             return c, f"modern({pts})", None
+        if not R.strong_reasons("; ".join(why)):
+            return c, f"not-clearly-dated({pts})", None   # e.g. a nice site with only a 2023 copyright + no tap-to-call
         emails, src = emails_from(html, c["domain"]), r.url
         txt = text_line(html)
         if not emails:
@@ -277,6 +279,7 @@ def check(c):
         svc = R.service_of(c["category"], c["business"], title)
         fname = R.first_name(best, plain)
         sig = R.site_signals(html)
+        if sig.get("ads"): why_s += "; runs Google/Facebook ads"
         total, parts = R.score(why_s, svc, c.get("since", ""), sig, "", best, fname, c["phone"], c["category"])
         tier = R.tier_of(total, parts["need"])
         if tier == "skip":

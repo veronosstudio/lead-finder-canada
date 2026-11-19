@@ -83,7 +83,26 @@ def fixsheet():
           f"{sum(1 for u in ups.values() if 'since' in u)} since-years, {dupes} duplicate businesses set to skip")
     F.log("fixsheet: sheet updated", F.sheet_update(list(ups.values())))
 
+NEW_KEYS = {"orthodontist", "vet", "medical", "financial", "pool", "solar", "fencing", "garage_doors", "photographer", "venue", "funeral", "school"}
+
+def gate():
+    """Not-yet-emailed contacts must have at least one problem a person would notice; otherwise skip (kept, not deleted).
+    Also picks up the new money-niche industries where the name makes it obvious."""
+    ups, skipped, retagged = [], 0, 0
+    for r in F.sheet_get("new", 10000):
+        u = {}
+        if not R.strong_reasons(r.get("why_dated", "")):
+            u["status"] = "skip"; skipped += 1
+        svc = R.service_of(r.get("category", ""), r.get("business", ""))
+        if svc in NEW_KEYS and svc != r.get("service"):
+            u["service"] = svc; retagged += 1
+        if u: u["osm_id"] = r["osm_id"]; ups.append(u)
+    F.log(f"gate: {skipped} not-clearly-dated contacts set to skip, {retagged} re-tagged into new niches")
+    F.log("gate: sheet updated", F.sheet_update(ups))
+
 def main():
+    if "gate" in sys.argv:
+        return gate()
     if "fixsheet" in sys.argv:
         return fixsheet()
     if "retier" in sys.argv:
