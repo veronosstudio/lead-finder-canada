@@ -1,7 +1,7 @@
 {
   "country": "Canada",
   "daily_target": 500,
-  "time_budget_minutes": 58,
+  "time_budget_minutes": 28,
   "workers": 16,
   "min_dated_score": 3,
   "provinces": [
@@ -99,7 +99,7 @@
     "fix auto",
     "maaco"
   ],
-  "licence_minutes": 28,
+  "licence_minutes": 14,
   "licence_workers": 32,
   "licence_sources": [
     "calgary",
@@ -107,5 +107,6 @@
     "red_deer",
     "vancouver"
   ],
-  "competitor_minutes": 12
+  "competitor_minutes": 5,
+  "country_code": "CA"
 }

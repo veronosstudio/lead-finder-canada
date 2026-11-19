@@ -3,6 +3,9 @@ name: Export Instantly batch
 on:
   workflow_dispatch:
     inputs:
+      country:
+        description: "CA or US"
+        default: "CA"
       tiers:
         description: "Tiers to include"
         default: "A,B"
@@ -27,7 +30,7 @@ jobs:
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
-        run: python export_instantly.py tiers=${{ github.event.inputs.tiers }} limit=${{ github.event.inputs.limit }} mark=${{ github.event.inputs.mark }} out=instantly.csv
+        run: python export_instantly.py country=${{ github.event.inputs.country }} tiers=${{ github.event.inputs.tiers }} limit=${{ github.event.inputs.limit }} mark=${{ github.event.inputs.mark }} out=instantly.csv
       - uses: actions/upload-artifact@v4
         with:
           name: instantly-batch

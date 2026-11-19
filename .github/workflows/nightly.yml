@@ -20,7 +20,7 @@ concurrency:
 jobs:
   find:
     runs-on: ubuntu-latest
-    timeout-minutes: 62
+    timeout-minutes: 33
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

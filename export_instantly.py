@@ -1,6 +1,6 @@
 """Export the next batch from Master Contacts as an Instantly CSV, and mark those rows "Instantly" so nobody is sent twice.
 
-Usage:  SHEET_URL=... SHEET_TOKEN=... python export_instantly.py [tiers=A,B] [limit=500] [mark=yes] [out=instantly.csv]
+Usage:  SHEET_URL=... SHEET_TOKEN=... python export_instantly.py [country=CA|US] [tiers=A,B] [limit=500] [mark=yes] [out=instantly.csv]
 Columns (Instantly variables): email, greeting, firstName, companyName, city, province, service, since, hook, tier, score, website
   {{greeting}}  "Hi Dave," or "Hi there,"      {{hook}}  your sheet's hook if you edited it, else the automatic one
   {{service}}   e.g. "plumbing" (blank if unknown)   {{since}}  licence year (blank if unknown)
@@ -31,6 +31,8 @@ def main():
     rows = requests.get(url, params={"token": token, "status": "new", "limit": "10000"}, timeout=120).json().get("rows", [])
     tiers = [t.strip().upper() for t in args.get("tiers", "A,B").split(",")]
     rows = [x for x in rows if (x.get("tier") or "").upper() in tiers and x.get("email")]
+    want = args.get("country", "").upper()
+    if want: rows = [x for x in rows if (x.get("country") or "CA").upper() == want]   # rows from before the US launch are Canada
     rows.sort(key=lambda x: -int(x.get("score") or 0))
     limit = int(args.get("limit", "500"))
     out, seen_e, seen_d, picked = args.get("out", "instantly.csv"), set(), set(), []

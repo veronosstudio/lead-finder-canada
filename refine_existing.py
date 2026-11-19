@@ -49,6 +49,7 @@ def retier():
     F.log("retier:", len(ups), "changed", dict(Counter(u["tier"] for u in ups)))
     F.log("retier: sheet updated", F.sheet_update(ups))
 
+CA_PROV = {"AB", "BC", "SK", "MB", "ON", "QC", "NS", "NB", "NL", "PE", "YT", "NT", "NU", ""}
 STATUSES = ["new", "Instantly", "Gmail", "interested", "preview sent", "call booked", "won", "lost", "unsubscribed", "skip"]
 
 def dom(u):
@@ -66,6 +67,7 @@ def fixsheet():
         if not r.get("since"):
             y = H.since_year(r.get("why_dated", ""))
             if y: u["since"] = y
+        if not r.get("country"): u["country"] = "US" if str(r.get("osm_id", "")).startswith("us/") or len(str(r.get("province", ""))) == 2 and r.get("province") not in CA_PROV else "CA"
         if u: ups[r["osm_id"]] = dict(u, osm_id=r["osm_id"])
         d = dom(r.get("website"))
         if d: by.setdefault(d, []).append(r)

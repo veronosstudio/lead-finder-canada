@@ -17,13 +17,15 @@ from urllib.parse import urljoin, urlparse
 import requests
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-CFG = json.load(open(os.path.join(ROOT, "config.json")))
+CONFIG = os.environ.get("CONFIG", "config.json")   # config.json = Canada, config_us.json = United States
+CFG = json.load(open(os.path.join(ROOT, CONFIG)))
+SUFFIX = CFG.get("file_suffix", "")                 # "" for Canada, "-us" for the US (own progress + lead files)
 if os.environ.get("TEST_LEADS", "").strip().isdigit():  # quick test run: stop after N leads (manual runs only)
     CFG["daily_target"] = int(os.environ["TEST_LEADS"]); CFG["licence_minutes"] = 12; CFG["competitor_minutes"] = 4
-STATE = os.path.join(ROOT, "state", "progress.json")
+STATE = os.path.join(ROOT, "state", f"progress{SUFFIX}.json")
 SEEN = os.path.join(ROOT, "data", "seen.csv")
 TODAY = dt.date.today().isoformat()
-OUT = os.path.join(ROOT, "leads", f"{TODAY}.csv")
+OUT = os.path.join(ROOT, "leads", f"{TODAY}{SUFFIX}.csv")
 START = time.time()
 BUDGET = CFG["time_budget_minutes"] * 60
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
@@ -36,11 +38,11 @@ def fp(x):
     return hashlib.sha256(x.strip().lower().encode()).hexdigest()[:20]
 FIELDS = ["date", "business", "category", "town", "province", "website", "email", "email_source", "phone",
           "text_line", "dated_score", "why_dated", "osm_id", "service", "first_name", "score", "score_parts", "tier",
-          "competitor", "competitor_site", "hook", "since"]
+          "competitor", "competitor_site", "hook", "since", "country"]
 import refine as R
 import hooks as H
 if os.path.exists(OUT) and open(OUT).readline().strip().split(",") != FIELDS:  # header changed today: start a second file
-    OUT = os.path.join(ROOT, "leads", f"{TODAY}-v2.csv")
+    OUT = os.path.join(ROOT, "leads", f"{TODAY}{SUFFIX}-v2.csv")
 
 def log(*a):
     print(f"[{int(time.time()-START):>5}s]", *a, flush=True)
@@ -284,7 +286,7 @@ def check(c):
                            "phone": c["phone"], "text_line": txt, "dated_score": pts, "why_dated": why_s, "osm_id": c["osm_id"],
                            "service": svc, "first_name": fname, "score": total,
                            "score_parts": " ".join(f"{k}={v}" for k, v in parts.items()), "tier": tier,
-                           "competitor": "", "competitor_site": "", "hook": H.hook(why_s, sig), "since": c.get("since", "") or "", "_lat": c.get("lat", ""), "_lon": c.get("lon", "")}
+                           "competitor": "", "competitor_site": "", "hook": H.hook(why_s, sig), "since": c.get("since", "") or "", "country": CFG.get("country_code", "CA"), "_lat": c.get("lat", ""), "_lon": c.get("lon", "")}
     except Exception as e:
         return c, "error:" + type(e).__name__, None
 
@@ -428,7 +430,8 @@ def main():
     leads, seen_rows, checked = [], [], 0
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     # Source 2 first (it finds far more), then OpenStreetMap with the time that's left.
-    checked += licence_pass(seen_ids, seen_domains, leads, seen_rows, CFG.get("licence_minutes", 34) * 60)
+    if CFG.get("licence_sources"):
+        checked += licence_pass(seen_ids, seen_domains, leads, seen_rows, CFG.get("licence_minutes", 34) * 60)
     posted = flush(leads, seen_rows, state)  # checkpoint: licence leads are safe in the sheet before the map part starts
     reserve = 0 if os.environ.get("TEST_LEADS") else CFG.get("competitor_minutes", 12) * 60
     while len(leads) < CFG["daily_target"] and time_left() > 360 + reserve:
@@ -459,11 +462,11 @@ def main():
         save_state(state)
         if not batch: continue
     sheet_added = posted + flush(leads, seen_rows, state)
-    if time_left() > 180:
+    if time_left() > 180 and CFG.get("competitor_minutes", 12) > 0:
         competitor_step(leads, min(CFG.get("competitor_minutes", 12) * 60, time_left() - 120))
     summary = {"date": TODAY, "checked": checked, "leads": len(leads), "step": state["step"], "of": len(plan),
                "at": plan[min(state["step"], len(plan) - 1)], "minutes": round((time.time() - START) / 60, 1), "sheet_added": sheet_added}
-    json.dump(summary, open(os.path.join(ROOT, "state", "last_run.json"), "w"), indent=1)
+    json.dump(summary, open(os.path.join(ROOT, "state", f"last_run{SUFFIX}.json"), "w"), indent=1)
     log("DONE", summary)
 
 if __name__ == "__main__":
