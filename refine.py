@@ -158,15 +158,17 @@ def is_chain(business="", html_text=""):
 
 # ---------- is it clearly dated? (only problems a person would notice) ----------
 def strong_reasons(why_dated=""):
-    """The site only counts if at least one of these is true. Weak signals (Wix, no headline, phone not tappable,
-    old jQuery, a 2023 copyright) can rank a site but can never qualify it on their own."""
+    """The site only counts if a person would notice the problem. An old copyright year on its own doesn't count
+    (nice, modern sites often forget to update it); it only counts alongside old tech (old jQuery, old WordPress,
+    an old slider theme or a DIY builder)."""
     w = (why_dated or "").lower(); out = []
     if "not built for phones" in w: out.append("phones")
     if "no secure https" in w: out.append("not secure")
-    m = re.search(r"copyright (\d{4})", w)
-    if m and int(m.group(1)) <= YEAR - 4: out.append("old year")
     for k in ("flash", "table layout", "<font", "old builder", "old default theme", "old wordpress"):
         if k in w: out.append(k)
+    m = re.search(r"copyright (\d{4})", w)
+    if m and int(m.group(1)) <= YEAR - 4 and re.search(r"old jquery|old slider|diy |template builder", w):
+        out.append("old year + old tech")
     return out
 
 # ---------------- site signals (from the page we already fetched) ----------------

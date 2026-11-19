@@ -1,8 +1,8 @@
 {
   "country": "United States",
-  "daily_target": 150,
-  "time_budget_minutes": 28,
-  "workers": 32,
+  "daily_target": 200,
+  "time_budget_minutes": 58,
+  "workers": 64,
   "min_dated_score": 3,
   "provinces": [
     "US-AZ",
