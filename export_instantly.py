@@ -16,6 +16,12 @@ COLS = ["email", "greeting", "firstName", "companyName", "city", "province", "se
 def dom(u):
     return re.sub(r"^www\.", "", re.sub(r"^https?://", "", (u or "").strip().lower())).split("/")[0]
 
+def clean_company(n):
+    """How a person would write the name in an email: Ben's Machining, not Ben'S Machining Ltd."""
+    n = re.sub(r"(['’])S\b", r"\1s", (n or "").strip())
+    n = re.sub(r",?\s+(ltd|inc|corp|corporation|limited|incorporated|co|ulc|llp)\.?$", "", n, flags=re.I).strip()
+    return n
+
 def main():
     args = dict(a.split("=", 1) for a in sys.argv[1:] if "=" in a)
     url = os.environ["SHEET_URL"].strip().strip('"\'')
@@ -37,7 +43,7 @@ def main():
         w = csv.writer(f); w.writerow(COLS)
         for x in picked:
             fn = (x.get("first_name") or "").strip()
-            w.writerow([x["email"].strip().lower(), R.greeting(fn), fn, x.get("business", ""), x.get("town", ""), x.get("province", ""),
+            w.writerow([x["email"].strip().lower(), R.greeting(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
                         H.service_word(x.get("service", "")), x.get("since") or H.since_year(x.get("why_dated", "")),
                         (x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("tier", ""), x.get("score", ""), x.get("website", "")])
     print(f"wrote {len(picked)} contacts to {out}")
