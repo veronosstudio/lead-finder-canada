@@ -19,7 +19,7 @@ def dom(u):
 def clean_company(n):
     """How a person would write the name in an email: Ben's Machining, not Ben'S Machining Ltd."""
     n = re.sub(r"(['’])S\b", r"\1s", (n or "").strip())
-    n = re.sub(r",?\s+(ltd|inc|corp|corporation|limited|incorporated|co|ulc|llp)\.?$", "", n, flags=re.I).strip()
+    n = re.sub(r",?\s+(ltd|inc|corp|corporation|limited|incorporated|ulc|llp)\.?$", "", n, flags=re.I).strip()
     return n
 
 def main():
