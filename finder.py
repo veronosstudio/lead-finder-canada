@@ -21,7 +21,7 @@ CONFIG = os.environ.get("CONFIG", "config.json")   # config.json = Canada, confi
 CFG = json.load(open(os.path.join(ROOT, CONFIG)))
 SUFFIX = CFG.get("file_suffix", "")                 # "" for Canada, "-us" for the US (own progress + lead files)
 if os.environ.get("TEST_LEADS", "").strip().isdigit():  # quick test run: stop after N leads (manual runs only)
-    CFG["daily_target"] = int(os.environ["TEST_LEADS"]); CFG["licence_minutes"] = 12; CFG["competitor_minutes"] = 4
+    CFG["daily_target"] = int(os.environ["TEST_LEADS"]); CFG["licence_minutes"] = min(12, CFG.get("licence_minutes", 12)); CFG["competitor_minutes"] = min(4, CFG.get("competitor_minutes", 4))
 STATE = os.path.join(ROOT, "state", f"progress{SUFFIX}.json")
 SEEN = os.path.join(ROOT, "data", "seen.csv")
 TODAY = dt.date.today().isoformat()
