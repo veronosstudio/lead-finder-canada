@@ -1,0 +1,35 @@
+name: Export Instantly batch
+
+on:
+  workflow_dispatch:
+    inputs:
+      tiers:
+        description: "Tiers to include"
+        default: "A,B"
+      limit:
+        description: "How many contacts"
+        default: "500"
+      mark:
+        description: "Mark exported rows as Instantly (yes/no)"
+        default: "no"
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Export
+        env:
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+        run: python export_instantly.py tiers=${{ github.event.inputs.tiers }} limit=${{ github.event.inputs.limit }} mark=${{ github.event.inputs.mark }} out=instantly.csv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: instantly-batch
+          path: instantly.csv
+          retention-days: 7

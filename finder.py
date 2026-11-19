@@ -36,8 +36,9 @@ def fp(x):
     return hashlib.sha256(x.strip().lower().encode()).hexdigest()[:20]
 FIELDS = ["date", "business", "category", "town", "province", "website", "email", "email_source", "phone",
           "text_line", "dated_score", "why_dated", "osm_id", "service", "first_name", "score", "score_parts", "tier",
-          "competitor", "competitor_site"]
+          "competitor", "competitor_site", "hook", "since"]
 import refine as R
+import hooks as H
 if os.path.exists(OUT) and open(OUT).readline().strip().split(",") != FIELDS:  # header changed today: start a second file
     OUT = os.path.join(ROOT, "leads", f"{TODAY}-v2.csv")
 
@@ -283,7 +284,7 @@ def check(c):
                            "phone": c["phone"], "text_line": txt, "dated_score": pts, "why_dated": why_s, "osm_id": c["osm_id"],
                            "service": svc, "first_name": fname, "score": total,
                            "score_parts": " ".join(f"{k}={v}" for k, v in parts.items()), "tier": tier,
-                           "competitor": "", "competitor_site": "", "_lat": c.get("lat", ""), "_lon": c.get("lon", "")}
+                           "competitor": "", "competitor_site": "", "hook": H.hook(why_s, sig), "since": c.get("since", "") or "", "_lat": c.get("lat", ""), "_lon": c.get("lon", "")}
     except Exception as e:
         return c, "error:" + type(e).__name__, None
 

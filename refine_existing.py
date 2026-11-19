@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import finder as F
 import refine as R
+import hooks as H
 
 def recheck(r):
     try:
@@ -48,7 +49,41 @@ def retier():
     F.log("retier:", len(ups), "changed", dict(Counter(u["tier"] for u in ups)))
     F.log("retier: sheet updated", F.sheet_update(ups))
 
+STATUSES = ["new", "Instantly", "Gmail", "interested", "preview sent", "call booked", "won", "lost", "unsubscribed", "skip"]
+
+def dom(u):
+    return re.sub(r"^www\.", "", re.sub(r"^https?://", "", (u or "").strip().lower())).split("/")[0]
+
+def fixsheet():
+    """Fill hook + since, and keep one contact per business (website domain)."""
+    rows = []
+    for st in STATUSES:
+        for r in F.sheet_get(st, 10000): r["status"] = st; rows.append(r)
+    ups, by = {}, {}
+    for r in rows:
+        u = {}
+        if not r.get("hook") and r.get("why_dated"): u["hook"] = H.hook(r["why_dated"])
+        if not r.get("since"):
+            y = H.since_year(r.get("why_dated", ""))
+            if y: u["since"] = y
+        if u: ups[r["osm_id"]] = dict(u, osm_id=r["osm_id"])
+        d = dom(r.get("website"))
+        if d: by.setdefault(d, []).append(r)
+    dupes = 0
+    for d, rs in by.items():
+        if len(rs) < 2: continue
+        contacted = [r for r in rs if r["status"] not in ("new", "skip")]
+        keep = contacted[0] if contacted else sorted(rs, key=lambda r: (not R.personal_email(r.get("email")), -int(r.get("score") or 0)))[0]
+        for r in rs:
+            if r is not keep and r["status"] == "new":
+                ups.setdefault(r["osm_id"], {"osm_id": r["osm_id"]})["status"] = "skip"; dupes += 1
+    F.log(f"fixsheet: {len(rows)} rows, {sum(1 for u in ups.values() if 'hook' in u)} hooks, "
+          f"{sum(1 for u in ups.values() if 'since' in u)} since-years, {dupes} duplicate businesses set to skip")
+    F.log("fixsheet: sheet updated", F.sheet_update(list(ups.values())))
+
 def main():
+    if "fixsheet" in sys.argv:
+        return fixsheet()
     if "retier" in sys.argv:
         return retier()
     redo = "redo" in sys.argv
