@@ -1,13 +1,13 @@
 {
  "date": "2026-11-19",
- "checked": 186,
+ "checked": 341,
  "leads": 5,
  "step": 1,
- "of": 104,
+ "of": 169,
  "at": [
   "US-AZ",
-  "auto"
+  "clinics_medical"
  ],
- "minutes": 6.1,
- "sheet_added": 4
+ "minutes": 3.5,
+ "sheet_added": 5
 }
