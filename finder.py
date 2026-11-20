@@ -40,8 +40,9 @@ def fp(x):
     return hashlib.sha256(x.strip().lower().encode()).hexdigest()[:20]
 FIELDS = ["date", "business", "category", "town", "province", "website", "email", "email_source", "phone",
           "text_line", "dated_score", "why_dated", "osm_id", "service", "first_name", "score", "score_parts", "tier",
-          "competitor", "competitor_site", "hook", "since", "country"]
+          "competitor", "competitor_site", "hook", "since", "country", "contact_role", "email_type"]
 import refine as R
+import people as P
 import hooks as H
 if os.path.exists(OUT) and open(OUT).readline().strip().split(",") != FIELDS:  # header changed today: start a second file
     OUT = os.path.join(ROOT, "leads", f"{TODAY}{SUFFIX}-v2.csv")
@@ -274,32 +275,35 @@ def check(c):
         no = R.qualifies("; ".join(why), svc, sig, c.get("since", ""))
         if no:
             return c, "not-target:" + no, None             # no visible problem, or a cheap niche
-        emails, src = emails_from(html, c["domain"]), r.url
+        # Read the home page plus the team / about / contact pages: find the decision maker and every published email.
+        emails, src = emails_from(html, c["domain"]), {}
+        for e in emails: src.setdefault(e, r.url)
         txt = text_line(html)
+        texts = [P.plain(html)]
+        pages = P.team_links(r.url, html)
         if not emails:
-            links = re.findall(r'href=["\']([^"\'#]+)', html, re.I)
-            pages = [urljoin(r.url, l) for l in links if re.search(r"contact|about|reach|location|find-us", l, re.I)]
-            for extra in ["contact", "contact-us", "contact.html", "contactus.html", "about"]:
+            for extra in ["contact", "contact-us", "about", "about-us"]:
                 pages.append(urljoin(r.url if r.url.endswith("/") else r.url + "/", extra))
-            for p in list(dict.fromkeys(pages))[:5]:
-                if domain(p) != domain(r.url): continue
-                try:
-                    pr = get(p, s)
-                    if pr.status_code < 400:
-                        emails = emails_from(pr.text[:400000], c["domain"])
-                        txt = txt or text_line(pr.text[:400000])
-                        if emails: src = pr.url; break
-                except Exception:
-                    pass
+        for p in list(dict.fromkeys(pages))[:5]:
+            if domain(p) != domain(r.url): continue
+            try:
+                pr = get(p, s)
+                if pr.status_code < 400:
+                    ph = pr.text[:400000]
+                    for e in emails_from(ph, c["domain"]):
+                        if e not in emails: emails.append(e); src.setdefault(e, pr.url)
+                    texts.append(P.plain(ph)); txt = txt or text_line(ph)
+            except Exception:
+                pass
         if not emails:
             return c, f"dated-no-email({pts})", None
         if fp(c["domain"]) in CONTACTED or any(fp(e) in CONTACTED for e in emails):
             return c, "already-contacted", None
         own = [e for e in emails if e.endswith(c["domain"])]
-        best = sorted(own or emails, key=lambda e: not R.personal_email(e))[0]   # a person's address beats info@
+        who = P.best_contact(own or emails, "\n".join(texts))
+        best, fname = who["email"], who["first_name"]
+        src = src.get(best, r.url)
         why_s = "; ".join(why) + (f"; licensed since {c['since']}" if c.get("since") else "")
-        plain = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)[\s\S]*?</\1>", " ", html))
-        fname = R.first_name(best, plain)
         money = R.money_signals(sig, c.get("since", ""))
         if money: why_s += "; spends: " + ", ".join(R.MONEY_LABELS[k] for k in money)
         total, parts = R.score(why_s, svc, c.get("since", ""), sig, "", best, fname, c["phone"], c["category"])
@@ -311,7 +315,7 @@ def check(c):
                            "phone": c["phone"], "text_line": txt, "dated_score": pts, "why_dated": why_s, "osm_id": c["osm_id"],
                            "service": svc, "first_name": fname, "score": total,
                            "score_parts": " ".join(f"{k}={v}" for k, v in parts.items()), "tier": tier,
-                           "competitor": "", "competitor_site": "", "hook": H.hook(why_s, sig), "since": c.get("since", "") or "", "country": CFG.get("country_code", "CA"), "_lat": c.get("lat", ""), "_lon": c.get("lon", "")}
+                           "competitor": "", "competitor_site": "", "hook": H.hook(why_s, sig), "contact_role": who["contact_role"], "email_type": who["email_type"], "since": c.get("since", "") or "", "country": CFG.get("country_code", "CA"), "_lat": c.get("lat", ""), "_lon": c.get("lon", "")}
     except Exception as e:
         return c, "error:" + type(e).__name__, None
 

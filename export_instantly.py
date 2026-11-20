@@ -11,7 +11,7 @@ import requests
 import hooks as H
 import refine as R
 
-COLS = ["email", "greeting", "firstName", "companyName", "city", "province", "service", "since", "hook", "tier", "score", "website"]
+COLS = ["email", "greeting", "firstName", "companyName", "city", "province", "service", "since", "hook", "tier", "score", "website", "emailType", "contactRole"]
 
 def dom(u):
     return re.sub(r"^www\.", "", re.sub(r"^https?://", "", (u or "").strip().lower())).split("/")[0]
@@ -47,7 +47,8 @@ def main():
             fn = (x.get("first_name") or "").strip()
             w.writerow([x["email"].strip().lower(), R.greeting(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
                         H.service_word(x.get("service", "")), x.get("since") or H.since_year(x.get("why_dated", "")),
-                        (x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("tier", ""), x.get("score", ""), x.get("website", "")])
+                        (x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
+                        x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", "")])
     print(f"wrote {len(picked)} contacts to {out}")
     if args.get("mark", "no") == "yes" and picked:
         ups = [{"osm_id": x["osm_id"], "status": "Instantly"} for x in picked]
