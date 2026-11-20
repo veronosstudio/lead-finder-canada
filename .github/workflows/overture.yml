@@ -1,0 +1,43 @@
+name: Overture test (free open business data)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Stop after this many leads"
+        required: false
+        default: "100"
+      metros:
+        description: "Metros (comma separated, from config_us.json)"
+        required: false
+        default: "Phoenix,Dallas-Fort Worth"
+
+permissions:
+  contents: write
+
+jobs:
+  overture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests duckdb
+      - name: Find leads from Overture
+        env:
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+          CONFIG: config_us.json
+          SHARD: "9"
+        run: python overture_source.py "target=${{ github.event.inputs.target }}" "metros=${{ github.event.inputs.metros }}"
+      - name: Save results
+        if: always()
+        run: |
+          git config user.name "veronos-finder"
+          git config user.email "finder@users.noreply.github.com"
+          git add leads data state
+          git diff --cached --quiet && exit 0
+          git commit -qm "Overture test $(date -u +%F)"
+          for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && exit 0; sleep 10; done
