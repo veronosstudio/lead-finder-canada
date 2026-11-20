@@ -19,6 +19,10 @@ on:
         description: "Clean-up: 'dry' = report only, 'apply' = delete (needs Kash's OK)"
         required: false
         default: "no"
+      inspect:
+        description: "Read-only: names to look up (regex), e.g. desert shores|glover"
+        required: false
+        default: ""
       retier:
         description: "Only re-label yay/nay from stored scores (yes/no)"
         required: false
@@ -41,7 +45,14 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
+      - name: Inspect (read-only)
+        if: github.event.inputs.inspect != ''
+        env:
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+        run: python inspect_rows.py "${{ github.event.inputs.inspect }}"
       - name: Upgrade contacts
+        if: github.event.inputs.inspect == ''
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
