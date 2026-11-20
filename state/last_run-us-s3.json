@@ -1,13 +1,13 @@
 {
  "date": "2026-11-20",
- "checked": 45,
- "leads": 2,
- "step": 6,
+ "checked": 496,
+ "leads": 24,
+ "step": 30,
  "of": 187,
  "at": [
-  "Tampa",
+  "Indianapolis",
   "home_improvement"
  ],
- "minutes": 5.2,
- "sheet_added": 2
+ "minutes": 50.3,
+ "sheet_added": 24
 }
