@@ -1,13 +1,13 @@
 {
  "date": "2026-11-20",
- "checked": 256,
- "leads": 2,
- "step": 2,
+ "checked": 1045,
+ "leads": 35,
+ "step": 16,
  "of": 187,
  "at": [
-  "Dallas-Fort Worth",
-  "health"
+  "Nashville",
+  "dental"
  ],
- "minutes": 8.2,
- "sheet_added": 2
+ "minutes": 50.4,
+ "sheet_added": 35
 }
