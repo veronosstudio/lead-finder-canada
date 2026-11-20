@@ -183,7 +183,32 @@ def site_signals(html):
                                   r"housecallpro|jobber|setmore|square\.site/book|acuityscheduling", low)),
         "ads": bool(re.search(r"aw-\d{6,}|googleadservices|googleads\.g\.doubleclick|fbq\(['\"]init|connect\.facebook\.net/[^\"']*fbevents", low)),
         "team": bool(re.search(r"our team|meet the team|our staff|meet our|our technicians|our crew|employees|trucks", text)),
+        "financing": bool(re.search(r"financing|payment plans?|0% interest|\bafford(able)? monthly|carecredit|sunbit|greensky|financeit|hearth\.co|affirm\.com|\bwells fargo financ", text)),
+        "locations": bool(re.search(r"our locations|(two|three|four|five|\d+) locations|second location|multiple locations|offices in|service areas?\b", text)),
+        "established": bool(re.search(r"\b(since|established|est\.?|founded( in)?|serving [a-z ,]+ since)\s*(19\d\d|200\d|201[0-6])\b|\b([1-9]\d)\+?\s*years (of experience|in business|serving)", text)),
+        "emergency": bool(re.search(r"24/7|24 hours?|24-hour|emergency service|same[- ]day service", text)),
     }
+
+# ---------------- who we target: money niches that spend money ----------------
+# High-ticket businesses only: one new customer is worth hundreds to thousands of dollars.
+MONEY_NICHES = {k for k, v in SERVICES.items() if v[1] >= 0.85 and k not in ("dealership",)}
+
+MONEY_LABELS = {"ads": "runs ads", "team": "has a team", "financing": "offers financing", "locations": "multiple locations/service areas",
+                "established": "10+ years in business", "emergency": "24/7 or emergency service"}
+
+def money_signals(sig, since=""):
+    """Signs the business has revenue and already spends money. Need 2+ to make the list."""
+    out = [k for k in MONEY_LABELS if (sig or {}).get(k)]
+    if "established" not in out and str(since).isdigit() and YEAR - int(since) >= 10:
+        out.append("established")
+    return out
+
+def qualifies(why_dated, service, sig, since=""):
+    """Returns '' when the business makes the list, else the reason it doesn't."""
+    if not strong_reasons(why_dated): return "no clear problem"
+    if service not in MONEY_NICHES: return f"low-value niche ({service or 'unknown'})"
+    if len(money_signals(sig, since)) < 2: return "no spend signals"
+    return ""
 
 # ---------------- the 0-100 score ----------------
 def score(why_dated="", service="", since="", signals=None, competitor="", email="", fname="", phone="", category=""):
@@ -207,6 +232,7 @@ def score(why_dated="", service="", since="", signals=None, competitor="", email
     value = round(15 * value_weight(service, category)) + (6 if yrs and yrs >= 10 else 4 if yrs and yrs >= 5 else 2 if yrs else 1)
     if s.get("team"): value += 4
     if s.get("ads"): value += 6          # already paying for Google/Facebook ads: has a budget, and is wasting clicks
+    value += 2 * len([k for k in ("financing", "locations", "established", "emergency") if s.get(k)])
     parts["value"] = min(25, value)
     # alive (20): proof they're still trading
     alive = 8

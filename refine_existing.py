@@ -100,7 +100,67 @@ def gate():
     F.log(f"gate: {skipped} not-clearly-dated contacts set to skip, {retagged} re-tagged into new niches")
     F.log("gate: sheet updated", F.sheet_update(ups))
 
+def sheet_delete(ids):
+    url, token = F.sheet_creds()
+    if not token or not ids: return 0
+    j = requests.post(url, data=__import__("json").dumps({"token": token, "action": "delete", "osm_ids": ids}),
+                      headers={"Content-Type": "application/json"}, timeout=300).json()
+    if not j.get("ok"): F.log("sheet refused delete:", str(j.get("error"))[:80])
+    return j.get("deleted", 0)
+
+def judge(r):
+    """Re-check one not-yet-emailed contact against the target rule. Returns (row, update or None, reason-to-delete or '')."""
+    for attempt in (1, 2):
+        try:
+            s = requests.Session(); url = r["website"]
+            try:
+                resp = F.get(url.replace("http://", "https://", 1), s); https_ok = resp.url.startswith("https://")
+            except requests.exceptions.SSLError:
+                resp = F.get(url.replace("https://", "http://", 1), s); https_ok = False
+            if resp.status_code >= 400: return r, None, "site down"
+            html = resp.text[:600000]
+            if R.is_chain(r["business"], html): return r, None, "chain"
+            pts, why = F.score(html, resp.url, https_ok)
+            since = r.get("since") or H.since_year(r.get("why_dated", ""))
+            title = (re.search(r"<title[^>]*>([^<]{0,200})", html, re.I) or [None, ""])[1]
+            svc = R.service_of(r.get("category", ""), r["business"], title)
+            sig = R.site_signals(html)
+            no = R.qualifies("; ".join(why), svc, sig, since)
+            if no: return r, None, no
+            money = R.money_signals(sig, since)
+            why_s = "; ".join(why) + (f"; licensed since {since}" if since else "") + "; spends: " + ", ".join(R.MONEY_LABELS[k] for k in money)
+            total, parts = R.score(why_s, svc, since, sig, r.get("competitor", ""), r["email"], r.get("first_name", ""), r.get("phone", ""), r.get("category", ""))
+            return r, {"osm_id": r["osm_id"], "service": svc, "score": total, "tier": R.tier_of(total, parts["need"]),
+                       "score_parts": " ".join(f"{k}={v}" for k, v in parts.items()), "hook": r.get("hook") or H.hook(why_s, sig)}, ""
+        except Exception:
+            if attempt == 2: return r, None, "site unreachable"
+            time.sleep(3)
+
+def prune():
+    """Delete every skipped contact, and every not-yet-emailed contact that isn't a target
+    (clear problem + high-ticket niche + 2 signs they spend money). Emailed contacts are never touched."""
+    from collections import Counter
+    skips = F.sheet_get("skip", 10000)
+    new = F.sheet_get("new", 10000)
+    F.log(f"prune: {len(skips)} skipped rows, {len(new)} not-yet-emailed rows to re-check")
+    dele, ups, why = {r["osm_id"]: dom(r.get("website")) for r in skips}, [], Counter()
+    with ThreadPoolExecutor(32) as ex:
+        for fut in as_completed([ex.submit(judge, r) for r in new]):
+            r, u, no = fut.result()
+            if no: dele[r["osm_id"]] = dom(r.get("website")); why[no.split(" (")[0]] += 1
+            else: ups.append(u)
+    F.log("prune: removed because", dict(why))
+    F.log(f"prune: keeping {len(ups)} target contacts, by niche", dict(Counter(u['service'] for u in ups)))
+    F.log("prune: kept rows updated", F.sheet_update(ups))
+    ids, gone = list(dele), 0
+    for i in range(0, len(ids), 1000): gone += sheet_delete(ids[i:i + 1000])
+    F.log(f"prune: deleted {gone} rows from the sheet")
+    # remember them so the finder never adds them back
+    F.append_seen([[i, d or "", F.TODAY, "removed"] for i, d in dele.items()])
+
 def main():
+    if "prune" in sys.argv:
+        return prune()
     if "gate" in sys.argv:
         return gate()
     if "fixsheet" in sys.argv:
