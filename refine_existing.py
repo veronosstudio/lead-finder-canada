@@ -128,7 +128,7 @@ def judge(r):
             no = R.qualifies("; ".join(why), svc, sig, since)
             if no: return r, None, no
             money = R.money_signals(sig, since)
-            why_s = "; ".join(why) + (f"; licensed since {since}" if since else "") + "; spends: " + ", ".join(R.MONEY_LABELS[k] for k in money)
+            why_s = "; ".join(why) + (f"; licensed since {since}" if since else "") + ("; spends: " + ", ".join(R.MONEY_LABELS[k] for k in money) if money else "")
             total, parts = R.score(why_s, svc, since, sig, r.get("competitor", ""), r["email"], r.get("first_name", ""), r.get("phone", ""), r.get("category", ""))
             return r, {"osm_id": r["osm_id"], "service": svc, "score": total, "tier": R.tier_of(total, parts["need"]),
                        "score_parts": " ".join(f"{k}={v}" for k, v in parts.items()), "hook": r.get("hook") or H.hook(why_s, sig)}, ""
@@ -136,7 +136,7 @@ def judge(r):
             if attempt == 2: return r, None, "site unreachable"
             time.sleep(3)
 
-def prune():
+def prune(include_skips=True):
     """Delete every skipped contact, and every not-yet-emailed contact that isn't a target
     (clear problem + high-ticket niche + 2 signs they spend money). Emailed contacts are never touched."""
     from collections import Counter
@@ -151,6 +151,9 @@ def prune():
             else: ups.append(u)
     F.log("prune: removed because", dict(why))
     F.log(f"prune: keeping {len(ups)} target contacts, by niche", dict(Counter(u['service'] for u in ups)))
+    F.log(f"prune: would delete {len(dele)} rows in total ({len(skips)} already-skipped + {len(dele) - len(skips)} more)")
+    if "prune_apply" not in sys.argv:
+        F.log("prune: DRY RUN, nothing changed"); return
     F.log("prune: kept rows updated", F.sheet_update(ups))
     ids, gone = list(dele), 0
     for i in range(0, len(ids), 1000): gone += sheet_delete(ids[i:i + 1000])
@@ -159,7 +162,7 @@ def prune():
     F.append_seen([[i, d or "", F.TODAY, "removed"] for i, d in dele.items()])
 
 def main():
-    if "prune" in sys.argv:
+    if "prune" in sys.argv or "prune_apply" in sys.argv:
         return prune()
     if "gate" in sys.argv:
         return gate()

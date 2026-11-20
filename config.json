@@ -22,7 +22,11 @@
   "clinics_medical": "nwr[\"amenity\"~\"^(dentist|clinic|doctors|veterinary)$\"]",
   "legal_financial": "nwr[\"office\"~\"^(lawyer|accountant|tax_advisor|financial|financial_advisor|insurance|notary)$\"]",
   "home_services_shops": "nwr[\"shop\"~\"^(swimming_pool|doors|windows|kitchen|bathroom_furnishing|flooring|fireplace|hvac|security|garage)$\"]",
-  "funeral_homes": "nwr[\"shop\"=\"funeral_directors\"]"
+  "funeral_homes": "nwr[\"shop\"=\"funeral_directors\"]",
+  "auto_service": "nwr[\"shop\"~\"^(car_repair|tyres|motorcycle_repair|truck_repair)$\"]",
+  "events_personal": "nwr[\"craft\"~\"^(photographer|caterer)$\"]",
+  "venues_funeral": "nwr[\"amenity\"~\"^(events_venue|conference_centre|funeral_hall)$\"]",
+  "schools": "nwr[\"amenity\"~\"^(driving_school|music_school|dancing_school|language_school)$\"]"
  },
  "skip_name_words": [
   "walmart",

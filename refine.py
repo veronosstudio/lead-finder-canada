@@ -189,25 +189,24 @@ def site_signals(html):
         "emergency": bool(re.search(r"24/7|24 hours?|24-hour|emergency service|same[- ]day service", text)),
     }
 
-# ---------------- who we target: money niches that spend money ----------------
-# High-ticket businesses only: one new customer is worth hundreds to thousands of dollars.
-MONEY_NICHES = {k for k, v in SERVICES.items() if v[1] >= 0.85 and k not in ("dealership",)}
+# ---------------- who we target ----------------
+# Must-have: a problem the owner would notice. Skip only the cheapest niches.
+# Spend signals (ads, team, financing...) are NOT required: they raise the score so those businesses get emailed first.
+LOW_NICHES = {k for k, v in SERVICES.items() if v[1] < 0.5}
 
 MONEY_LABELS = {"ads": "runs ads", "team": "has a team", "financing": "offers financing", "locations": "multiple locations/service areas",
                 "established": "10+ years in business", "emergency": "24/7 or emergency service"}
 
 def money_signals(sig, since=""):
-    """Signs the business has revenue and already spends money. Need 2+ to make the list."""
     out = [k for k in MONEY_LABELS if (sig or {}).get(k)]
     if "established" not in out and str(since).isdigit() and YEAR - int(since) >= 10:
         out.append("established")
     return out
 
-def qualifies(why_dated, service, sig, since=""):
+def qualifies(why_dated, service, sig=None, since=""):
     """Returns '' when the business makes the list, else the reason it doesn't."""
     if not strong_reasons(why_dated): return "no clear problem"
-    if service not in MONEY_NICHES: return f"low-value niche ({service or 'unknown'})"
-    if len(money_signals(sig, since)) < 2: return "no spend signals"
+    if service in LOW_NICHES: return f"low-value niche ({service})"
     return ""
 
 # ---------------- the 0-100 score ----------------

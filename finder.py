@@ -255,7 +255,7 @@ def check(c):
         sig = R.site_signals(html)
         no = R.qualifies("; ".join(why), svc, sig, c.get("since", ""))
         if no:
-            return c, "not-target:" + no, None             # cheap niche, or no sign they spend money
+            return c, "not-target:" + no, None             # no visible problem, or a cheap niche
         emails, src = emails_from(html, c["domain"]), r.url
         txt = text_line(html)
         if not emails:
@@ -282,7 +282,8 @@ def check(c):
         why_s = "; ".join(why) + (f"; licensed since {c['since']}" if c.get("since") else "")
         plain = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)[\s\S]*?</\1>", " ", html))
         fname = R.first_name(best, plain)
-        why_s += "; spends: " + ", ".join(R.MONEY_LABELS[k] for k in R.money_signals(sig, c.get("since", "")))
+        money = R.money_signals(sig, c.get("since", ""))
+        if money: why_s += "; spends: " + ", ".join(R.MONEY_LABELS[k] for k in money)
         total, parts = R.score(why_s, svc, c.get("since", ""), sig, "", best, fname, c["phone"], c["category"])
         tier = R.tier_of(total, parts["need"])
         if tier == "skip":
