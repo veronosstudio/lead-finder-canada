@@ -19,6 +19,10 @@ on:
         description: "Clean-up: 'dry' = report only, 'apply' = delete (needs Kash's OK)"
         required: false
         default: "no"
+      unskip:
+        description: "Bring back skipped contacts under the points rule: 'dry' or 'apply'"
+        required: false
+        default: ""
       inspect:
         description: "Read-only: names to look up (regex), e.g. desert shores|glover"
         required: false
@@ -56,7 +60,7 @@ jobs:
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
-        run: python refine_existing.py ${{ github.event.inputs.redo == 'yes' && 'redo' || '' }} ${{ github.event.inputs.retier == 'yes' && 'retier' || '' }} ${{ github.event.inputs.fixsheet == 'yes' && 'fixsheet' || '' }} ${{ github.event.inputs.gate == 'yes' && 'gate' || '' }} ${{ github.event.inputs.prune == 'dry' && 'prune' || '' }} ${{ github.event.inputs.prune == 'apply' && 'prune_apply' || '' }}
+        run: python refine_existing.py ${{ github.event.inputs.redo == 'yes' && 'redo' || '' }} ${{ github.event.inputs.retier == 'yes' && 'retier' || '' }} ${{ github.event.inputs.fixsheet == 'yes' && 'fixsheet' || '' }} ${{ github.event.inputs.gate == 'yes' && 'gate' || '' }} ${{ github.event.inputs.prune == 'dry' && 'prune' || '' }} ${{ github.event.inputs.prune == 'apply' && 'prune_apply' || '' }} ${{ github.event.inputs.unskip == 'dry' && 'unskip' || '' }} ${{ github.event.inputs.unskip == 'apply' && 'unskip_apply' || '' }}
       - name: Save competitor pool
         if: always()
         run: |

@@ -303,7 +303,7 @@ def check(c):
         money = R.money_signals(sig, c.get("since", ""))
         if money: why_s += "; spends: " + ", ".join(R.MONEY_LABELS[k] for k in money)
         total, parts = R.score(why_s, svc, c.get("since", ""), sig, "", best, fname, c["phone"], c["category"])
-        tier = R.tier_of(total, parts["need"])
+        tier = R.tier_of(total, parts["need"], why_s)
         if tier == "skip":
             return c, f"weak({total})", None
         return c, "LEAD", {"date": TODAY, "business": c["business"], "category": c["category"], "town": c["town"],

@@ -161,7 +161,33 @@ def prune(include_skips=True):
     # remember them so the finder never adds them back
     F.append_seen([[i, d or "", F.TODAY, "removed"] for i, d in dele.items()])
 
+def unskip():
+    """Bring back skipped contacts that the new points rule says are bad enough to email.
+    Never brings back: dead sites, chains, redesigned sites, or a second contact at a business we already have."""
+    from collections import Counter
+    rows = []
+    for st in STATUSES:
+        for r in F.sheet_get(st, 10000): r["status"] = st; rows.append(r)
+    taken = {dom(r.get("website")) for r in rows if r["status"] != "skip"}
+    ups, why_not, picked = [], Counter(), set()
+    for r in rows:
+        if r["status"] != "skip": continue
+        sp, d = (r.get("score_parts") or ""), dom(r.get("website"))
+        if re.match(r"site down|chain|site now modern", sp): why_not["dead/chain/redesigned"] += 1; continue
+        if d in taken or d in picked: why_not["duplicate business"] += 1; continue
+        pts, _ = R.badness(r.get("why_dated", ""))
+        if pts < R.BAD_ENOUGH: why_not["site not bad enough"] += 1; continue
+        picked.add(d)
+        tier = "A" if pts >= 5 and int(r.get("score") or 0) >= 45 else "B"
+        ups.append({"osm_id": r["osm_id"], "status": "new", "tier": tier})
+    F.log(f"unskip: {len(ups)} skipped contacts qualify again (tiers {dict(Counter(u['tier'] for u in ups))}); stay skipped: {dict(why_not)}")
+    if "unskip_apply" not in sys.argv:
+        F.log("unskip: DRY RUN, nothing changed"); return
+    F.log("unskip: sheet updated", F.sheet_update(ups))
+
 def main():
+    if "unskip" in sys.argv or "unskip_apply" in sys.argv:
+        return unskip()
     if "prune" in sys.argv or "prune_apply" in sys.argv:
         return prune()
     if "gate" in sys.argv:

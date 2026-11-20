@@ -157,19 +157,33 @@ def is_chain(business="", html_text=""):
 
 
 # ---------- is it clearly dated? (only problems a person would notice) ----------
-def strong_reasons(why_dated=""):
-    """The site only counts if a person would notice the problem. An old copyright year on its own doesn't count
-    (nice, modern sites often forget to update it); it only counts alongside old tech (old jQuery, old WordPress,
-    an old slider theme or a DIY builder)."""
-    w = (why_dated or "").lower(); out = []
-    if "not built for phones" in w: out.append("phones")
-    if "no secure https" in w: out.append("not secure")
-    for k in ("flash", "table layout", "<font", "old builder", "old default theme", "old wordpress"):
-        if k in w: out.append(k)
+def badness(why_dated=""):
+    """How bad the site is, in points, from what the check actually found on the page.
+    Strong (3): a problem a visitor hits right away.  Medium (2): clearly old or DIY.  Weak (1): a rough edge.
+    A copyright of the last 3 years counts for nothing (plenty of good sites forget to update it)."""
+    w = (why_dated or "").lower(); pts, out = 0, []
+    def add(n, label): nonlocal pts; pts += n; out.append(label)
+    if "not built for phones" in w: add(3, "not built for phones")
+    if "no secure https" in w: add(3, "not secure")
+    for k in ("flash", "table layout", "<font", "marquee", "old builder"):
+        if k in w: add(3, k)
     m = re.search(r"copyright (\d{4})", w)
-    if m and int(m.group(1)) <= YEAR - 4 and re.search(r"old jquery|old slider|diy |template builder", w):
-        out.append("old year + old tech")
-    return out
+    if m:
+        y = int(m.group(1))
+        if y <= YEAR - 6: add(3, f"copyright {y}")
+        elif y <= YEAR - 4: add(2, f"copyright {y}")
+    for k in ("diy ", "template builder", "old slider", "old jquery", "old wordpress", "old default theme"):
+        if k in w: add(2, k.strip())
+    for k in ("no main headline", "phone not tappable", "no contact form"):
+        if k in w: add(1, k)
+    return pts, out
+
+BAD_ENOUGH = 3   # one strong problem, or a medium + a weak one, or three weak ones
+
+def strong_reasons(why_dated=""):
+    """Kept for older callers: the reasons, but only when the site is bad enough to email."""
+    pts, out = badness(why_dated)
+    return out if pts >= BAD_ENOUGH else []
 
 # ---------------- site signals (from the page we already fetched) ----------------
 def site_signals(html):
@@ -213,17 +227,8 @@ def qualifies(why_dated, service, sig=None, since=""):
 def score(why_dated="", service="", since="", signals=None, competitor="", email="", fname="", phone="", category=""):
     w = (why_dated or "").lower(); s = signals or {}
     parts = {}
-    # need (30): only problems an owner can see in seconds
-    need = 0
-    if "not built for phones" in w: need += 15
-    if "no secure https" in w: need += 10
-    m = re.search(r"copyright (\d{4})", w)
-    if m:
-        y = int(m.group(1)); need += 12 if y <= YEAR - 6 else 9 if y <= YEAR - 4 else 3
-    if re.search(r"flash|table layout|<font|old builder", w): need += 8
-    if s.get("contact_form") is False and s.get("booking") is False: need += 3
-    if need and "phone not tappable" in w: need += 2
-    parts["need"] = min(30, need)
+    # need (30): how bad the site is (badness points x 3)
+    parts["need"] = min(30, badness(w)[0] * 3)
     # value (25): what one new customer is worth + how established
     yrs = (YEAR - int(since)) if str(since).isdigit() else None
     if yrs is None:
@@ -247,9 +252,11 @@ def score(why_dated="", service="", since="", signals=None, competitor="", email
     total = sum(parts.values())
     return total, parts
 
-def tier_of(total, need):
+def tier_of(total, need, why_dated=None):
     """Yay or nay. Every lead here already passed the dated-site check, so it's a YES (A = send first, B = send next).
     The only NOs ("skip") come from hard reasons set elsewhere: site down, chain/franchise, site redesigned since."""
+    if why_dated is not None:
+        return "A" if badness(why_dated)[0] >= 5 and total >= 45 else "B"
     return "A" if total >= 50 else "B"
 
 def greeting(fname, company=""):
