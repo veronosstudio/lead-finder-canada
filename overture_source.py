@@ -13,13 +13,15 @@ args = dict(a.split("=", 1) for a in sys.argv[1:] if "=" in a)
 TARGET = int(args.get("target", "100"))
 RELEASE = args.get("release", "2026-11-18.0")
 METROS = [m.strip() for m in args.get("metros", "Phoenix,Dallas-Fort Worth").split(",") if m.strip()]
+if args.get("metros", "") in ("", "auto"):          # nightly: each of the 4 searches takes every 4th metro
+    METROS = list(F.CFG["metros"])[F.SHARD::F.SHARDS]
 # most valuable first; matched against Overture's basic_category / taxonomy primary
 NICHES = [r"dentist|orthodont|dental", r"lawyer|attorney|law_firm|legal", r"plumb|electrician|hvac|heating|air_condition|roof",
           r"contractor|remodel|construction|builder|window|glass|solar|pool|fence|garage_door|cabinet|flooring",
           r"chiropract|physical_therap|physiotherap|optometr|veterinar|medical_spa|dermatolog|clinic|doctor|podiatr|audiolog",
           r"accountant|accounting|tax|financial|insurance|wealth", r"landscap|lawn|pest|tree_service", r"auto_body|collision|auto_repair",
           r"funeral"]
-F.SEEN = os.path.join(F.ROOT, "data", "seen-overture.csv")
+F.SEEN = os.path.join(F.ROOT, "data", f"seen-overture{F.SUFFIX}.csv")   # one file per search (no git clashes)
 
 def query(metro):
     s, w, n, e = F.CFG["metros"][metro][1]

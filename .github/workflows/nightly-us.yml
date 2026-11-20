@@ -1,4 +1,4 @@
-name: Nightly lead finder (US, metros first, 4 searches at once)
+name: Nightly lead finder (US, Overture, 4 searches at once)
 
 on:
   schedule:
@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install requests
+      - run: pip install requests duckdb
       - name: Find leads
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
@@ -38,7 +38,7 @@ jobs:
           TEST_LEADS: ${{ github.event.inputs.test_leads }}
           CONFIG: config_us.json
           SHARD: ${{ matrix.shard }}
-        run: python finder.py
+        run: python overture_source.py "target=${{ github.event.inputs.test_leads || '38' }}" metros=auto
       - name: Save results
         if: always()
         run: |
