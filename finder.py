@@ -20,10 +20,12 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 CONFIG = os.environ.get("CONFIG", "config.json")   # config.json = Canada, config_us.json = United States
 CFG = json.load(open(os.path.join(ROOT, CONFIG)))
 SUFFIX = CFG.get("file_suffix", "")                 # "" for Canada, "-us" for the US (own progress + lead files)
+SHARD, SHARDS = int(os.environ.get("SHARD", "0") or 0), int(CFG.get("shards", 1))   # several searches run side by side
+if SHARDS > 1: SUFFIX += f"-s{SHARD}"
 if os.environ.get("TEST_LEADS", "").strip().isdigit():  # quick test run: stop after N leads (manual runs only)
     CFG["daily_target"] = int(os.environ["TEST_LEADS"]); CFG["licence_minutes"] = min(12, CFG.get("licence_minutes", 12)); CFG["competitor_minutes"] = min(4, CFG.get("competitor_minutes", 4))
 STATE = os.path.join(ROOT, "state", f"progress{SUFFIX}.json")
-SEEN = os.path.join(ROOT, "data", "seen.csv")
+SEEN = os.path.join(ROOT, "data", "seen.csv" if SHARDS == 1 else f"seen{SUFFIX}.csv")   # each search writes its own file
 TODAY = dt.date.today().isoformat()
 OUT = os.path.join(ROOT, "leads", f"{TODAY}{SUFFIX}.csv")
 START = time.time()
@@ -61,9 +63,15 @@ def save_state(s):
     json.dump(s, open(STATE, "w"), indent=1)
 
 def steps():
-    """Every (province, category group) pair, province-major."""
+    """Every (place, category group) pair, place-major, most valuable group first. With several searches,
+    each one takes every Nth step so they never query the same thing."""
     groups = list(CFG["category_groups"].keys())
-    return [(p, g) for p in CFG["provinces"] for g in groups]
+    metros = [p for p in CFG["provinces"] if p in CFG.get("metros", {})]
+    regions = [p for p in CFG["provinces"] if p not in CFG.get("metros", {})]
+    top = CFG.get("priority_groups", len(groups))          # 1) best niches in every metro, 2) the rest in every metro, 3) whole states
+    allsteps = ([(p, g) for p in metros for g in groups[:top]] + [(p, g) for p in metros for g in groups[top:]]
+                + [(p, g) for p in regions for g in groups])
+    return allsteps[SHARD::SHARDS] if SHARDS > 1 else allsteps
 
 def load_seen():
     seen_ids, seen_domains = set(), set()
@@ -73,8 +81,9 @@ def load_seen():
             line = line.strip()
             if line and not line.startswith("#"):
                 CONTACTED.add(line)
-    if os.path.exists(SEEN):
-        for r in csv.DictReader(open(SEEN)):
+    import glob
+    for path in glob.glob(os.path.join(ROOT, "data", "seen*.csv")):   # every search's history, so nobody is checked twice
+        for r in csv.DictReader(open(path)):
             seen_ids.add(r["osm_id"]); seen_domains.add(r["domain"])
     return seen_ids, seen_domains
 
@@ -88,10 +97,17 @@ def append_seen(rows):
 
 # ---------------- 1. OpenStreetMap ----------------
 def overpass(province, group):
-    sel = CFG["category_groups"][group]
-    q = f"""[out:json][timeout:240];
+    sels = CFG["category_groups"][group]
+    sels = [sels] if isinstance(sels, str) else sels
+    if province in CFG.get("metros", {}):           # a metro: search its bounding box
+        b = ",".join(str(x) for x in CFG["metros"][province][1])
+        body = "".join(f'{sel}["website"]({b});{sel}["contact:website"]({b});' for sel in sels)
+        q = f"[out:json][timeout:240];({body});out tags center;"
+    else:                                            # a whole state / province
+        body = "".join(f'{sel}["website"](area.a);{sel}["contact:website"](area.a);' for sel in sels)
+        q = f"""[out:json][timeout:240];
 area["ISO3166-2"="{province}"]["admin_level"="4"]->.a;
-({sel}["website"](area.a);{sel}["contact:website"](area.a););
+({body});
 out tags center;"""
     for attempt in range(6):
         if time_left() < 480:  # not enough time left to query and still check sites; save what we have
@@ -144,7 +160,9 @@ def candidates(elements, province, group, seen_ids, seen_domains):
         t = e["tags"]
         out.append({
             "osm_id": oid, "business": t.get("name", "").strip(), "category": t.get("craft") or t.get("shop") or t.get("healthcare") or t.get("office") or ("church" if t.get("amenity") == "place_of_worship" else group),
-            "town": t.get("addr:city", ""), "province": province.split("-")[1],
+            "town": t.get("addr:city", "") or (province if province in CFG.get("metros", {}) else ""),
+            "province": (t.get("addr:state", "") or "").upper()[:2] if province in CFG.get("metros", {}) and len(t.get("addr:state", "")) == 2
+                        else CFG["metros"][province][0] if province in CFG.get("metros", {}) else province.split("-")[1],
             "website": norm_site(t.get("website") or t.get("contact:website")), "domain": d,
             "phone": t.get("phone") or t.get("contact:phone", ""),
             "osm_email": t.get("email") or t.get("contact:email", ""),

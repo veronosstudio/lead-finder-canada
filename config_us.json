@@ -1,35 +1,120 @@
 {
  "country": "United States",
- "daily_target": 200,
+ "daily_target": 60,
  "time_budget_minutes": 58,
  "workers": 64,
  "min_dated_score": 3,
  "provinces": [
+  "Phoenix",
+  "Dallas-Fort Worth",
+  "Houston",
+  "Atlanta",
+  "Tampa",
+  "Charlotte",
+  "Denver",
+  "Las Vegas",
+  "San Antonio",
+  "Austin",
+  "Orlando",
+  "Nashville",
+  "Raleigh",
+  "Miami",
+  "Jacksonville",
+  "Salt Lake City",
+  "Tucson",
+  "Oklahoma City",
+  "Kansas City",
+  "St. Louis",
+  "Indianapolis",
+  "Columbus",
+  "Albuquerque",
+  "Boise",
+  "San Diego",
+  "Sacramento",
+  "Los Angeles",
+  "Chicago",
+  "Minneapolis",
+  "Seattle",
+  "Portland",
   "US-AZ",
-  "US-NV",
-  "US-NM",
-  "US-UT",
-  "US-CO",
   "US-TX",
+  "US-FL",
+  "US-GA",
+  "US-NC",
+  "US-CO",
+  "US-NV",
+  "US-TN",
+  "US-UT",
   "US-OK",
+  "US-MO",
+  "US-IN",
+  "US-OH",
+  "US-NM",
   "US-ID",
-  "US-MT",
-  "US-WY",
+  "US-CA",
+  "US-IL",
+  "US-MN",
   "US-WA",
   "US-OR",
-  "US-CA"
+  "US-SC",
+  "US-AL",
+  "US-LA",
+  "US-KY",
+  "US-VA",
+  "US-MD",
+  "US-PA",
+  "US-NJ",
+  "US-NY",
+  "US-MI",
+  "US-WI",
+  "US-IA",
+  "US-NE",
+  "US-KS",
+  "US-AR",
+  "US-MS",
+  "US-WV"
  ],
  "category_groups": {
-  "home_services": "nwr[\"craft\"~\"^(roofer|hvac|heating_engineer|plumber|electrician|builder|carpenter|window_construction|glaziery|insulation|stonemason|landscaper|gardener|pest_control|photovoltaic|solar|fence_maker|swimming_pool|tiler|floorer|painter|metal_construction)$\"]",
-  "clinics": "nwr[\"healthcare\"~\"^(dentist|orthodontist|chiropractor|physiotherapist|optometrist|podiatrist|psychotherapist|audiologist|occupational_therapist|speech_therapist)$\"]",
-  "clinics_medical": "nwr[\"amenity\"~\"^(dentist|clinic|doctors|veterinary)$\"]",
-  "legal_financial": "nwr[\"office\"~\"^(lawyer|accountant|tax_advisor|financial|financial_advisor|insurance|notary)$\"]",
-  "home_services_shops": "nwr[\"shop\"~\"^(swimming_pool|doors|windows|kitchen|bathroom_furnishing|flooring|fireplace|hvac|security|garage)$\"]",
-  "funeral_homes": "nwr[\"shop\"=\"funeral_directors\"]",
-  "auto_service": "nwr[\"shop\"~\"^(car_repair|tyres|motorcycle_repair|truck_repair)$\"]",
-  "events_personal": "nwr[\"craft\"~\"^(photographer|caterer)$\"]",
-  "venues_funeral": "nwr[\"amenity\"~\"^(events_venue|conference_centre|funeral_hall)$\"]",
-  "schools": "nwr[\"amenity\"~\"^(driving_school|music_school|dancing_school|language_school)$\"]"
+  "dental": [
+   "nwr[\"healthcare\"~\"^(dentist|orthodontist)$\"]",
+   "nwr[\"amenity\"=\"dentist\"]"
+  ],
+  "legal": [
+   "nwr[\"office\"~\"^(lawyer|notary)$\"]"
+  ],
+  "trades": [
+   "nwr[\"craft\"~\"^(hvac|heating_engineer|roofer|plumber|electrician)$\"]",
+   "nwr[\"shop\"=\"hvac\"]"
+  ],
+  "home_improvement": [
+   "nwr[\"craft\"~\"^(builder|carpenter|window_construction|glaziery|insulation|photovoltaic|solar|fence_maker|swimming_pool|stonemason)$\"]",
+   "nwr[\"shop\"~\"^(swimming_pool|doors|windows|kitchen|bathroom_furnishing|garage|fireplace)$\"]"
+  ],
+  "health": [
+   "nwr[\"healthcare\"~\"^(chiropractor|physiotherapist|optometrist|podiatrist|audiologist|psychotherapist|occupational_therapist|speech_therapist)$\"]",
+   "nwr[\"amenity\"~\"^(clinic|doctors|veterinary)$\"]"
+  ],
+  "financial": [
+   "nwr[\"office\"~\"^(accountant|tax_advisor|financial|financial_advisor|insurance)$\"]"
+  ],
+  "outdoor": [
+   "nwr[\"craft\"~\"^(landscaper|gardener|pest_control)$\"]"
+  ],
+  "auto": [
+   "nwr[\"shop\"~\"^(car_repair|tyres)$\"]"
+  ],
+  "funeral": [
+   "nwr[\"shop\"=\"funeral_directors\"]",
+   "nwr[\"amenity\"=\"funeral_hall\"]"
+  ],
+  "finishing": [
+   "nwr[\"craft\"~\"^(tiler|floorer|painter|metal_construction)$\"]",
+   "nwr[\"shop\"~\"^(flooring|security)$\"]"
+  ],
+  "events_schools": [
+   "nwr[\"craft\"~\"^(photographer|caterer)$\"]",
+   "nwr[\"amenity\"~\"^(events_venue|driving_school|music_school|dancing_school|language_school)$\"]"
+  ]
  },
  "skip_name_words": [
   "walmart",
@@ -153,5 +238,288 @@
  "licence_sources": [],
  "competitor_minutes": 0,
  "country_code": "US",
- "file_suffix": "-us"
+ "file_suffix": "-us",
+ "metros": {
+  "Phoenix": [
+   "AZ",
+   [
+    33.2,
+    -112.6,
+    33.9,
+    -111.6
+   ]
+  ],
+  "Dallas-Fort Worth": [
+   "TX",
+   [
+    32.5,
+    -97.6,
+    33.3,
+    -96.5
+   ]
+  ],
+  "Houston": [
+   "TX",
+   [
+    29.5,
+    -95.9,
+    30.2,
+    -95.0
+   ]
+  ],
+  "Atlanta": [
+   "GA",
+   [
+    33.5,
+    -84.65,
+    34.1,
+    -84.1
+   ]
+  ],
+  "Tampa": [
+   "FL",
+   [
+    27.6,
+    -82.85,
+    28.2,
+    -82.3
+   ]
+  ],
+  "Charlotte": [
+   "NC",
+   [
+    35.0,
+    -81.05,
+    35.45,
+    -80.6
+   ]
+  ],
+  "Denver": [
+   "CO",
+   [
+    39.5,
+    -105.2,
+    40.0,
+    -104.7
+   ]
+  ],
+  "Las Vegas": [
+   "NV",
+   [
+    35.9,
+    -115.4,
+    36.35,
+    -114.9
+   ]
+  ],
+  "San Antonio": [
+   "TX",
+   [
+    29.2,
+    -98.8,
+    29.75,
+    -98.3
+   ]
+  ],
+  "Austin": [
+   "TX",
+   [
+    30.05,
+    -98.0,
+    30.6,
+    -97.5
+   ]
+  ],
+  "Orlando": [
+   "FL",
+   [
+    28.3,
+    -81.6,
+    28.75,
+    -81.15
+   ]
+  ],
+  "Nashville": [
+   "TN",
+   [
+    35.95,
+    -87.0,
+    36.35,
+    -86.55
+   ]
+  ],
+  "Raleigh": [
+   "NC",
+   [
+    35.65,
+    -78.95,
+    36.05,
+    -78.45
+   ]
+  ],
+  "Miami": [
+   "FL",
+   [
+    25.55,
+    -80.5,
+    26.4,
+    -80.05
+   ]
+  ],
+  "Jacksonville": [
+   "FL",
+   [
+    30.1,
+    -81.85,
+    30.5,
+    -81.35
+   ]
+  ],
+  "Salt Lake City": [
+   "UT",
+   [
+    40.45,
+    -112.1,
+    40.9,
+    -111.75
+   ]
+  ],
+  "Tucson": [
+   "AZ",
+   [
+    32.0,
+    -111.2,
+    32.5,
+    -110.7
+   ]
+  ],
+  "Oklahoma City": [
+   "OK",
+   [
+    35.3,
+    -97.75,
+    35.7,
+    -97.3
+   ]
+  ],
+  "Kansas City": [
+   "MO",
+   [
+    38.85,
+    -94.8,
+    39.3,
+    -94.35
+   ]
+  ],
+  "St. Louis": [
+   "MO",
+   [
+    38.45,
+    -90.55,
+    38.85,
+    -90.15
+   ]
+  ],
+  "Indianapolis": [
+   "IN",
+   [
+    39.6,
+    -86.35,
+    40.0,
+    -85.95
+   ]
+  ],
+  "Columbus": [
+   "OH",
+   [
+    39.85,
+    -83.2,
+    40.15,
+    -82.8
+   ]
+  ],
+  "Albuquerque": [
+   "NM",
+   [
+    34.95,
+    -106.85,
+    35.25,
+    -106.45
+   ]
+  ],
+  "Boise": [
+   "ID",
+   [
+    43.5,
+    -116.45,
+    43.75,
+    -116.1
+   ]
+  ],
+  "San Diego": [
+   "CA",
+   [
+    32.6,
+    -117.3,
+    33.1,
+    -116.9
+   ]
+  ],
+  "Sacramento": [
+   "CA",
+   [
+    38.4,
+    -121.6,
+    38.8,
+    -121.1
+   ]
+  ],
+  "Los Angeles": [
+   "CA",
+   [
+    33.7,
+    -118.5,
+    34.3,
+    -117.7
+   ]
+  ],
+  "Chicago": [
+   "IL",
+   [
+    41.6,
+    -88.1,
+    42.15,
+    -87.5
+   ]
+  ],
+  "Minneapolis": [
+   "MN",
+   [
+    44.8,
+    -93.5,
+    45.15,
+    -93.0
+   ]
+  ],
+  "Seattle": [
+   "WA",
+   [
+    47.3,
+    -122.45,
+    47.85,
+    -122.05
+   ]
+  ],
+  "Portland": [
+   "OR",
+   [
+    45.35,
+    -122.85,
+    45.65,
+    -122.45
+   ]
+  ]
+ },
+ "shards": 4,
+ "priority_groups": 6
 }
