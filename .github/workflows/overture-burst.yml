@@ -1,0 +1,49 @@
+name: Overture burst (many searches at once)
+
+on:
+  workflow_dispatch:
+    inputs:
+      per_search:
+        description: "Leads per search"
+        required: false
+        default: "25"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: finder
+  cancel-in-progress: false
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests duckdb
+      - name: Find leads
+        env:
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+          CONFIG: config_us.json
+          SHARD: ${{ matrix.shard }}
+          SHARDS: "20"
+        run: python overture_source.py "target=${{ github.event.inputs.per_search }}" metros=auto
+      - name: Save results
+        if: always()
+        run: |
+          git config user.name "veronos-finder"
+          git config user.email "finder@users.noreply.github.com"
+          git add leads data state
+          git diff --cached --quiet && exit 0
+          git commit -qm "Overture burst $(date -u +%F) (search ${{ matrix.shard }})"
+          for i in $(seq 1 12); do git pull --rebase -q && git push -q && exit 0; sleep $((RANDOM % 25 + 5)); done
+          exit 1

@@ -74,6 +74,7 @@ def main():
                         leads.append(lead); F.log(f"  LEAD {lead['business']} ({lead['town']}) {lead['email']} [{lead.get('email_type')}] :: {lead['why_dated']}")
             F.log(f"overture: {checked} checked so far, {len(leads)} leads")
     F.append_seen(seen_rows)
+    time.sleep(F.SHARD * 4)   # many searches at once: take turns writing to the sheet
     added = F.post_to_sheet([{k: v for k, v in l.items() if not k.startswith("_")} for l in leads]) if leads else 0
     F.log(f"DONE overture: checked {checked}, leads {len(leads)}, sheet added {added}, "
           f"hit rate {len(leads) / max(1, checked):.1%}, owner/manager emails {sum(1 for l in leads if l.get('email_type') in ('owner', 'manager'))}, "

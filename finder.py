@@ -20,7 +20,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 CONFIG = os.environ.get("CONFIG", "config.json")   # config.json = Canada, config_us.json = United States
 CFG = json.load(open(os.path.join(ROOT, CONFIG)))
 SUFFIX = CFG.get("file_suffix", "")                 # "" for Canada, "-us" for the US (own progress + lead files)
-SHARD, SHARDS = int(os.environ.get("SHARD", "0") or 0), int(CFG.get("shards", 1))   # several searches run side by side
+SHARD, SHARDS = int(os.environ.get("SHARD", "0") or 0), int(os.environ.get("SHARDS") or CFG.get("shards", 1))   # several searches run side by side
 if SHARDS > 1: SUFFIX += f"-s{SHARD}"
 if os.environ.get("TEST_LEADS", "").strip().isdigit():  # quick test run: stop after N leads (manual runs only)
     CFG["daily_target"] = int(os.environ["TEST_LEADS"]); CFG["licence_minutes"] = min(12, CFG.get("licence_minutes", 12)); CFG["competitor_minutes"] = min(4, CFG.get("competitor_minutes", 4))
