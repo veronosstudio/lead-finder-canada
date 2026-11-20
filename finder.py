@@ -31,8 +31,8 @@ OUT = os.path.join(ROOT, "leads", f"{TODAY}{SUFFIX}.csv")
 START = time.time()
 BUDGET = CFG["time_budget_minutes"] * 60
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter",
-            "https://maps.mail.ru/osm/tools/overpass/api/interpreter"]
+OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter",
+            "https://maps.mail.ru/osm/tools/overpass/api/interpreter", "https://overpass.kumi.systems/api/interpreter"]
 YEAR = dt.date.today().year
 CONTACTED = set()
 def fp(x):
