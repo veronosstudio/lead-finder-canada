@@ -60,14 +60,16 @@ def main():
         if e in seen_e or (d and d in seen_d): continue
         seen_e.add(e); seen_d.add(d); picked.append(x)
         if len(picked) >= limit: break
+    simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType"]
     with open(out, "w", newline="") as f:
-        w = csv.writer(f); w.writerow(COLS)
+        w = csv.writer(f); w.writerow(simple)
         for x in picked:
             fn = (x.get("first_name") or "").strip()
-            w.writerow([x["email"].strip().lower(), R.greeting(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
+            row = dict(zip(COLS, [x["email"].strip().lower(), R.greeting(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
                         H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
                         niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", "")), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
-                        x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", "")])
+                        x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", "")]))
+            w.writerow([row[c] for c in simple])
     print(f"wrote {len(picked)} contacts to {out}")
     if args.get("mark", "no") == "yes" and picked:
         ups = [{"osm_id": x["osm_id"], "status": "Instantly"} for x in picked]
