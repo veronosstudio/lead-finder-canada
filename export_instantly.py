@@ -11,7 +11,15 @@ import requests
 import hooks as H
 import refine as R
 
-COLS = ["email", "greeting", "firstName", "companyName", "city", "province", "service", "since", "hook", "tier", "score", "website", "emailType", "contactRole"]
+COLS = ["email", "greeting", "firstName", "companyName", "city", "province", "service", "nicheLine", "since", "hook", "tier", "score", "website", "emailType", "contactRole"]
+# "I make websites for {{nicheLine}} around {{city}}"
+NICHE_LINE = {"dentist": "dental practices", "orthodontist": "orthodontic practices", "plumber": "plumbing companies",
+    "electrician": "electrical contractors", "hvac": "heating and cooling companies", "roofer": "roofing companies",
+    "lawyer": "law firms", "chiropractor": "chiropractic clinics", "physio": "physio clinics", "optometrist": "optometry clinics",
+    "medical": "clinics", "vet": "vet clinics", "accountant": "accounting firms", "financial": "financial advisors",
+    "insurance": "insurance agencies", "renovation": "renovation companies", "windows": "window and door companies",
+    "landscaper": "landscaping companies", "pool": "pool companies", "solar": "solar companies", "fencing": "fencing companies",
+    "garage_doors": "garage door companies", "funeral": "funeral homes", "auto_body": "auto body shops"}
 
 def dom(u):
     return re.sub(r"^www\.", "", re.sub(r"^https?://", "", (u or "").strip().lower())).split("/")[0]
@@ -31,6 +39,8 @@ def main():
     rows = requests.get(url, params={"token": token, "status": "new", "limit": "10000"}, timeout=120).json().get("rows", [])
     tiers = [t.strip().upper() for t in args.get("tiers", "A,B").split(",")]
     rows = [x for x in rows if (x.get("tier") or "").upper() in tiers and x.get("email")]
+    svcs = [x.strip() for x in args.get("services", "").split(",") if x.strip()]
+    if svcs: rows = [x for x in rows if (x.get("service") or "") in svcs]
     want = args.get("country", "").upper()
     if want: rows = [x for x in rows if (x.get("country") or "CA").upper() == want]   # rows from before the US launch are Canada
     rows.sort(key=lambda x: -int(x.get("score") or 0))
@@ -46,7 +56,7 @@ def main():
         for x in picked:
             fn = (x.get("first_name") or "").strip()
             w.writerow([x["email"].strip().lower(), R.greeting(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
-                        H.service_word(x.get("service", "")), x.get("since") or H.since_year(x.get("why_dated", "")),
+                        H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
                         (x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
                         x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", "")])
     print(f"wrote {len(picked)} contacts to {out}")

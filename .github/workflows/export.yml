@@ -12,6 +12,9 @@ on:
       limit:
         description: "How many contacts"
         default: "500"
+      services:
+        description: "Only these services (e.g. dentist,orthodontist), blank = all"
+        default: ""
       mark:
         description: "Mark exported rows as Instantly (yes/no)"
         default: "no"
@@ -30,7 +33,7 @@ jobs:
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
-        run: python export_instantly.py country=${{ github.event.inputs.country }} tiers=${{ github.event.inputs.tiers }} limit=${{ github.event.inputs.limit }} mark=${{ github.event.inputs.mark }} out=instantly.csv
+        run: python export_instantly.py country=${{ github.event.inputs.country }} tiers=${{ github.event.inputs.tiers }} limit=${{ github.event.inputs.limit }} mark=${{ github.event.inputs.mark }} "services=${{ github.event.inputs.services }}" out=instantly.csv
       - uses: actions/upload-artifact@v4
         with:
           name: instantly-batch

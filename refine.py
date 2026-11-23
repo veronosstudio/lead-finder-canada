@@ -25,7 +25,7 @@ SERVICES = {
     "dealership":     (r"dealer|motors\b|\bford\b|toyota|honda|hyundai|chevrolet|\bgm\b|nissan|mazda|kia\b|subaru|volkswagen|dodge|chrysler|\bram\b|jeep|go auto", 0.3, '["shop"="car"]'),
     "tires":          (r"\btyres?\b|\btires?\b", 0.6, '["shop"="tyres"]'),
     "dentist":        (r"dent(al|ist)|orthodont", 1.0, '["healthcare"="dentist"]'),
-    "lawyer":         (r"law(yer)?\b|legal|barrister|solicitor|notary", 1.0, '["office"~"^(lawyer|notary)$"]'),
+    "lawyer":         (r"law(yer)?\b|attorney|law_firm|legal|barrister|solicitor|notary", 1.0, '["office"~"^(lawyer|notary)$"]'),
     "chiropractor":   (r"chiropract", 0.95, '["healthcare"="chiropractor"]'),
     "physio":         (r"physio|physical therap|rehab", 0.9, '["healthcare"="physiotherapist"]'),
     "optometrist":    (r"optomet|optician|eye care|eyewear", 0.85, '["healthcare"="optometrist"]'),
