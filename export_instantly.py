@@ -11,7 +11,7 @@ import requests
 import hooks as H
 import refine as R
 
-COLS = ["email", "greeting", "firstName", "companyName", "city", "province", "service", "nicheLine", "since", "hook", "tier", "score", "website", "emailType", "contactRole"]
+COLS = ["email", "greeting", "firstName", "companyName", "city", "province", "service", "nicheLine", "since", "hook", "tier", "score", "website", "emailType", "contactRole", "phone"]
 # "I make websites for {{nicheLine}} around {{city}}"
 NICHE_LINE = {"dentist": "dental practices", "orthodontist": "orthodontic practices", "plumber": "plumbing companies",
     "electrician": "electrical contractors", "hvac": "heating and cooling companies", "roofer": "roofing companies",
@@ -60,7 +60,7 @@ def main():
         if e in seen_e or (d and d in seen_d): continue
         seen_e.add(e); seen_d.add(d); picked.append(x)
         if len(picked) >= limit: break
-    simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType"]
+    simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType", "phone"]
     with open(out, "w", newline="") as f:
         w = csv.writer(f); w.writerow(simple)
         for x in picked:
@@ -68,7 +68,7 @@ def main():
             row = dict(zip(COLS, [x["email"].strip().lower(), R.greeting(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
                         H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
                         niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", "")), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
-                        x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", "")]))
+                        x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", ""), (x.get("phone") or "").strip()]))
             w.writerow([row[c] for c in simple])
     print(f"wrote {len(picked)} contacts to {out}")
     if args.get("mark", "no") == "yes" and picked:
