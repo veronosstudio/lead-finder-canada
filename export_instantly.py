@@ -30,6 +30,14 @@ def clean_company(n):
     n = re.sub(r",?\s+(ltd|inc|corp|corporation|limited|incorporated|ulc|llp)\.?$", "", n, flags=re.I).strip()
     return n
 
+ASK = {"dentist": "book an appointment", "orthodontist": "book a consultation", "chiropractor": "book an appointment",
+       "physio": "book an appointment", "optometrist": "book an appointment", "medical": "book an appointment", "vet": "book an appointment",
+       "lawyer": "request a consultation", "accountant": "get in touch", "financial": "book a consultation"}
+
+def niche_hook(hook, service):
+    """Same finding, worded for the niche: dentists don't take quote requests."""
+    return hook.replace("ask for a quote", ASK.get(service, "ask for a quote"))
+
 def main():
     args = dict(a.split("=", 1) for a in sys.argv[1:] if "=" in a)
     url = os.environ["SHEET_URL"].strip().strip('"\'')
@@ -38,7 +46,8 @@ def main():
     token = os.environ["SHEET_TOKEN"].strip().strip('"\'')
     rows = requests.get(url, params={"token": token, "status": "new", "limit": "10000"}, timeout=120).json().get("rows", [])
     tiers = [t.strip().upper() for t in args.get("tiers", "A,B").split(",")]
-    rows = [x for x in rows if (x.get("tier") or "").upper() in tiers and x.get("email")]
+    rows = [x for x in rows if (x.get("tier") or "").upper() in tiers and x.get("email")
+            and not re.match(r"(webmaster|postmaster|hostmaster|noreply|no-reply|abuse|privacy)@", x["email"].strip().lower())]
     svcs = [x.strip() for x in args.get("services", "").split(",") if x.strip()]
     if svcs: rows = [x for x in rows if (x.get("service") or "") in svcs]
     want = args.get("country", "").upper()
@@ -57,7 +66,7 @@ def main():
             fn = (x.get("first_name") or "").strip()
             w.writerow([x["email"].strip().lower(), R.greeting(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
                         H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
-                        (x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
+                        niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", "")), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
                         x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", "")])
     print(f"wrote {len(picked)} contacts to {out}")
     if args.get("mark", "no") == "yes" and picked:
