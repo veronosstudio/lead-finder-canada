@@ -84,6 +84,25 @@ def is_general(email):
     local = email.split("@")[0].lower()
     return any(local == g or local.startswith(g) for g in GENERAL_INBOX)
 
+# Kash (Nov 24): when only shared inboxes exist, pick the one the owner is most likely to read, not just the first found.
+# Best: office/info/contact/hello/admin. Then front desk. Then service/support. Worst: sales, and back-office
+# boxes (careers, billing, marketing...) which are only used if nothing else exists.
+GEN_ORDER = [("office", "info", "contact", "hello", "admin", "owner", "mail", "inquiries", "inquiry", "team"),
+             ("frontdesk", "front.desk", "frontoffice", "reception", "appointments", "appointment", "schedule", "scheduling",
+              "smile", "smiles", "patients", "clinic", "dental", "law", "legal", "staff"),
+             ("service", "support", "help", "care", "customerservice", "cs"),
+             ("sales",)]
+BACK_OFFICE = ("career", "jobs", "job", "hr", "hiring", "recruit", "billing", "accounts", "accounting", "invoice", "ap@",
+               "payable", "payroll", "marketing", "media", "press", "pr@", "privacy", "legal-notice", "webmaster", "web@",
+               "events", "donate", "volunteer", "orders", "returns", "shipping", "warranty", "parts")
+
+def general_rank(e):
+    local = e.split("@")[0].lower()
+    if any(local.startswith(b.rstrip("@")) for b in BACK_OFFICE): return 9
+    for i, group in enumerate(GEN_ORDER):
+        if any(local == g or local.startswith(g) for g in group): return i
+    return 5
+
 def best_contact(emails, text):
     """Pick the email + the name to greet. Returns dict(email, email_type, first_name, contact_name, contact_role)."""
     ppl = people(text)
@@ -103,7 +122,7 @@ def best_contact(emails, text):
             fn = R.first_name(e)
             if fn and not pick: pick = (e, "named", fn, "", "", False)
     if not pick:                                              # 3. the general inbox, greeting the decision maker
-        gen = [e for e in emails if is_general(e)] or emails[:1]
+        gen = sorted([e for e in emails if is_general(e)] or emails, key=general_rank)
         if not gen: return None
         if dm:
             rank, kind, f, l, dr = dm[0]
