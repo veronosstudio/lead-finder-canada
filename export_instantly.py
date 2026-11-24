@@ -78,6 +78,22 @@ def hook_sentence(hook):
         return f"Couldn't find an easy way to {what}."
     return "Looks like it could use a refresh."
 
+# Kash (Nov 24, email v3): "Noticed {{coPoss}} website {{notice}}"
+def notice_line(hook_sentence_or_hook):
+    h = (hook_sentence_or_hook or "").lower()
+    if "phone" in h: return "is pretty tough to use on a phone."
+    if "not secure" in h: return 'shows a "Not secure" warning when it loads.'
+    m = re.search(r"easy way (?:for people )?to (.+?)\.?$", hook_sentence_or_hook or "")
+    if m:
+        what = m.group(1).rstrip(".")
+        return f"doesn't have an easy way to {'book online' if what == 'book an appointment' else what}."
+    return "could use a refresh."
+
+def co_poss(name):
+    n = (name or "").strip()
+    if not n: return "your"
+    return n + ("'" if n.lower().endswith("s") else "'s")
+
 def hey(fname):
     """Hey Dave, / Hi Dr. Lee, / Hey there,"""
     if not fname: return "Hey there,"
@@ -142,7 +158,7 @@ def main():
         if e in seen_e or (d and d in seen_d): continue
         seen_e.add(e); seen_d.add(d); picked.append(x)
         if len(picked) >= limit: break
-    simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType", "phone"]
+    simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType", "phone", "notice", "coPoss"]
     with open(out, "w", newline="") as f:
         w = csv.writer(f); w.writerow(simple)
         out_rows = []
@@ -152,6 +168,7 @@ def main():
                         H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
                         hook_sentence(niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", ""))), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
                         x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", ""), (x.get("phone") or "").strip()]))
+            row["notice"] = notice_line(row["hook"]); row["coPoss"] = co_poss(row["companyName"])
             w.writerow([row[c] for c in simple]); out_rows.append({c: row[c] for c in simple})
     print(f"wrote {len(picked)} contacts to {out}")
     if args.get("push", "no") == "yes" and picked:
