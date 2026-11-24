@@ -31,11 +31,20 @@ BIZ_WORD = re.compile(r"\b(law|legal|lawyer|avocat|notary|dental|dentist|dentist
     r"insurance|financial|accounting|cpa|dds|dmd|orthodontics|family|architects?|design|gallery|school|church|physio|sport|"
     r"professional|adr|consulting|massage|chiropractic|salon|spa|landscaping|painting|flooring)\b|&|\band\b|,", re.I)
 
+EXTRA_BIZ = {"physiotherapy", "orthodontist", "florist", "lottery", "studios", "entreprises", "convenience", "communities",
+             "optical", "vision", "smiles", "associes", "avocats", "counselling", "counseling", "rmt", "nitro", "photography",
+             "productions", "media", "fitness", "motors", "farms", "ranch", "jewellers", "jewelers", "bakery", "catering"}
+
 def person_named(n):
-    w = (n or "").split()
-    if not 2 <= len(w) <= 4 or BIZ_WORD.search(n or ""):
+    """Only "First Last" or "First D Last" / "First Last E" style names count."""
+    w = (n or "").replace(",", " ").split()
+    if not 2 <= len(w) <= 3 or BIZ_WORD.search(n or "") or any(x.lower().strip(".") in EXTRA_BIZ for x in w):
         return False
-    return w[0].lower() in R.FIRST_NAMES and all(re.fullmatch(r"[A-Z][a-zA-Z'\-]*\.?", x) for x in w)
+    if not all(re.fullmatch(r"[A-Z][a-zA-Z'\-]*\.?", x) for x in w) or w[0].lower() not in R.FIRST_NAMES:
+        return False
+    if len(w) == 3:  # a middle or trailing initial is required for three words
+        return bool(re.fullmatch(r"[A-Z]\.?", w[1]) or re.fullmatch(r"[A-Z]\.?", w[2]))
+    return True
 
 def generic_company(service):
     s = (service or "").lower()
