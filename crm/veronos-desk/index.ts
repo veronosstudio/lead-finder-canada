@@ -99,10 +99,46 @@ Deno.serve(async (req) => {
     const rows = (data || []).sort((a: any, b: any) => (Number(b.needs_you && !b.lost) - Number(a.needs_you && !a.lost)) || (ORDER.indexOf(a.status) - ORDER.indexOf(b.status)) || String(b.replied_at).localeCompare(String(a.replied_at)));
     return new Response(csv(rows), { headers: { "content-type": "text/csv; charset=utf-8", "cache-control": "no-store" } });
   }
-  // Manual updates (Kash, or Claude on his behalf).
+  const J = (b: unknown, s = 200) => new Response(JSON.stringify(b, null, 1), { status: s, headers: { "content-type": "application/json" } });
+  const veronosThread = async (email: string) => {
+    const em = await ik(`/emails?lead=${encodeURIComponent(email)}&limit=12&sort_order=desc`);
+    return (em.items || []).filter((e: any) => INBOX_RX.test(String(e.eaccount || "")) || INBOX_RX.test(String(e.to_address_email_list || "")));
+  };
+  // Reply desk for the twice-daily check-in: everyone flagged "needs you", with the thread.
+  if (url.searchParams.get("desk")) {
+    const { data } = await sb.from("veronos_leads").select("*").eq("needs_you", true).or("lost.is.null,lost.eq.false").order("needs_you_at", { ascending: true });
+    const people: any[] = [];
+    for (const w of data || []) {
+      let thread: any[] = [];
+      try {
+        const items = await veronosThread(w.email);
+        thread = items.map((e: any) => ({ at: e.timestamp_email, who: e.ue_type === 2 ? "them" : "kash", text: cleanReply(String(e.body?.text || e.content_preview || "")).slice(0, 600) })).reverse();
+        await sleep(900);
+      } catch { /* optional */ }
+      people.push({ email: w.email, first_name: w.first_name, company: w.company, website: w.website, city: w.city, niche: w.niche, hook: w.hook, status: w.status,
+        why: w.needs_you_why, cell: w.cell, preview_link: w.preview_link, their_reply: w.reply_snippet, notes: w.notes, thread });
+    }
+    return J({ count: people.length, people });
+  }
+  // Manual updates (Kash, or Claude on his behalf). With text: sends Kash's approved reply in their thread.
   if (req.method === "POST") {
     const email = String(body.email || "").toLowerCase().trim();
     if (!email) return new Response(JSON.stringify({ ok: false, error: "email required" }), { status: 400 });
+    if (body.text) {
+      const items = await veronosThread(email);
+      const last = items.find((e: any) => e.ue_type === 2) || items[0];
+      if (!last) return J({ ok: false, error: "no Veronos thread for " + email }, 409);
+      const newest = items[0];
+      if (!body.force && newest && newest.ue_type !== 2 && last && new Date(newest.timestamp_email).getTime() > new Date(last.timestamp_email).getTime())
+        return J({ ok: false, error: "Kash already replied after their latest message. Not sent (force:true to send anyway)." }, 409);
+      const inbox = last.ue_type === 2 ? last.eaccount : (last.eaccount || "");
+      const subject = /^re:/i.test(last.subject || "") ? last.subject : `Re: ${last.subject || "homepage idea"}`;
+      const text = String(body.text);
+      await ik("/emails/reply", { method: "POST", body: JSON.stringify({ reply_to_uuid: last.id, eaccount: inbox, subject, body: { text, html: toHtml(text) } }) });
+      await sb.from("veronos_leads").update({ needs_you: false, last_touch: new Date().toISOString(), inbox }).eq("email", email);
+      await sb.from("veronos_log").insert({ email, step: "personal reply (approved by Kash)", inbox, result: "sent" });
+      return J({ ok: true, from: inbox, subject });
+    }
     const patch: any = {};
     for (const k of ["preview_link", "status", "meeting_at", "plan", "notes", "cell", "lost"]) if (body[k] !== undefined) patch[k] = body[k];
     if (body.clear) patch.needs_you = false;
