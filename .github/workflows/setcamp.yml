@@ -1,0 +1,21 @@
+name: Set campaign caps and start
+on:
+  workflow_dispatch:
+    inputs:
+      caps:
+        description: "e.g. US=150 CA=300"
+        required: true
+jobs:
+  set:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+          CAPS: ${{ github.event.inputs.caps }}
+        run: python set_campaigns.py $CAPS
