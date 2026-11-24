@@ -107,7 +107,10 @@ def main():
     if m:
         url = f"https://script.google.com/macros/s/{m.group(1)}/exec"
     token = os.environ["SHEET_TOKEN"].strip().strip('"\'')
-    rows = requests.get(url, params={"token": token, "limit": "20000"}, timeout=180).json().get("rows", [])
+    rows = []
+    for st in ("Instantly", "new"):
+        rows += requests.get(url, params={"token": token, "status": st, "limit": "20000"}, timeout=180).json().get("rows", [])
+    print(f"sheet rows fetched: {len(rows)}")
     rows = [x for x in rows if x.get("email") and (x.get("status") or "").lower() in ("new", "instantly")
             and (x.get("email_type") or "general").lower() in ("general", "named")]
     shard, shards = int(os.environ.get("SHARD", 0)), int(os.environ.get("SHARDS", 1))
