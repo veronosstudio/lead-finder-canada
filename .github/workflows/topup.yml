@@ -2,6 +2,7 @@ name: Top up Instantly
 
 # Weekdays after the nightly finders: every new contact in the sheet goes into its Veronos campaign
 # (US -> Veronos - US, CA -> Veronos - Canada), then gets marked "Instantly" so it's never sent twice.
+# Every email is checked with Reacher first; bad ones are skipped and marked "Bad email".
 # Instantly skips anyone already in the workspace. Needs the INSTANTLY_API_KEY repo secret.
 on:
   schedule:
@@ -11,7 +12,7 @@ on:
 jobs:
   topup:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     strategy:
       max-parallel: 1
       matrix:
@@ -22,9 +23,16 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
+      - name: Get Reacher CLI (MIT, reacherhq/check-if-email-exists) to check emails before upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo reacherhq/check-if-email-exists --pattern '*x86_64-unknown-linux-gnu.tar.gz' --dir reacher
+          tar xzf reacher/*.tar.gz -C reacher
+          B=$(find reacher -type f -name 'check_if_email_exists' | head -1); chmod +x "$B"; echo "REACHER_BIN=$PWD/$B" >> $GITHUB_ENV
       - name: Export and push
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
           INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
-        run: python export_instantly.py country=${{ matrix.country }} tiers=A,B limit=5000 push=yes mark=yes out=topup.csv
+        run: python export_instantly.py country=${{ matrix.country }} tiers=A,B limit=5000 push=yes mark=yes verify=yes out=topup.csv

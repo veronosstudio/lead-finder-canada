@@ -107,6 +107,36 @@ def niche_hook(hook, service):
 CAMPAIGNS = {"US": "57499a6b-49f7-4980-8b5f-41dd5d3425aa", "CA": "93613104-97b7-48a7-8c5b-94a221afc620"}
 STANDARD = {"email", "firstName", "companyName", "website", "phone"}
 
+
+# Kash (Nov 24): bounces. Junk addresses scraped from site templates, and a Reacher check before anything is pushed.
+JUNK_DOMAINS = {"example.com", "domain.com", "email.com", "yourdomain.com", "yoursite.com", "mysite.com", "website.com", "company.com",
+                "test.com", "sentry.io", "wixpress.com", "sentry-next.wixpress.com", "godaddy.com", "squarespace.com", "mail.com", "dental.com"}
+def clean_email(e):
+    e = re.sub(r"^(?:%20|%3c|mailto:)+", "", (e or "").strip().lower())
+    return e.strip(" .;,<>")
+def junk_email(e):
+    if not re.fullmatch(r"[a-z0-9._%+'-]+@[a-z0-9.-]+\.[a-z]{2,}", e): return True
+    d = e.split("@")[1]
+    return d in JUNK_DOMAINS or d.endswith((".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"))
+
+def reacher_check(emails):
+    """Map email -> 'ok' | 'bad' | 'unknown' using the Reacher CLI (REACHER_BIN). Missing binary -> all 'unknown'."""
+    import subprocess
+    from concurrent.futures import ThreadPoolExecutor
+    binp = os.environ.get("REACHER_BIN", "")
+    if not binp or not os.path.exists(binp): return {e: "unknown" for e in emails}
+    def one(e):
+        try:
+            p = subprocess.run([binp, "--from-email", "hello@veronosstudio.com", "--hello-name", "veronosstudio.com", e], capture_output=True, text=True, timeout=90)
+            j = json.loads(p.stdout); smtp = j.get("smtp") if isinstance(j.get("smtp"), dict) else {}
+            if j.get("is_reachable") == "invalid": return "bad"
+            if j.get("is_reachable") == "risky" and smtp.get("is_catch_all") is False and smtp.get("is_deliverable") is False: return "bad"
+            return "ok" if j.get("is_reachable") in ("safe", "risky") else "unknown"
+        except Exception:
+            return "unknown"
+    with ThreadPoolExecutor(24) as ex:
+        return dict(zip(emails, ex.map(one, emails)))
+
 def push_instantly(rows, country):
     key = os.environ.get("INSTANTLY_API_KEY", "").strip()
     camp = CAMPAIGNS.get(country)
@@ -142,7 +172,8 @@ def main():
     token = os.environ["SHEET_TOKEN"].strip().strip('"\'')
     rows = requests.get(url, params={"token": token, "status": "new", "limit": "10000"}, timeout=120).json().get("rows", [])
     tiers = [t.strip().upper() for t in args.get("tiers", "A,B").split(",")]
-    rows = [x for x in rows if (x.get("tier") or "").upper() in tiers and x.get("email")
+    for x in rows: x["email"] = clean_email(x.get("email"))
+    rows = [x for x in rows if (x.get("tier") or "").upper() in tiers and x.get("email") and not junk_email(x["email"])
             and not re.match(r"(webmaster|postmaster|hostmaster|noreply|no-reply|abuse|privacy)@", x["email"].strip().lower())]
     svcs = [x.strip() for x in args.get("services", "").split(",") if x.strip()]
     if svcs: rows = [x for x in rows if (x.get("service") or "") in svcs]
@@ -151,6 +182,14 @@ def main():
     # Kash (Nov 24): owner/manager emails first, then named people, then shared inboxes; best score within each.
     TYPE_RANK = {"owner": 0, "manager": 1, "named": 2}
     rows.sort(key=lambda x: (TYPE_RANK.get((x.get("email_type") or "").lower(), 3), -int(x.get("score") or 0)))
+    bad_ids = []
+    if args.get("verify", "no") == "yes" and rows:
+        res = reacher_check(sorted({x["email"] for x in rows}))
+        bad = {e for e, v in res.items() if v == "bad"}
+        bad_ids = [x["osm_id"] for x in rows if x["email"] in bad]
+        rows = [x for x in rows if x["email"] not in bad]
+        from collections import Counter
+        print("verify:", dict(Counter(res.values())), f"-> skipped {len(bad)} bad emails")
     limit = int(args.get("limit", "500"))
     out, seen_e, seen_d, picked = args.get("out", "instantly.csv"), set(), set(), []
     for x in rows:
@@ -174,6 +213,12 @@ def main():
     if args.get("push", "no") == "yes" and picked:
         if not push_instantly(out_rows, want):
             sys.exit("push to Instantly failed; rows NOT marked")
+    if args.get("mark", "no") == "yes" and bad_ids:
+        ups = [{"osm_id": i, "status": "Bad email"} for i in bad_ids]
+        for i in range(0, len(ups), 300):
+            requests.post(url, data=json.dumps({"token": token, "action": "update", "updates": ups[i:i + 300]}),
+                          headers={"Content-Type": "application/json"}, timeout=300)
+        print(f"marked {len(bad_ids)} rows as Bad email")
     if args.get("mark", "no") == "yes" and picked:
         ups = [{"osm_id": x["osm_id"], "status": "Instantly"} for x in picked]
         done = 0
