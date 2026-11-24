@@ -2,11 +2,11 @@
 import os, requests
 H = {"Authorization": f"Bearer {os.environ['INSTANTLY_API_KEY']}"}
 API = "https://api.instantly.ai/api/v2"
-for name, cid in {"US": "57499a6b-49f7-4980-8b5f-41dd5d3425aa", "CA": "93613104-97b7-48a7-8c5b-94a221afc620"}.items():
+for name, cid in {"US": "57499a6b-49f7-4980-8b5f-41dd5d3425aa", "CA": "93613104-97b7-48a7-8c5b-94a221afc620", "SS": "019f9497-d3f4-4a8e-8fd8-be6b861546d2"}.items():
     c = requests.get(f"{API}/campaigns/{cid}", headers=H, timeout=30).json()
     a = requests.get(f"{API}/campaigns/analytics", headers=H, params={"id": cid}, timeout=30).json()
     a = a[0] if isinstance(a, list) and a else a
-    print(name, "status:", c.get("status"), "| leads", a.get("leads_count"), "contacted", a.get("contacted_count"), "sent", a.get("emails_sent_count"), "bounced", a.get("bounced_count"), "replies", a.get("reply_count"))
+    print(name, "status:", c.get("status"), "| leads", a.get("leads_count"), "contacted", a.get("contacted_count"), "sent", a.get("emails_sent_count"), "bounced", a.get("bounced_count"), "replies", a.get("reply_count"), "interested", a.get("total_interested", a.get("interested_count")), "first-email replies", a.get("reply_count_unique"), "| created", c.get("timestamp_created"))
 r = requests.get(f"{API}/accounts", headers=H, params={"limit": 100}, timeout=30).json()
 for acc in r.get("items", []):
     if "veronos" not in acc.get("email", ""): continue
