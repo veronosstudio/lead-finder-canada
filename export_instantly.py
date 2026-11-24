@@ -34,6 +34,27 @@ ASK = {"dentist": "book an appointment", "orthodontist": "book a consultation", 
        "physio": "book an appointment", "optometrist": "book an appointment", "medical": "book an appointment", "vet": "book an appointment",
        "lawyer": "request a consultation", "accountant": "get in touch", "financial": "book a consultation"}
 
+# Kash (Nov 24): hooks read as one casual sentence after "noticed a couple things." Old-year footers aren't
+# worth mentioning, so they get the refresh line too.
+def hook_sentence(hook):
+    h = (hook or "").strip()
+    low = h.lower()
+    if "hard to use on a phone" in low:
+        return "Pulled it up on my phone and it was pretty tough to get around."
+    if "not secure" in low:
+        return "Chrome shows a \"Not secure\" warning when it loads, which can scare people off."
+    m = re.search(r"easy way for people to (.+)$", h)
+    if m:
+        what = m.group(1).rstrip(".")
+        what = "book online" if what == "book an appointment" else what
+        return f"Couldn't find an easy way to {what}."
+    return "Looks like it could use a refresh."
+
+def hey(fname):
+    """Hey Dave, / Hi Dr. Lee, / Hey there,"""
+    if not fname: return "Hey there,"
+    return f"Hi {fname}," if re.match(r"Dr\.?\s", fname) else f"Hey {fname},"
+
 def niche_hook(hook, service):
     """Same finding, worded for the niche: dentists don't take quote requests."""
     return hook.replace("ask for a quote", ASK.get(service, "ask for a quote"))
@@ -65,9 +86,9 @@ def main():
         w = csv.writer(f); w.writerow(simple)
         for x in picked:
             fn = (x.get("first_name") or "").strip()
-            row = dict(zip(COLS, [x["email"].strip().lower(), R.greeting(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
+            row = dict(zip(COLS, [x["email"].strip().lower(), hey(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
                         H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
-                        niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", "")), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
+                        hook_sentence(niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", ""))), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
                         x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", ""), (x.get("phone") or "").strip()]))
             w.writerow([row[c] for c in simple])
     print(f"wrote {len(picked)} contacts to {out}")
