@@ -18,4 +18,5 @@ jobs:
       - env:
           PAGESPEED_KEY: ${{ secrets.PAGESPEED_KEY }}
           URLS: ${{ github.event.inputs.urls }}
+          SPEED_DEBUG: "1"
         run: python speed.py $URLS

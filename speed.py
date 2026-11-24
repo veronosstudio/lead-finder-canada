@@ -11,7 +11,9 @@ def mobile_load(url, tries=2):
         try:
             r = requests.get(API, params=params, timeout=90)
             if r.status_code == 429: time.sleep(10 * (i + 1)); continue
-            if not r.ok: return None
+            if not r.ok:
+                if os.environ.get("SPEED_DEBUG"): print("PSI", r.status_code, r.text[:300])
+                return None
             a = r.json()["lighthouseResult"]["audits"]
             ms = a.get("largest-contentful-paint", {}).get("numericValue") or a.get("speed-index", {}).get("numericValue")
             return round(ms / 1000, 1) if ms else None
