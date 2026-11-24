@@ -53,11 +53,22 @@ const needsHuman = (t: string) => /\?/.test(t) || /\b(price|cost|how much|pricin
 
 // ---- Copy (written as Kash; short, casual, no dashes) ----
 // Kash's wording (Nov 24): email first, cell is optional, give a timeline.
+// Email v3 (Kash, Nov 24): the homepage is "already built", so replies promise it shortly.
 const ASK_CELL = [
-  (hi: string) => `${hi}\n\nSounds good, I'll send it here. If you have a cell, I'd love to text it over too so you can check it out on your phone. Could I grab your number?\n\nI should have it ready in the next day or two.\n\nKash`,
+  (hi: string) => `${hi}\n\nAwesome, I'll send it over shortly. If you've got a cell, I'd love to text it too so you can check it out on your phone.\n\nKash`,
 ];
-const GOT_CELL = (hi: string) => `${hi}\n\nPerfect, got it. I'll text it over as soon as it's ready.\n\nKash`;
-const YES_WITH_CELL = (hi: string) => `${hi}\n\nSounds good, I'll send it here and text it over too. I should have it ready in the next day or two.\n\nKash`;
+const GOT_CELL = (hi: string) => `${hi}\n\nPerfect, got it. I'll text it over shortly.\n\nKash`;
+const YES_WITH_CELL = (hi: string) => `${hi}\n\nAwesome, I'll send it over shortly and text it to you too.\n\nKash`;
+// Instant heads-up to Kash on every new yes (he promised it "shortly"), via Resend.
+async function notifyKash(S: any, w: any, text: string) {
+  const key = Deno.env.get("RESEND_API_KEY"); const to = S.notify_email;
+  if (!key || !to) return;
+  const body = `New Veronos yes: ${w.company || w.email}${w.city ? " (" + w.city + ")" : ""}\n\nThey said: "${text.slice(0, 300)}"\n\nSite: ${w.website || "-"}\nEmail: ${w.email}\nCell: ${w.cell || "asked"}\nWhat we noticed: ${w.hook || "-"}\n\nThey were told it's coming shortly. Build their homepage now.`;
+  try {
+    await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: S.notify_from || "Veronos alerts <logan@seriessupply.com>", to: [to], subject: `New yes: ${w.company || w.email}`, text: body }) });
+  } catch { /* alert is best-effort */ }
+}
 const PREVIEW = (hi: string, link: string) => `${hi}\n\nHere's your new homepage:\n\n${link}\n\nIt's live for 7 days so you can click around on your phone and computer. Let me know what you think!\n\nKash`;
 const FU = (n: number, hi: string, book: string) => [
   `${hi}\n\nDid you get a chance to look at it? Happy to tweak anything, like colours, photos or wording.\n\nKash`,
@@ -248,18 +259,19 @@ Deno.serve(async (req) => {
       // a) New yes: ask for their cell (or thank them if they already gave one).
       if (w.status === "New yes" && !w.asked_cell_at && !w.needs_you) {
         const yesAt = new Date(w.last_reply_at || w.replied_at || now).getTime();
-        const wait = 15 + (hash(w.email) % 11);
+        const wait = 5 + (hash(w.email) % 6);
         if (!force && nowT - yesAt < wait * 60e3) { report.push({ email: w.email, action: `asks for cell in ~${wait} min` }); continue; }
         if (!replyHours) { report.push({ email: w.email, action: "ask for cell waits for morning" }); continue; }
         const thread = await lastReceived(w.email);
         if (!thread) { report.push({ email: w.email, action: "no thread found yet" }); continue; }
         const text = cleanReply(String(thread.body?.text || thread.content_preview || ""));
-        if (needsHuman(text)) { await save(w, { needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Question: reply personally", reply_snippet: text.slice(0, 400) }); report.push({ email: w.email, action: "yes with a question: needs you" }); continue; }
+        if (needsHuman(text)) { await save(w, { needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Question: reply personally", reply_snippet: text.slice(0, 400) }); if (!dry) await notifyKash(S, w, text); report.push({ email: w.email, action: "yes with a question: needs you" }); continue; }
         const cell = w.cell || phoneIn(text);
         const msg = cell ? YES_WITH_CELL(hi) : ASK_CELL[hash(w.email) % ASK_CELL.length](hi);
         if (await threadReply(w, thread, cell ? "thanks (had cell)" : "ask for cell", msg)) {
           sends++;
-          await save(w, { asked_cell_at: now.toISOString(), status: "Building", needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Build their homepage", ...(cell && !w.cell ? { cell, cell_got_at: now.toISOString() } : {}) });
+          await save(w, { asked_cell_at: now.toISOString(), status: "Building", needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Build their homepage NOW (promised shortly)", ...(cell && !w.cell ? { cell, cell_got_at: now.toISOString() } : {}) });
+          if (!dry) await notifyKash(S, w, text);
         }
         continue;
       }
