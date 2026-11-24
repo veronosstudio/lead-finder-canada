@@ -16,7 +16,7 @@ jobs:
           python-version: "3.12"
       - run: pip install requests
       - env:
-          PAGESPEED_KEY: ${{ secrets.PAGESPEED_KEY }}
+          PAGESPEED_KEY: ${{ secrets.PAGESPEED_KEY || secrets.AGESPEED_KEY }}
           URLS: ${{ github.event.inputs.urls }}
           SPEED_DEBUG: "1"
         run: python speed.py $URLS
