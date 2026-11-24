@@ -25,6 +25,13 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests duckdb
+      - name: Get Reacher CLI (MIT) so the scraper only keeps emails that exist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo reacherhq/check-if-email-exists --pattern '*x86_64-unknown-linux-gnu.tar.gz' --dir reacher || exit 0
+          tar xzf reacher/*.tar.gz -C reacher
+          B=$(find reacher -type f -name 'check_if_email_exists' | head -1); chmod +x "$B"; echo "REACHER_BIN=$PWD/$B" >> $GITHUB_ENV
       - name: Find leads from Overture
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}

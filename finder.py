@@ -15,6 +15,7 @@ import csv, json, os, re, sys, time, random, datetime as dt
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urljoin, urlparse
 import requests
+import email_check as EC
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 CONFIG = os.environ.get("CONFIG", "config.json")   # config.json = Canada, config_us.json = United States
@@ -255,12 +256,14 @@ def hidden_emails(html):
     return [e for e in out if e and "@" in e]
 
 def emails_from(html, site_domain):
+    """Every real address published on the page that belongs to this business (own domain or a free mailbox).
+    Kash (Nov 24): cleaned + junk-filtered at the source so template addresses never reach the sheet."""
     found = []
-    for m in re.findall(r'mailto:([^"\'?>\s]+)', html, re.I) + EMAIL_RE.findall(html) + hidden_emails(html):
-        e = m.strip().strip(".").lower()
-        if not EMAIL_RE.fullmatch(e) or any(j in e for j in JUNK_EMAIL): continue
+    for m in re.findall(r'mailto:([^"\'>\s]+)', html, re.I) + EMAIL_RE.findall(html) + hidden_emails(html):
+        e = EC.clean_email(m)
+        if not e or EC.junk_email(e) or any(j in e for j in JUNK_EMAIL): continue
         dom = e.split("@")[1]
-        if dom == site_domain or dom.endswith("." + site_domain) or site_domain.endswith(dom) or any(dom.endswith(f) for f in FREE_MAIL):
+        if EC.same_site(e, site_domain) or any(dom == f or dom.endswith("." + f) or (f.endswith(".") and dom.startswith(f)) for f in FREE_MAIL):
             if e not in found: found.append(e)
     return found
 
@@ -321,7 +324,14 @@ def check(c):
             return c, f"dated-no-email({pts})", None
         if fp(c["domain"]) in CONTACTED or any(fp(e) in CONTACTED for e in emails):
             return c, "already-contacted", None
-        own = [e for e in emails if e.endswith(c["domain"])]
+        # Kash (Nov 24): check the addresses before choosing one, so a departed staffer's dead inbox falls back to a live one.
+        if os.environ.get("REACHER_BIN"):
+            ver = EC.verify(emails[:6], workers=6)
+            live = [e for e in emails if ver.get(e, "unknown") != "bad"]
+            if not live:
+                return c, f"dated-bad-email({pts})", None
+            emails = live
+        own = [e for e in emails if EC.same_site(e, c["domain"])]
         who = P.best_contact(own or emails, "\n".join(texts))
         best, fname = who["email"], who["first_name"]
         src = src.get(best, r.url)
