@@ -12,7 +12,7 @@ on:
 jobs:
   topup:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     strategy:
       max-parallel: 1
       matrix:
@@ -35,4 +35,5 @@ jobs:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
           INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+          PAGESPEED_KEY: ${{ secrets.PAGESPEED_KEY || secrets.AGESPEED_KEY }}
         run: python export_instantly.py country=${{ matrix.country }} tiers=A,B limit=5000 push=yes mark=yes verify=yes out=topup.csv

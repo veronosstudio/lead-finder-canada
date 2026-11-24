@@ -171,7 +171,15 @@ def main():
         if e in seen_e or (d and d in seen_d): continue
         seen_e.add(e); seen_d.add(d); picked.append(x)
         if len(picked) >= limit: break
-    simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType", "phone", "notice", "coPoss"]
+    # Kash (Nov 24, email v4): one measurable business problem per lead (Google mobile speed test + site checks).
+    import email_vars as EV, speed as SP
+    from concurrent.futures import ThreadPoolExecutor as _TP
+    sites = sorted({(x.get("website") or "") for x in picked if x.get("website")})
+    speeds = {}
+    if os.environ.get("PAGESPEED_KEY") and sites:
+        with _TP(8) as ex: speeds = dict(zip(sites, ex.map(SP.mobile_load, sites)))
+        print(f"speed measured for {sum(1 for v in speeds.values() if v)} of {len(sites)} sites")
+    simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType", "phone", "notice", "coPoss", "cost", "tip", "issue", "speed"]
     with open(out, "w", newline="") as f:
         w = csv.writer(f); w.writerow(simple)
         out_rows = []
@@ -181,7 +189,9 @@ def main():
                         H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
                         hook_sentence(niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", ""))), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
                         x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", ""), (x.get("phone") or "").strip()]))
-            row["notice"] = notice_line(row["hook"]); row["coPoss"] = co_poss(row["companyName"])
+            row["coPoss"] = co_poss(row["companyName"])
+            ev = EV.build(x.get("why_dated", ""), row["hook"], speeds.get(x.get("website") or ""))
+            row.update({"notice": ev["notice"], "cost": ev["cost"], "tip": ev["tip"], "issue": ev["issue"], "speed": str(ev["speed"])})
             w.writerow([row[c] for c in simple]); out_rows.append({c: row[c] for c in simple})
     print(f"wrote {len(picked)} contacts to {out}")
     if args.get("push", "no") == "yes" and picked:
