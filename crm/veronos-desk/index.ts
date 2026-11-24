@@ -52,12 +52,12 @@ const phoneIn = (t: string) => { const m = t.match(PHONE_RX); return m ? `(${m[1
 const needsHuman = (t: string) => /\?/.test(t) || /\b(price|cost|how much|pricing|charge|budget|contract|catch)\b/i.test(t) || t.length > 400;
 
 // ---- Copy (written as Kash; short, casual, no dashes) ----
+// Kash's wording (Nov 24): email first, cell is optional, give a timeline.
 const ASK_CELL = [
-  (hi: string) => `${hi}\n\nAwesome, I'll get started on it.\n\nWhat's the best cell to text it to? It's easier to check out on your phone. I'll send it here too.\n\nKash`,
-  (hi: string) => `${hi}\n\nSounds good, I'll put it together.\n\nWhat's a good cell number to text you the link? I'll email it too so you have both.\n\nKash`,
+  (hi: string) => `${hi}\n\nSounds good, I'll send it here. If you have a cell, I'd love to text it over too so you can check it out on your phone. Could I grab your number?\n\nI should have it ready in the next day or two.\n\nKash`,
 ];
-const GOT_CELL = (hi: string) => `${hi}\n\nPerfect, got it. I'll text you the link as soon as it's ready, usually within a day or two.\n\nKash`;
-const YES_WITH_CELL = (hi: string) => `${hi}\n\nAwesome, I'll get started on it. I'll text you the link as soon as it's ready, usually within a day or two.\n\nKash`;
+const GOT_CELL = (hi: string) => `${hi}\n\nPerfect, got it. I'll text it over as soon as it's ready.\n\nKash`;
+const YES_WITH_CELL = (hi: string) => `${hi}\n\nSounds good, I'll send it here and text it over too. I should have it ready in the next day or two.\n\nKash`;
 const PREVIEW = (hi: string, link: string) => `${hi}\n\nHere's your new homepage:\n\n${link}\n\nIt's live for 7 days so you can click around on your phone and computer. Let me know what you think!\n\nKash`;
 const FU = (n: number, hi: string, book: string) => [
   `${hi}\n\nDid you get a chance to look at it? Happy to tweak anything, like colours, photos or wording.\n\nKash`,
