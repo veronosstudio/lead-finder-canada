@@ -24,6 +24,25 @@ NICHE_LINE = {"dentist": "dental practices", "orthodontist": "orthodontic practi
 def dom(u):
     return re.sub(r"^www\.", "", re.sub(r"^https?://", "", (u or "").strip().lower())).split("/")[0]
 
+# Kash (Nov 24): businesses listed under just a person's name ("Martin D Glazer") read wrong in
+# "Website for {{companyName}}", so they become "your firm" / "your practice" / "your business".
+BIZ_WORD = re.compile(r"\b(law|legal|lawyer|avocat|notary|dental|dentist|dentistry|clinic|group|services?|inc|ltd|llc|llp|pc|pllc|"
+    r"plumbing|electric|roofing|heating|hvac|construction|company|co|associates|centre|center|studio|shop|auto|homes?|realty|"
+    r"insurance|financial|accounting|cpa|dds|dmd|orthodontics|family|architects?|design|gallery|school|church|physio|sport|"
+    r"professional|adr|consulting|massage|chiropractic|salon|spa|landscaping|painting|flooring)\b|&|\band\b|,", re.I)
+
+def person_named(n):
+    w = (n or "").split()
+    if not 2 <= len(w) <= 4 or BIZ_WORD.search(n or ""):
+        return False
+    return w[0].lower() in R.FIRST_NAMES and all(re.fullmatch(r"[A-Z][a-zA-Z'\-]*\.?", x) for x in w)
+
+def generic_company(service):
+    s = (service or "").lower()
+    if re.search(r"legal|law", s): return "your firm"
+    if re.search(r"dental|chiro|physio|eye|medical|massage|clinic|care|health|optom|vet", s): return "your practice"
+    return "your business"
+
 def clean_company(n):
     """How a person would write the name in an email: Ben's Machining, not Ben'S Machining Ltd."""
     n = re.sub(r"(['’])S\b", r"\1s", (n or "").strip())
@@ -120,7 +139,7 @@ def main():
         out_rows = []
         for x in picked:
             fn = (x.get("first_name") or "").strip()
-            row = dict(zip(COLS, [x["email"].strip().lower(), hey(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
+            row = dict(zip(COLS, [x["email"].strip().lower(), hey(fn), fn, (generic_company(H.service_word(x.get("service", ""))) if person_named(clean_company(x.get("business", ""))) else clean_company(x.get("business", ""))), x.get("town", ""), x.get("province", ""),
                         H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
                         hook_sentence(niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", ""))), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
                         x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", ""), (x.get("phone") or "").strip()]))
