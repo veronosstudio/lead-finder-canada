@@ -59,6 +59,37 @@ def niche_hook(hook, service):
     """Same finding, worded for the niche: dentists don't take quote requests."""
     return hook.replace("ask for a quote", ASK.get(service, "ask for a quote"))
 
+# Daily top-up (Kash, Nov 24): new leads go straight into the matching Veronos campaign.
+CAMPAIGNS = {"US": "57499a6b-49f7-4980-8b5f-41dd5d3425aa", "CA": "93613104-97b7-48a7-8c5b-94a221afc620"}
+STANDARD = {"email", "firstName", "companyName", "website", "phone"}
+
+def push_instantly(rows, country):
+    key = os.environ.get("INSTANTLY_API_KEY", "").strip()
+    camp = CAMPAIGNS.get(country)
+    if not key or not camp:
+        print("push skipped: INSTANTLY_API_KEY secret missing or no country"); return False
+    H = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+    leads = [{"email": r["email"], "first_name": r["firstName"] or None, "company_name": r["companyName"] or None,
+              "website": r["website"] or None, "phone": r.get("phone") or None,
+              "custom_variables": {k: v for k, v in r.items() if k not in STANDARD and v not in (None, "")}} for r in rows]
+    added = 0
+    for i in range(0, len(leads), 500):
+        chunk = leads[i:i + 500]
+        res = requests.post("https://api.instantly.ai/api/v2/leads/add", headers=H, timeout=120,
+                            json={"campaign_id": camp, "skip_if_in_workspace": True, "leads": chunk})
+        if res.status_code == 404:  # older API: one lead at a time
+            for l in chunk:
+                r1 = requests.post("https://api.instantly.ai/api/v2/leads", headers=H, timeout=60,
+                                   json={"campaign": camp, "skip_if_in_workspace": True, **l})
+                if r1.ok: added += 1
+            continue
+        if not res.ok:
+            print(f"push failed {res.status_code}: {res.text[:300]}"); return False
+        j = res.json() if res.text else {}
+        added += int(j.get("leads_uploaded", j.get("total_uploaded", len(chunk))) or 0)
+    print(f"pushed {added} new leads to Instantly campaign {country}")
+    return True
+
 def main():
     args = dict(a.split("=", 1) for a in sys.argv[1:] if "=" in a)
     url = os.environ["SHEET_URL"].strip().strip('"\'')
@@ -84,14 +115,18 @@ def main():
     simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType", "phone"]
     with open(out, "w", newline="") as f:
         w = csv.writer(f); w.writerow(simple)
+        out_rows = []
         for x in picked:
             fn = (x.get("first_name") or "").strip()
             row = dict(zip(COLS, [x["email"].strip().lower(), hey(fn), fn, clean_company(x.get("business", "")), x.get("town", ""), x.get("province", ""),
                         H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
                         hook_sentence(niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", ""))), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
                         x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", ""), (x.get("phone") or "").strip()]))
-            w.writerow([row[c] for c in simple])
+            w.writerow([row[c] for c in simple]); out_rows.append({c: row[c] for c in simple})
     print(f"wrote {len(picked)} contacts to {out}")
+    if args.get("push", "no") == "yes" and picked:
+        if not push_instantly(out_rows, want):
+            sys.exit("push to Instantly failed; rows NOT marked")
     if args.get("mark", "no") == "yes" and picked:
         ups = [{"osm_id": x["osm_id"], "status": "Instantly"} for x in picked]
         done = 0

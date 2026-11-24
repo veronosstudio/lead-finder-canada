@@ -1,0 +1,30 @@
+name: Top up Instantly
+
+# Weekdays after the nightly finders: every new contact in the sheet goes into its Veronos campaign
+# (US -> Veronos - US, CA -> Veronos - Canada), then gets marked "Instantly" so it's never sent twice.
+# Instantly skips anyone already in the workspace. Needs the INSTANTLY_API_KEY repo secret.
+on:
+  schedule:
+    - cron: "47 23 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  topup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      max-parallel: 1
+      matrix:
+        country: [US, CA]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Export and push
+        env:
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+        run: python export_instantly.py country=${{ matrix.country }} tiers=A,B limit=5000 push=yes mark=yes out=topup.csv
