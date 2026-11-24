@@ -18,3 +18,12 @@ try:
         print("  warm", e, {k: v.get(k) for k in ("health_score", "sent", "landed_inbox", "landed_spam", "received")})
 except Exception as e:
     print("warmup analytics n/a", e)
+
+import re as _re
+for name, cid in {"US": "57499a6b-49f7-4980-8b5f-41dd5d3425aa", "CA": "93613104-97b7-48a7-8c5b-94a221afc620"}.items():
+    c = requests.get(f"{API}/campaigns/{cid}", headers=H, timeout=30).json()
+    for seq in c.get("sequences", []):
+        for i, st in enumerate(seq.get("steps", []), 1):
+            for v in st.get("variants", []):
+                body = _re.sub(r"<[^>]+>", "\n", v.get("body", "")); body = _re.sub(r"\n\s*\n+", " / ", body).strip()
+                print(f"SEQ {name} step{i} delay={st.get('delay')} disabled={v.get('v_disabled')} subj={v.get('subject')!r} body={body[:260]!r}")
