@@ -1,0 +1,44 @@
+name: Load email v4
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "vars or seq"
+        default: "vars"
+      apply:
+        description: "yes/no"
+        default: "no"
+jobs:
+  vars:
+    if: ${{ github.event.inputs.mode == 'vars' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+          PAGESPEED_KEY: ${{ secrets.PAGESPEED_KEY || secrets.AGESPEED_KEY }}
+        run: python load_v4.py mode=vars shard=${{ matrix.shard }} shards=8 apply=${{ github.event.inputs.apply }}
+  seq:
+    if: ${{ github.event.inputs.mode == 'seq' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+        run: python load_v4.py mode=seq apply=${{ github.event.inputs.apply }}
