@@ -14,6 +14,14 @@ for e in items:
         if re.search(rx, subj + "\n" + body, re.M): issues[k] += 1
     e["_b"] = body
 print("issues:", dict(issues) or "none")
+print("subjects:", Counter(("made this" if "made this" in (e.get("subject") or "") else "Website for" if "Website for" in (e.get("subject") or "") else e.get("subject")) for e in items))
+print("footer present:", Counter("3503 18 St" in e["_b"] for e in items), "| opt-out line:", Counter("no thanks" in e["_b"].lower() for e in items))
+raw = items[0].get("body") or {}
+print("RAW HTML of newest:", (raw.get("html") or "")[:1500])
+for name, cid in {"US": "57499a6b-49f7-4980-8b5f-41dd5d3425aa", "CA": "93613104-97b7-48a7-8c5b-94a221afc620"}.items():
+    c = requests.get(f"https://api.instantly.ai/api/v2/campaigns/{cid}", headers=H, timeout=30).json()
+    st = c["sequences"][0]["steps"][0]
+    for v in st["variants"]: print("LIVE", name, repr(v.get("subject")), repr(v.get("body", "")[:900]))
 for e in items[:12]:
     print("=" * 70)
     print("TO:", e.get("to_address_email_list"), "| FROM:", e.get("eaccount"), "| at", e.get("timestamp_email"))
