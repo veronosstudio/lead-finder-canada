@@ -1,0 +1,21 @@
+name: PageSpeed test
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "space-separated URLs"
+        required: true
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          PAGESPEED_KEY: ${{ secrets.PAGESPEED_KEY }}
+          URLS: ${{ github.event.inputs.urls }}
+        run: python speed.py $URLS
