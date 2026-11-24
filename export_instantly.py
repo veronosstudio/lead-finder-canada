@@ -104,7 +104,9 @@ def main():
     if svcs: rows = [x for x in rows if (x.get("service") or "") in svcs]
     want = args.get("country", "").upper()
     if want: rows = [x for x in rows if (x.get("country") or "CA").upper() == want]   # rows from before the US launch are Canada
-    rows.sort(key=lambda x: -int(x.get("score") or 0))
+    # Kash (Nov 24): owner/manager emails first, then named people, then shared inboxes; best score within each.
+    TYPE_RANK = {"owner": 0, "manager": 1, "named": 2}
+    rows.sort(key=lambda x: (TYPE_RANK.get((x.get("email_type") or "").lower(), 3), -int(x.get("score") or 0)))
     limit = int(args.get("limit", "500"))
     out, seen_e, seen_d, picked = args.get("out", "instantly.csv"), set(), set(), []
     for x in rows:

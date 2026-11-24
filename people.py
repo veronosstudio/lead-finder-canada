@@ -28,7 +28,8 @@ NOT_LAST = {"Dental", "Law", "Group", "Office", "Center", "Centre", "Clinic", "F
             "And", "The", "Our", "Owner", "Founder", "President", "Manager", "Director", "Attorney", "Dentistry",
             "Orthodontics", "Pediatrics", "Chiropractic", "Insurance", "Financial", "Accounting", "Realty", "Home"}
 TEAM_LINK = re.compile(r"about|team|staff|our-doctor|our-dentist|doctor|meet|attorney|lawyer|people|leadership|our-story|"
-                       r"who-we-are|owner|founder|bio|profile|contact", re.I)
+                       r"who-we-are|owner|founder|bio|profile|contact|provider|dentist|physician|partner|practitioner|specialist|"
+                       r"agent|realtor|crew|history|our-company|meet-us|leadership", re.I)
 
 def plain(html):
     t = re.sub(r"<(script|style|noscript)[\s\S]*?</\1>", " ", html or "", flags=re.I)

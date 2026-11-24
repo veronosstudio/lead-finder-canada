@@ -238,15 +238,36 @@ def score(html, final_url, https_ok):
     if len(low) < 1500: pts -= 2  # parked / redirect stubs are not leads
     return pts, reasons
 
+def _cf_decode(hexs):
+    """Cloudflare email protection: first byte is the XOR key."""
+    try:
+        k = int(hexs[:2], 16)
+        return "".join(chr(int(hexs[i:i + 2], 16) ^ k) for i in range(2, len(hexs), 2))
+    except ValueError:
+        return ""
+
+def hidden_emails(html):
+    """Addresses sites hide from scrapers: Cloudflare-protected, and 'name [at] site [dot] com' style."""
+    out = [_cf_decode(h) for h in re.findall(r'data-cfemail=["\']([0-9a-fA-F]{6,})', html)]
+    out += [_cf_decode(h) for h in re.findall(r'/cdn-cgi/l/email-protection#([0-9a-fA-F]{6,})', html)]
+    for u, d, t in re.findall(r'([A-Za-z0-9._%+-]{2,40})\s*[\[\(\{]\s*at\s*[\]\)\}]\s*([A-Za-z0-9-]{2,60}(?:\s*[\[\(\{]\s*dot\s*[\]\)\}]\s*[A-Za-z0-9-]{2,30})*)\s*[\[\(\{]\s*dot\s*[\]\)\}]\s*([A-Za-z]{2,10})', html, re.I):
+        out.append(f"{u}@{re.sub(r'\s*[\[\(\{]\s*dot\s*[\]\)\}]\s*', '.', d, flags=re.I)}.{t}")
+    return [e for e in out if e and "@" in e]
+
 def emails_from(html, site_domain):
     found = []
-    for m in re.findall(r'mailto:([^"\'?>\s]+)', html, re.I) + EMAIL_RE.findall(html):
+    for m in re.findall(r'mailto:([^"\'?>\s]+)', html, re.I) + EMAIL_RE.findall(html) + hidden_emails(html):
         e = m.strip().strip(".").lower()
         if not EMAIL_RE.fullmatch(e) or any(j in e for j in JUNK_EMAIL): continue
         dom = e.split("@")[1]
         if dom == site_domain or dom.endswith("." + site_domain) or site_domain.endswith(dom) or any(dom.endswith(f) for f in FREE_MAIL):
             if e not in found: found.append(e)
     return found
+
+# Common people/contact pages worth trying even when the homepage doesn't link them.
+DEEP_PAGES = ["about", "about-us", "our-team", "team", "meet-the-team", "staff", "meet-the-doctor", "our-doctors",
+              "attorneys", "contact", "contact-us"]
+MAX_PAGES = 10
 
 def check(c):
     s = requests.Session()
@@ -280,11 +301,12 @@ def check(c):
         for e in emails: src.setdefault(e, r.url)
         txt = text_line(html)
         texts = [P.plain(html)]
-        pages = P.team_links(r.url, html)
-        if not emails:
-            for extra in ["contact", "contact-us", "about", "about-us"]:
-                pages.append(urljoin(r.url if r.url.endswith("/") else r.url + "/", extra))
-        for p in list(dict.fromkeys(pages))[:5]:
+        pages = P.team_links(r.url, html, limit=8)
+        base = r.url if r.url.endswith("/") else r.url + "/"
+        # Kash (Nov 24): owner emails first, so always try the usual people pages too.
+        for extra in DEEP_PAGES:
+            pages.append(urljoin(base, extra))
+        for p in list(dict.fromkeys(pages))[:MAX_PAGES]:
             if domain(p) != domain(r.url): continue
             try:
                 pr = get(p, s)
