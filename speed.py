@@ -10,14 +10,17 @@ def mobile_load(url, tries=2):
     for i in range(tries):
         try:
             r = requests.get(API, params=params, timeout=90)
-            if r.status_code == 429: time.sleep(10 * (i + 1)); continue
+            if r.status_code == 429:
+                if os.environ.get("SPEED_DEBUG"): print("PSI 429", "key set" if os.environ.get("PAGESPEED_KEY") else "NO KEY", r.text[:200])
+                time.sleep(10 * (i + 1)); continue
             if not r.ok:
                 if os.environ.get("SPEED_DEBUG"): print("PSI", r.status_code, r.text[:300])
                 return None
             a = r.json()["lighthouseResult"]["audits"]
             ms = a.get("largest-contentful-paint", {}).get("numericValue") or a.get("speed-index", {}).get("numericValue")
             return round(ms / 1000, 1) if ms else None
-        except Exception:
+        except Exception as e:
+            if os.environ.get("SPEED_DEBUG"): print("PSI error", type(e).__name__, str(e)[:150])
             time.sleep(3)
     return None
 
