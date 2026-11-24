@@ -1,11 +1,11 @@
 // Veronos Studio reply engine (runs every 10 minutes via pg_cron). Modeled on Series Supply's followup-reminders.
-// Kash's flow (Nov 23): interested reply -> ask for a cell -> build the homepage -> send it by email + text
+// Kash's flow (Nov 24): interested reply -> "sending it shortly" -> build the homepage -> send it by email (offer a phone walkthrough)
 // -> preview is live 7 days -> 3 follow-ups during those 7 days to book the meeting.
 // What runs on its own:
 //  1) Syncs "Interested" leads from the Veronos campaigns (veronos_settings.campaigns) into veronos_leads.
-//  2) Reads every reply to a Veronos inbox. Pulls a cell number out of the reply automatically.
+//  2) Reads every reply to a Veronos inbox. Notes a phone number if they volunteer one (never asks).
 //     Yeses Instantly didn't label still get added; questions/price talk get flagged "needs you".
-//  3) 15-25 min after a yes: asks for their cell in the thread (or thanks them if they already gave it).
+//  3) 5-10 min after a yes: "Awesome, I'll put it together and send it over shortly." No number is ever asked for.
 //  4) When a preview_link is saved for a lead, emails it in the thread (status Preview sent).
 //  5) Follow-ups on day 2, 4 and 6 after the preview (link comes down on day 7). Any reply pauses them.
 // Never sends on Sundays; first replies Mon-Sat 8am-8pm Central, follow-ups Mon-Fri only.
@@ -44,7 +44,8 @@ const hash = (s: string) => { let h = 0; for (const c of s) h = (h * 31 + c.char
 const cleanReply = (body: string) => body.split(/\n\s*(?:On\s[\s\S]{5,200}?wrote:|On (?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,? |From: |-{3,}\s*Original|Sent from my|>)/i)[0].trim();
 const OOO_RX = /out of (the )?office|on vacation|maternity|paternity|away (from|this week|until)|will (return|be back)|be back (in|on)|limited access to (my )?email|auto(matic)?[- ]reply/i;
 const YES_RX = /\b(yes|yeah|yep|sure|go ahead|go for it|sounds (great|good)|love to|happy to|let'?s (see|do)|send it|interested|why not|please do|ok(ay)?)\b/i;
-const NO_RX = /not interested|no thanks|no thank you|all set|we'?re (good|set)|remove me|unsubscribe|stop emailing|take me off|not at this time|happy with (our|my)|just (redid|redesigned|updated)/i;
+const NO_RX = /(?:do not|don'?t|dont) (?:contact|email|e-mail|message) me|going to pass|i'?ll pass|(?:have|got) someone else|not interested|no thanks|no thank you|all set|we'?re (good|set)|remove me|unsubscribe|stop emailing|take me off|not at this time|happy with (our|my)|just (redid|redesigned|updated)/i;
+const OPTOUT_RX = /(?:do not|don'?t|dont) (?:contact|email|e-mail|message) me|unsubscribe|remove me|stop emailing|take me off/i; // always wins over a "yes" word
 const THANKS_RX = /^(hey|hi|thanks|thank you|awesome|great|perfect|appreciate|will do|sounds good|got it|ok|okay|cool|amazing)[\s\S]{0,60}$/i;
 const PHONE_RX = /(?:\+?1[\s.-]?)?\(?([2-9]\d{2})\)?[\s.-]?(\d{3})[\s.-]?(\d{4})\b/;
 const phoneIn = (t: string) => { const m = t.match(PHONE_RX); return m ? `(${m[1]}) ${m[2]}-${m[3]}` : ""; };
@@ -52,24 +53,23 @@ const phoneIn = (t: string) => { const m = t.match(PHONE_RX); return m ? `(${m[1
 const needsHuman = (t: string) => /\?/.test(t) || /\b(price|cost|how much|pricing|charge|budget|contract|catch)\b/i.test(t) || t.length > 400;
 
 // ---- Copy (written as Kash; short, casual, no dashes) ----
-// Kash's wording (Nov 24): email first, cell is optional, give a timeline.
 // Email v3 (Kash, Nov 24): the homepage is "already built", so replies promise it shortly.
+// Nov 24: never ask for a cell (Brent Tyson passed over it). Email only; offer a call when the preview goes out.
 const ASK_CELL = [
-  (hi: string) => `${hi}\n\nAwesome, I'll send it over shortly. If you've got a cell, I'd love to text it too so you can check it out on your phone.\n\nKash`,
+  (hi: string) => `${hi}\n\nAwesome, I'll put it together and send it over shortly.\n\nKash`,
 ];
-const GOT_CELL = (hi: string) => `${hi}\n\nPerfect, got it. I'll text it over shortly.\n\nKash`;
-const YES_WITH_CELL = (hi: string) => `${hi}\n\nAwesome, I'll send it over shortly and text it to you too.\n\nKash`;
+const YES_WITH_CELL = (hi: string) => `${hi}\n\nAwesome, I'll put it together and send it over shortly.\n\nKash`;
 // Instant heads-up to Kash on every new yes (he promised it "shortly"), via Resend.
 async function notifyKash(S: any, w: any, text: string) {
   const key = Deno.env.get("RESEND_API_KEY"); const to = S.notify_email;
   if (!key || !to) return;
-  const body = `New Veronos yes: ${w.company || w.email}${w.city ? " (" + w.city + ")" : ""}\n\nThey said: "${text.slice(0, 300)}"\n\nSite: ${w.website || "-"}\nEmail: ${w.email}\nCell: ${w.cell || "asked"}\nWhat we noticed: ${w.hook || "-"}\n\nThey were told it's coming shortly. Build their homepage now.`;
+  const body = `New Veronos yes: ${w.company || w.email}${w.city ? " (" + w.city + ")" : ""}\n\nThey said: "${text.slice(0, 300)}"\n\nSite: ${w.website || "-"}\nEmail: ${w.email}\nPhone they gave: ${w.cell || "none"}\nWhat we noticed: ${w.hook || "-"}\n\nThey were told it's coming shortly. Build their homepage now.`;
   try {
     await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({ from: S.notify_from || "Veronos alerts <logan@seriessupply.com>", to: [to], subject: `New yes: ${w.company || w.email}`, text: body }) });
   } catch { /* alert is best-effort */ }
 }
-const PREVIEW = (hi: string, link: string) => `${hi}\n\nHere's your new homepage:\n\n${link}\n\nIt's live for 7 days so you can click around on your phone and computer. Let me know what you think!\n\nKash`;
+const PREVIEW = (hi: string, link: string) => `${hi}\n\nHere's your new homepage:\n\n${link}\n\nIt's live for 7 days so you can click around on your phone and computer. Let me know what you think! Happy to walk you through it over the phone too if that's easier.\n\nKash`;
 const FU = (n: number, hi: string, book: string) => [
   `${hi}\n\nDid you get a chance to look at it? Happy to tweak anything, like colours, photos or wording.\n\nKash`,
   `${hi}\n\nIf you like it, I can get the full site built and live in about a week. Want to hop on a quick 10 minute call?\n\n${book ? book : "Just reply with a day and time that works for you."}\n\nKash`,
@@ -236,13 +236,10 @@ Deno.serve(async (req) => {
         if (t <= prev + 60000 && w.reply_snippet) continue;
         const patch: any = { last_reply_at: new Date(t).toISOString(), reply_snippet: text.slice(0, 400), inbox: w.inbox || e.eaccount };
         if (cell && !w.cell) { patch.cell = cell; patch.cell_got_at = now.toISOString(); }
-        if (NO_RX.test(text) && !YES_RX.test(text)) { patch.status = "Lost"; patch.lost = true; patch.needs_you = false; }
+        if ((NO_RX.test(text) && !YES_RX.test(text)) || OPTOUT_RX.test(text)) { patch.status = "Lost"; patch.lost = true; patch.needs_you = false; }
         else if (w.preview_sent_at && !THANKS_RX.test(text)) { patch.needs_you = true; patch.needs_you_at = now.toISOString(); patch.needs_you_why = "Replied to the preview"; }
         else if (needsHuman(text)) { patch.needs_you = true; patch.needs_you_at = now.toISOString(); patch.needs_you_why = "Question: reply personally"; }
-        else if (patch.cell && w.asked_cell_at) { patch.pending_got_cell = true; }
-        const pend = !!patch.pending_got_cell; delete patch.pending_got_cell;
         await save(w, patch);
-        if (pend) w._gotCell = true;
         report.push({ email: from, action: patch.cell ? `cell saved ${patch.cell}` : patch.lost ? "said no: Lost" : patch.needs_you ? "flagged needs you" : "reply logged" });
       }
       if (older || !r.next_starting_after) break;
@@ -256,29 +253,23 @@ Deno.serve(async (req) => {
       if (!w.email || w.lost || sends >= 20) continue;
       const first = w.first_name || "";
       const hi = first ? (/^Dr\.?\s/.test(first) ? `Hi ${first},` : `Hey ${first},`) : "Hey there,";
-      // a) New yes: ask for their cell (or thank them if they already gave one).
+      // a) New yes: tell them it's coming shortly (no number asked for).
       if (w.status === "New yes" && !w.asked_cell_at && !w.needs_you) {
         const yesAt = new Date(w.last_reply_at || w.replied_at || now).getTime();
         const wait = 5 + (hash(w.email) % 6);
-        if (!force && nowT - yesAt < wait * 60e3) { report.push({ email: w.email, action: `asks for cell in ~${wait} min` }); continue; }
-        if (!replyHours) { report.push({ email: w.email, action: "ask for cell waits for morning" }); continue; }
+        if (!force && nowT - yesAt < wait * 60e3) { report.push({ email: w.email, action: `yes reply in ~${wait} min` }); continue; }
+        if (!replyHours) { report.push({ email: w.email, action: "yes reply waits for morning" }); continue; }
         const thread = await lastReceived(w.email);
         if (!thread) { report.push({ email: w.email, action: "no thread found yet" }); continue; }
         const text = cleanReply(String(thread.body?.text || thread.content_preview || ""));
         if (needsHuman(text)) { await save(w, { needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Question: reply personally", reply_snippet: text.slice(0, 400) }); if (!dry) await notifyKash(S, w, text); report.push({ email: w.email, action: "yes with a question: needs you" }); continue; }
         const cell = w.cell || phoneIn(text);
         const msg = cell ? YES_WITH_CELL(hi) : ASK_CELL[hash(w.email) % ASK_CELL.length](hi);
-        if (await threadReply(w, thread, cell ? "thanks (had cell)" : "ask for cell", msg)) {
+        if (await threadReply(w, thread, "yes: sending shortly", msg)) {
           sends++;
           await save(w, { asked_cell_at: now.toISOString(), status: "Building", needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Build their homepage NOW (promised shortly)", ...(cell && !w.cell ? { cell, cell_got_at: now.toISOString() } : {}) });
           if (!dry) await notifyKash(S, w, text);
         }
-        continue;
-      }
-      // b) They sent their cell after we asked: short thanks.
-      if (w._gotCell && replyHours) {
-        const thread = await lastReceived(w.email);
-        if (thread && await threadReply(w, thread, "got cell", GOT_CELL(hi))) sends++;
         continue;
       }
       // c) Preview saved: email it.
@@ -287,7 +278,7 @@ Deno.serve(async (req) => {
         const thread = await lastReceived(w.email);
         if (thread && await threadReply(w, thread, "preview", PREVIEW(hi, w.preview_link))) {
           sends++;
-          await save(w, { preview_sent_at: now.toISOString(), status: "Preview sent", needs_you: !!w.cell, needs_you_at: now.toISOString(), needs_you_why: w.cell ? `Text the preview to ${w.cell}` : null });
+          await save(w, { preview_sent_at: now.toISOString(), status: "Preview sent", needs_you: false, needs_you_why: null });
         }
         continue;
       }

@@ -6,7 +6,7 @@ bad = json.load(open("bad_leads.json"))
 ok = fail = 0
 for b in bad:
     for i in range(4):
-        r = requests.delete(f"https://api.instantly.ai/api/v2/leads/{b['id']}", headers=H, timeout=30)
+        r = requests.delete(f"https://api.instantly.ai/api/v2/leads/{b['id']}", headers={"Authorization": H["Authorization"]}, timeout=30)
         if r.status_code == 429: time.sleep(4); continue
         break
     if r.ok or r.status_code == 404: ok += 1
