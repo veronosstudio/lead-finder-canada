@@ -1,11 +1,11 @@
 // Veronos Studio reply engine (runs every 10 minutes via pg_cron). Modeled on Series Supply's followup-reminders.
-// Kash's flow (Nov 24): interested reply -> "sending it shortly" -> build the homepage -> send it by email (offer a phone walkthrough)
+// Kash's flow (Nov 24): interested reply -> Kash alerted -> builds the homepage -> link emailed in their thread (offers a phone walkthrough)
 // -> preview is live 7 days -> 3 follow-ups during those 7 days to book the meeting.
 // What runs on its own:
 //  1) Syncs "Interested" leads from the Veronos campaigns (veronos_settings.campaigns) into veronos_leads.
 //  2) Reads every reply to a Veronos inbox. Notes a phone number if they volunteer one (never asks).
 //     Yeses Instantly didn't label still get added; questions/price talk get flagged "needs you".
-//  3) 5-10 min after a yes: "Awesome, I'll put it together and send it over shortly." No number is ever asked for.
+//  3) A yes is NOT auto-answered: Kash gets an alert to build the homepage; the first reply they get is the link.
 //  4) When a preview_link is saved for a lead, emails it in the thread (status Preview sent).
 //  5) Follow-ups on day 2, 4 and 6 after the preview (link comes down on day 7). Any reply pauses them.
 // Never sends on Sundays; first replies Mon-Sat 8am-8pm Central, follow-ups Mon-Fri only.
@@ -53,17 +53,12 @@ const phoneIn = (t: string) => { const m = t.match(PHONE_RX); return m ? `(${m[1
 const needsHuman = (t: string) => /\?/.test(t) || /\b(price|cost|how much|pricing|charge|budget|contract|catch)\b/i.test(t) || t.length > 400;
 
 // ---- Copy (written as Kash; short, casual, no dashes) ----
-// Email v3 (Kash, Nov 24): the homepage is "already built", so replies promise it shortly.
-// Nov 24: never ask for a cell (Brent Tyson passed over it). Email only; offer a call when the preview goes out.
-const ASK_CELL = [
-  (hi: string) => `${hi}\n\nAwesome, I'll put it together and send it over shortly.\n\nKash`,
-];
-const YES_WITH_CELL = (hi: string) => `${hi}\n\nAwesome, I'll put it together and send it over shortly.\n\nKash`;
-// Instant heads-up to Kash on every new yes (he promised it "shortly"), via Resend.
+// Email v3 (Kash, Nov 24): the homepage is "already built", so a yes gets no auto-reply; the first reply is the link.
+// Instant heads-up to Kash on every new yes (and maybe), via Resend.
 async function notifyKash(S: any, w: any, text: string) {
   const key = Deno.env.get("RESEND_API_KEY"); const to = S.notify_email;
   if (!key || !to) return;
-  const body = `New Veronos yes: ${w.company || w.email}${w.city ? " (" + w.city + ")" : ""}\n\nThey said: "${text.slice(0, 300)}"\n\nSite: ${w.website || "-"}\nEmail: ${w.email}\nPhone they gave: ${w.cell || "none"}\nWhat we noticed: ${w.hook || "-"}\n\nThey were told it's coming shortly. Build their homepage now.`;
+  const body = `New Veronos yes: ${w.company || w.email}${w.city ? " (" + w.city + ")" : ""}\n\nThey said: "${text.slice(0, 300)}"\n\nSite: ${w.website || "-"}\nEmail: ${w.email}\nPhone they gave: ${w.cell || "none"}\nWhat we noticed: ${w.hook || "-"}\n\nThey were told it's already built. Build it now and send the link (save the preview link and it goes out in their thread).`;
   try {
     await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({ from: S.notify_from || "Veronos alerts <logan@seriessupply.com>", to: [to], subject: `New yes: ${w.company || w.email}`, text: body }) });
@@ -229,6 +224,7 @@ Deno.serve(async (req) => {
             status: "New yes", ...(yes ? {} : { needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Maybe: reply personally" }) });
           if (!dry) { const { data } = await sb.from("veronos_leads").insert(row).select("*").single(); w = data || row; } else w = row;
           byEmail.set(from, w);
+          if (!dry && !yes) await notifyKash(S, w, text);
           report.push({ email: from, action: yes ? "yes (not labelled in Instantly): added" : "maybe: added, needs you" });
           continue;
         }
@@ -253,23 +249,16 @@ Deno.serve(async (req) => {
       if (!w.email || w.lost || sends >= 20) continue;
       const first = w.first_name || "";
       const hi = first ? (/^Dr\.?\s/.test(first) ? `Hi ${first},` : `Hey ${first},`) : "Hey there,";
-      // a) New yes: tell them it's coming shortly (no number asked for).
+      // a) New yes (Kash, Nov 24): no automatic reply. Email 1 says the homepage is already built, so the first
+      //    message back must BE the homepage. Flag it for Kash right away; he builds it and saves the preview link,
+      //    and the engine emails the link in their thread (step c).
       if (w.status === "New yes" && !w.asked_cell_at && !w.needs_you) {
-        const yesAt = new Date(w.last_reply_at || w.replied_at || now).getTime();
-        const wait = 5 + (hash(w.email) % 6);
-        if (!force && nowT - yesAt < wait * 60e3) { report.push({ email: w.email, action: `yes reply in ~${wait} min` }); continue; }
-        if (!replyHours) { report.push({ email: w.email, action: "yes reply waits for morning" }); continue; }
         const thread = await lastReceived(w.email);
-        if (!thread) { report.push({ email: w.email, action: "no thread found yet" }); continue; }
-        const text = cleanReply(String(thread.body?.text || thread.content_preview || ""));
-        if (needsHuman(text)) { await save(w, { needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Question: reply personally", reply_snippet: text.slice(0, 400) }); if (!dry) await notifyKash(S, w, text); report.push({ email: w.email, action: "yes with a question: needs you" }); continue; }
-        const cell = w.cell || phoneIn(text);
-        const msg = cell ? YES_WITH_CELL(hi) : ASK_CELL[hash(w.email) % ASK_CELL.length](hi);
-        if (await threadReply(w, thread, "yes: sending shortly", msg)) {
-          sends++;
-          await save(w, { asked_cell_at: now.toISOString(), status: "Building", needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Build their homepage NOW (promised shortly)", ...(cell && !w.cell ? { cell, cell_got_at: now.toISOString() } : {}) });
-          if (!dry) await notifyKash(S, w, text);
-        }
+        const text = thread ? cleanReply(String(thread.body?.text || thread.content_preview || "")) : String(w.reply_snippet || "");
+        const why = needsHuman(text) ? "Build their homepage, then reply with the link (they asked something too)" : "Build their homepage, then send the link";
+        await save(w, { asked_cell_at: now.toISOString(), status: "Building", needs_you: true, needs_you_at: now.toISOString(), needs_you_why: why, reply_snippet: text.slice(0, 400) });
+        if (!dry) await notifyKash(S, w, text);
+        report.push({ email: w.email, action: "yes: flagged for Kash to build" });
         continue;
       }
       // c) Preview saved: email it.
