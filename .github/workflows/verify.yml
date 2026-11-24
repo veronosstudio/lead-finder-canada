@@ -1,0 +1,37 @@
+name: Verify campaign emails (Reacher)
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Delete INVALID emails from campaigns (yes/no)"
+        default: "no"
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Get Reacher CLI (MIT, reacherhq/check-if-email-exists)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo reacherhq/check-if-email-exists --pattern '*x86_64*linux*' --dir reacher || gh release download --repo reacherhq/check-if-email-exists --pattern '*linux*' --dir reacher
+          ls -la reacher
+          cd reacher && for f in *; do case "$f" in *.tar.gz) tar xzf "$f";; *.zip) unzip -o "$f";; esac; done; cd ..
+          B=$(find reacher -type f -name 'check_if_email_exists*' ! -name '*.tar.gz' ! -name '*.zip' | head -1); chmod +x "$B"; echo "REACHER_BIN=$PWD/$B" >> $GITHUB_ENV
+          "$PWD/$B" --version || true
+      - env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+        run: python verify_emails.py shard=${{ matrix.shard }} shards=8 apply=${{ github.event.inputs.apply }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verify-${{ matrix.shard }}
+          path: verify_${{ matrix.shard }}.csv
