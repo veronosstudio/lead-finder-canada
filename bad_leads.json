@@ -1,0 +1,1274 @@
+[
+{
+"id": "01a20e71-5934-747a-81bf-805b313969fe",
+"email": "%20info@dental.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b6c5cc79cd1",
+"email": "andrew@searle-law.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-592c-7d5f-a330-bda991200428",
+"email": "carole@lowedentalcare.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23bc-74b8-a2bd-d0d1dbe5997c",
+"email": "ccamarce@rpcl.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b55a7c8e516",
+"email": "chad@chadwrightdentistry.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0b142057a30",
+"email": "chris@thebaxterlawfirm.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b09-76b7-bb35-503101a5a36d",
+"email": "david@dpelectrical.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23bf-7f14-b30f-35f214ed383e",
+"email": "dschneider@odellelectric.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0964f8ec3ae",
+"email": "erin@biggersfirm.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6602-7146-8082-e7b5ee8b3a2f",
+"email": "forensic@dfwforensic.org",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b639e280a0b",
+"email": "frontoffice@justcleanteeth.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-20a0-738e-b35f-a0789ea39aff",
+"email": "ideas@18thfloor.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b09-76b7-bb35-5014b5aeafe6",
+"email": "info@astoriadentistryllc.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23be-7c5b-9def-9ea1d33b8d75",
+"email": "info@bomingbaidental.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5934-747a-81bf-80371f55180e",
+"email": "info@communitynurse.org",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273b-79c2-9dd5-1110bd5cdab0",
+"email": "info@dentalpoint.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6601-7860-a787-60c84e5ebbde",
+"email": "info@drgomez.org",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273f-738b-881d-d3e341e770e4",
+"email": "info@elenasmedispa.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273f-738b-881d-d3e4769e87f7",
+"email": "info@freedombikes.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273b-79c2-9dd5-11348a389ef8",
+"email": "info@gslerick.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6601-7860-a787-60e673014275",
+"email": "info@lajolladmd.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5933-75bc-9c40-c3aa14521ad5",
+"email": "info@lifedentalcenter.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273d-7c4b-8cff-f5018ca16ff4",
+"email": "info@morethanjustfeed.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23bb-763e-88b8-d56ef6c3a0f3",
+"email": "info@seasonalhomecomfort.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6600-715d-840a-94baa0edd4a3",
+"email": "info@smilelifedentalgroup.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23bf-7f14-b30f-35ea23db44f3",
+"email": "info@studentdentalcare.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-35ebe9f96676",
+"email": "info@sunrisedentalonline.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a5-7e34-8dba-622fde8229c6",
+"email": "info@thebloorclinic.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273b-79c2-9dd5-115e5b42606a",
+"email": "info@transcription.tc",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23bc-74b8-a2bd-d124a120200c",
+"email": "inquiries@caliberheating.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5934-747a-81bf-803cc2f5ed6f",
+"email": "jason@theroofgroupllc.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5934-747a-81bf-8050bea3a8a2",
+"email": "jon@trachtalegalmediation.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0999bbc88f5",
+"email": "jwarren@tllelectric.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23bd-72d3-8f78-df9044669c52",
+"email": "kjin@jinlaw.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-36503626a274",
+"email": "kristadorre@yrcommercial.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0a8c26d722a",
+"email": "law@notarypublics.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0e2130589db",
+"email": "mail.smithfamilydental@gmail.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-592b-7636-8219-0d6ce2e303a9",
+"email": "mike@paarplumbing.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-362d763361f4",
+"email": "millingsolar@gmail.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b09-76b7-bb35-4ff9b4a42948",
+"email": "question@sanantonioperio.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-3613dee5bf8a",
+"email": "roc@rocpartners.org",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-209f-788d-b332-11da9a1aaa4b",
+"email": "sales@pontek.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5932-7dfd-8b93-e2eed927437d",
+"email": "sales@webdirector.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c569c0477851",
+"email": "selena@selenaslaw.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-35f7e1217126",
+"email": "service@water--heaters.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5935-792f-9b81-ca5f6efa9e89",
+"email": "smile@manndental.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0c27d6dec78",
+"email": "support@nationaldirectoryofdentists.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c591ffd9bbca",
+"email": "talk@montagecosmeticdental.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-20a0-738e-b35f-a052a03d3469",
+"email": "%20reception@missionoralsurgery.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b497cdc9f2e",
+"email": "alicewang@drkelliturner.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-209c-759a-add1-7059ba770960",
+"email": "chad@shape.net",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273e-7a81-8df4-fcd7ea3174aa",
+"email": "contact@westerncanadianmodular.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-209b-79dc-a137-dc40f0c1fe52",
+"email": "dan@bigshow.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6600-715d-840a-95012af737ce",
+"email": "info@americanheatingandair.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6600-715d-840a-94bb861ddf6f",
+"email": "info@creativeroofsystems.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23be-7c5b-9def-9e7aef7f8b8e",
+"email": "info@mediakraft.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273b-79c2-9dd5-114a486ba756",
+"email": "info@portcreditdentureclinic.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-65ff-73b6-8f8a-dc5d5608ac8f",
+"email": "info@seattlespecialcaredentistry.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23ba-729a-98df-d59ac6e1f371",
+"email": "lawman@neil-law.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23be-7c5b-9def-9e954bd5d129",
+"email": "psforai@telus.net",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6602-7146-8082-e7ba677f638d",
+"email": "team@kentvet.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5932-7dfd-8b93-e2d4f7537550",
+"email": "timothy@starostalaw.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-25a4-7603-9c6b-d3acc656b8ec",
+"email": "abcd@gmail.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-209a-79a0-941a-418b96445721",
+"email": "alex@paceautomotive.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-363bd018e6a7",
+"email": "contact@doctorscotts.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-2740-7edb-9301-05fdb3a7a697",
+"email": "glorylc.vbs@gmail.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273d-7c4b-8cff-f4f543152ad3",
+"email": "hchoi@hcimmigration.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273a-71cf-b658-52798d2b89de",
+"email": "info@armwood.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-209c-759a-add1-706a3328197b",
+"email": "info@centurywellness.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23be-7c5b-9def-9e90c90e27c1",
+"email": "info@sentinelmarket.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23bc-74b8-a2bd-d11c504b021c",
+"email": "info@sugarcoat.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23bc-74b8-a2bd-d129b956b8d4",
+"email": "information@growthworks.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b09-76b7-bb35-50294a5d2f7f",
+"email": "jenn@hogandentallab.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-209f-788d-b332-11efd3aa4a94",
+"email": "rebecca@lyonfamilylaw.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5933-75bc-9c40-c39bc1c23e41",
+"email": "support@gmail.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6600-715d-840a-94f0dad96233",
+"email": "adminassistant@tcmeyerslaw.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-36161e5d44ac",
+"email": "confirm@danahodgeking.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6600-715d-840a-94b3dec145ec",
+"email": "contact@affirmaxroofing.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-3625d94b781a",
+"email": "contactus@smileedenprairie.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-65ff-73b6-8f8a-dc4e1bf0a96c",
+"email": "customerservice@dalworthlighting.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23ba-729a-98df-d57c6a683ee2",
+"email": "cwiebe@gstlegal.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-592a-7b51-bba0-e3bccfbe3ec5",
+"email": "dmr@roerlaw.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-36486c9bd910",
+"email": "dr.rogerillespiep@gmail.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23bb-763e-88b8-d57c786909ad",
+"email": "greg@purdonlaw.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23ba-729a-98df-d57d312ff2c5",
+"email": "info@albertawholesalemotors.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e090bdfeedab",
+"email": "info@andersonreynolds.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5931-7296-a6cc-49b4292debee",
+"email": "info@appledentalpc.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-592c-7d5f-a330-bdb5bc56e131",
+"email": "info@atoothdoctorforkids.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a6-7e0c-8e0b-d8435e93ac16",
+"email": "info@dedicateddentalcare.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5933-75bc-9c40-c37985362f1f",
+"email": "info@getcoldnow.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-65ff-73b6-8f8a-dc42867ef6a1",
+"email": "info@hvacfirstcall.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-25a6-7e0c-8e0b-d83f28541774",
+"email": "info@npcchurch.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b752fbed21a",
+"email": "info@rootcanal.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-209c-759a-add1-705d808786ff",
+"email": "info@rubixconstruction.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c59e39047d2b",
+"email": "info@setlowlaw.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-65ff-73b6-8f8a-dc30f91b3c5c",
+"email": "info@supersmilestexas.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273b-79c2-9dd5-113aaaf38d44",
+"email": "info@wheelworksedmonton.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5932-7dfd-8b93-e2dfc34b172e",
+"email": "mailtodenmarkdental@gmail.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0df521e4ca4",
+"email": "mike@bullettelectric.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6602-7146-8082-e79dfd158250",
+"email": "mounia@wolfferscohen.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b42166211d4",
+"email": "office@alanrubensteindds.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c574662bf72e",
+"email": "office@legend-exteriors.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a5-7e34-8dba-623b76e7f334",
+"email": "ravenmassgevictoria@gmail.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-25a4-7603-9c6b-d3f245e21367",
+"email": "reconciledesmiles@gmail.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273c-7ed4-bd34-785be2a11166",
+"email": "rwatson@watsonadvisors.net",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-592a-7b51-bba0-e3b66a199c14",
+"email": "thedefenders2005@gmail.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a1-721f-a7d8-f096ef74b7d2",
+"email": "u003einfo@kiplingauto.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5935-792f-9b81-ca5dc6ab7d95",
+"email": "admin@picassodentalaz.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5933-75bc-9c40-c39ee77246dc",
+"email": "administration@sutterterracedental.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5935-792f-9b81-ca470723120c",
+"email": "alexcale188@gmail.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6602-7146-8082-e7a747df830e",
+"email": "drchar812@gmail.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6600-715d-840a-94f62dd09e4f",
+"email": "fssolutionsutah@gmail.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c5661bff0bd1",
+"email": "go@tampabaymobilenotary.net",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b7a28a88c78",
+"email": "info@agradetexas.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6602-7146-8082-e7c2788ad377",
+"email": "info@amccoyatlaw.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273f-738b-881d-d3dd010d1d1d",
+"email": "info@drkay.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6602-7146-8082-e7b7be66ff4c",
+"email": "info@ductworkaircleaning.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273b-79c2-9dd5-1162551d188c",
+"email": "info@gmail.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5932-7dfd-8b93-e2ec65b79136",
+"email": "info@heyingortho.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5934-747a-81bf-80545a2ddd41",
+"email": "info@inandoutbailbondscharlotte.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6601-7860-a787-60ec72d3c292",
+"email": "info@newheightshvac.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a2-7990-abeb-a0755447ac53",
+"email": "info@ottawaequalair.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-209e-75f1-9db9-0136a3d2714f",
+"email": "info@personal-injurylawyeredmonton.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b09-76b7-bb35-5001e5668725",
+"email": "info@probateaz.net",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a3-7c70-84dc-000a515eda5d",
+"email": "info@regalnailsreddeer.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-209e-75f1-9db9-014f68fae929",
+"email": "info@sierralaneconstruction.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0d4a890059d",
+"email": "info@spectragrp.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23bb-763e-88b8-d5beaa77d776",
+"email": "info@stjohnsfamilydental.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a4-7603-9c6b-d3db6682daa6",
+"email": "info@summitgroup.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0b213beee13",
+"email": "info@texasorthodontics.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5934-747a-81bf-805c37d6b040",
+"email": "info@villagekidsdentistry.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c56576b40978",
+"email": "info@whitedentalstudio.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5931-7296-a6cc-49d253a76fe6",
+"email": "john@24-7plumbing.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273f-738b-881d-d3e609dd1b46",
+"email": "johnpearce@tpmcanada.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b82e3d9ccbf",
+"email": "mark@moliquelaw.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5933-75bc-9c40-c3988fc43cf1",
+"email": "mike@delgadolawaz.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0a44741fa14",
+"email": "namaxwell@quantumdfw.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-209b-79dc-a137-dc546418c76d",
+"email": "office@codesignarchitecture.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6600-715d-840a-94d6786d28d2",
+"email": "office@murphydentalgroupdds.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23bf-7f14-b30f-3619ddab32a0",
+"email": "office@pacific-boiler.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6602-7146-8082-e79ef39d741e",
+"email": "rosed@deltaelectricandair.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-25a3-7c70-84dc-0001b109acd9",
+"email": "sales@bccomfort.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5933-75bc-9c40-c3a580b2c1ca",
+"email": "sales@riteway-sa.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b09-76b7-bb35-502a352960e3",
+"email": "service@plumbinggarlandtexas.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5930-7294-850b-65e90a76fd9f",
+"email": "welcome@myazsmile.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a3-7c70-84dc-0035b5cff271",
+"email": "%20dr.swilson@chirosportandmuscle.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c586a15248fb",
+"email": "contact@toothfixer.net",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-209f-788d-b332-11babe25bec7",
+"email": "elizabeth@waterside.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23bc-74b8-a2bd-d121cb5b7252",
+"email": "enquiry@drsabesan.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c5ab85a0b736",
+"email": "godoylou@gmail.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-35ed0e64f176",
+"email": "healthyteeth@winterparkdentist.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-209f-788d-b332-11d258c932fc",
+"email": "hr@bwrightdrywall.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-209a-79a0-941a-4191bcecade5",
+"email": "info@aimmillwork.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273b-79c2-9dd5-112240d5dd54",
+"email": "info@centralphysio.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6602-7146-8082-e7b23e54948f",
+"email": "info@digitaldentaldesigners.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5933-75bc-9c40-c38eed928bec",
+"email": "info@drrudy90210.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-20a1-7233-b4d5-4aeaab07692c",
+"email": "info@drtsandelis.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c5b62d00fbed",
+"email": "info@jplawandwealth.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-360f56c4f111",
+"email": "info@kennedyfamilydental.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a5-7e34-8dba-6228e3cf91ff",
+"email": "info@liddelllaw.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-592c-7d5f-a330-bdc633740c52",
+"email": "info@navarroorthodontics.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23bc-74b8-a2bd-d11445b4df21",
+"email": "info@paulpilon.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6600-715d-840a-94cb2dbdb74c",
+"email": "info@precisedental.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273c-7ed4-bd34-78457792090a",
+"email": "info@urbanhorseproject.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b09-76b7-bb35-502c80aa6e99",
+"email": "jscott@metroplexroofs.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b38b66d9bea",
+"email": "office@haupersdental.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a3-7c70-84dc-002170fddae0",
+"email": "pinamazza@mapledentalhygienecare.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273b-79c2-9dd5-113d192ae025",
+"email": "service@libertylube.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-36306c16a6cc",
+"email": "susan@ampd-electric.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-25a4-7603-9c6b-d3ba9b4e7734",
+"email": "admin@roof-tek.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-592c-7d5f-a330-bdb33b5e0386",
+"email": "admin@stpetemoderndentistry.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b60aebb5552",
+"email": "alex@urgentlaw.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-25a5-7e34-8dba-62452040ab2a",
+"email": "dunbow@gmail.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5934-747a-81bf-80475ee44300",
+"email": "estimating@superior-roofing.net",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-209e-75f1-9db9-0168acecd274",
+"email": "fralei@canadianice.co",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23bf-7f14-b30f-360f467d089f",
+"email": "gwen@restorativemassagetherapy.net",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-36579a881b22",
+"email": "hello@responsive.plumbing",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0c-7c54-9805-36004f38b92f",
+"email": "hiro@sunshinelabtorrance.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-25a4-7603-9c6b-d3c6f10b6038",
+"email": "hsingh@mcknightcarwash.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5932-7dfd-8b93-e2cf82ab6d7e",
+"email": "info@1010mrd.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-209e-75f1-9db9-013dd6a798df",
+"email": "info@daquaconstruction.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0ab9319d863",
+"email": "info@drefamilydental.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6601-7860-a787-60eb36f9b000",
+"email": "info@elbelplumbing.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b09-76b7-bb35-5034ec1083c4",
+"email": "info@glo-dentistry.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273f-738b-881d-d3c06ae17671",
+"email": "info@greencoled.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5933-75bc-9c40-c37f33a90373",
+"email": "info@healthysmilesforyou.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-65ff-73b6-8f8a-dc184861c67d",
+"email": "info@horizonairlv.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273f-738b-881d-d3bb8d089f49",
+"email": "info@kinghairdesign.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c5b2346f1fbb",
+"email": "info@mcgarryinstitute.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6600-715d-840a-94de303c0bd6",
+"email": "info@rheedentalhealth.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0d24a29280c",
+"email": "info@spadental.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6601-7860-a787-60ac3ef0d539",
+"email": "info@texasairinc.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-23bc-74b8-a2bd-d0e010864f53",
+"email": "mail@exactaircontrol.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5931-7296-a6cc-499f9edb0b0e",
+"email": "mzinser@zinserlaw.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c5c6862b1543",
+"email": "patrick@wysepumping.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23bf-7f14-b30f-362d20cb0472",
+"email": "r.e.ed.251.67@gmail.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a5-7e34-8dba-624e9a725a00",
+"email": "sales@explorerindustries.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-6602-7146-8082-e7d9a3aff161",
+"email": "sales@peakpowerservices.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b45f9a50e87",
+"email": "service@a1familyaffordable.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-273e-7a81-8df4-fcda69bc808c",
+"email": "u003einfo@villagegriefcounselling.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e095ec886400",
+"email": "denisa@arizonacldp.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-273f-738b-881d-d3bac5b640ff",
+"email": "impallari@gmail.com",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e71-6601-7860-a787-60dbc854609f",
+"email": "info@charmun.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0c5be2eef50",
+"email": "info@mmce.us",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-65ff-73b6-8f8a-dbf8c776f63e",
+"email": "info@radiantestheticdentalart.com",
+"country": "US",
+"why": "invalid"
+},
+{
+"id": "01a20e73-23bc-74b8-a2bd-d0d3cd7965f8",
+"email": "info@riccihair.com",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0b-7afa-9d8e-e0ce1f596df1",
+"email": "info@roofingsvc.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e73-25a3-7c70-84dc-001b7f39a0ed",
+"email": "info@superiorplumber.ca",
+"country": "CA",
+"why": "invalid"
+},
+{
+"id": "01a20e73-209d-7a01-9311-66ccb80ff6d9",
+"email": "info@universityplumbing.ca",
+"country": "CA",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0a-7f7d-a003-7b5ad8918343",
+"email": "sales@harterelectric.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5931-7296-a6cc-49b72fe63a28",
+"email": "service@henrygonzalezplumbing.com",
+"country": "US",
+"why": "mailbox refuses mail"
+},
+{
+"id": "01a20e71-5b0d-7479-a787-c5a62bd4f065",
+"email": "vicky@sebsenelectric.com",
+"country": "US",
+"why": "invalid"
+}
+]
