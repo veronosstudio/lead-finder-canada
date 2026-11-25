@@ -56,7 +56,7 @@ jobs:
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
           INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
         run: |
-          python export_instantly.py country=CA tiers=A,B limit=400 push=no mark=no verify=yes generals=fill out=t.csv
+          python export_instantly.py country=CA tiers=A,B limit=400 push=no mark=no verify=yes verify_cap=400 generals=fill out=t.csv
           python - <<'PY'
           import csv
           from collections import Counter
