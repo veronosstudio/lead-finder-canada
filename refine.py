@@ -252,11 +252,16 @@ def name_on_site(name, html, site_url=None):
     words = distinctive(name)
     if not words: return True
     text = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)[\s\S]*?</\1>", " ", html or ""))
-    if len(text.split()) < 150: return True                    # page builds its text with scripts: can't judge
+    short = len(text.split()) < 150                            # page builds its text with scripts
     m = re.search(r"<link[^>]+rel=[\"']canonical[\"'][^>]+href=[\"']([^\"']+)|og:url[\"'][^>]+content=[\"']([^\"']+)", html or "", re.I)
     if site_url is None and m: site_url = m.group(1) or m.group(2)
     host = re.sub(r"[^a-z0-9]", "", re.sub(r"^https?://(www\.)?", "", (site_url or "").lower()).split("/")[0])
     if host and any(w[:5] in host for w in words): return True   # "Fraidenburg & Associates" on fraidenburg.com
+    if short:   # can't read the page text: judge on the page title instead ("Faraci Law" listed as "Marathon Food")
+        t = re.search(r"<title[^>]*>([^<]{3,200})", html or "", re.I)
+        title = re.sub(r"[^a-z0-9']+", " ", t.group(1).lower()) if t else ""
+        if len(title.split()) < 2: return True
+        return any(re.search(rf"\b{re.escape(w[:5])}", title) for w in words)
     low = (html or "").lower()
     low = re.sub(r"[^a-z0-9']+", " ", low)
     return any(re.search(rf"\b{re.escape(w)}", low) for w in words) or any(re.search(rf"\b{re.escape(w[:5])}", low) for w in words if len(w) >= 7)
