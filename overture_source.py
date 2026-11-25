@@ -56,6 +56,7 @@ def main():
             pool, by_dom = [], {}
             for p in places:
                 if p.get("brand"): continue
+                if any(w in (p.get("name") or "").lower() for w in F.CFG.get("skip_name_words", [])): continue
                 site = F.norm_site(p["websites"][0]); d = F.domain(site)
                 if not d or any(b in site.lower() for b in F.BAD_HOSTS): continue
                 by_dom.setdefault(d, []).append((p, site))

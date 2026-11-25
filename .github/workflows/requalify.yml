@@ -1,0 +1,33 @@
+name: Re-check waiting leads (email + website)
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "yes = apply, anything else = dry run"
+        default: "no"
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Get Reacher CLI (MIT, reacherhq/check-if-email-exists)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo reacherhq/check-if-email-exists --pattern '*x86_64-unknown-linux-gnu.tar.gz' --dir reacher
+          tar xzf reacher/*.tar.gz -C reacher
+          B=$(find reacher -type f -name 'check_if_email_exists' | head -1); chmod +x "$B"; echo "REACHER_BIN=$PWD/$B" >> $GITHUB_ENV
+      - env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+        run: python requalify.py shard=${{ matrix.shard }} shards=8 apply=${{ github.event.inputs.apply }}

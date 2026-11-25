@@ -3,7 +3,7 @@
 clean_email(e)  -> tidied address ("" if it can't be one)
 junk_email(e)   -> True for template / placeholder / file-name addresses
 same_site(e, d) -> True when the address is on the business's own domain (proper dot boundary)
-verify(emails)  -> {email: "ok" | "bad" | "unknown"} using the Reacher CLI (REACHER_BIN); no binary -> all "unknown"
+verify(emails)  -> {email: "ok" | "catchall" | "bad" | "unknown"}  (catchall = server accepts anything, so unconfirmed) using the Reacher CLI (REACHER_BIN); no binary -> all "unknown"
 """
 import os, re, json, subprocess
 from urllib.parse import unquote
@@ -44,7 +44,9 @@ def verify(emails, workers=24):
             r = j.get("is_reachable")
             if r == "invalid": return "bad"
             if r == "risky" and smtp.get("is_catch_all") is False and smtp.get("is_deliverable") is False: return "bad"
-            return "ok" if r in ("safe", "risky") else "unknown"
+            if r in ("safe", "risky"):
+                return "catchall" if smtp.get("is_catch_all") else "ok"
+            return "unknown"
         except Exception:
             return "unknown"
     with ThreadPoolExecutor(workers) as ex:

@@ -203,6 +203,15 @@ def site_signals(html):
         "emergency": bool(re.search(r"24/7|24 hours?|24-hour|emergency service|same[- ]day service", text)),
     }
 
+def looks_abandoned(html, why_dated=""):
+    """Kash (Nov 25): a dated site is our target, an abandoned one isn't. Abandoned = an old copyright (8+ years)
+    AND nothing current on the page: no recent date, no booking, no contact form."""
+    s = site_signals(html)
+    if s["recent_content"] or s["booking"] or s["contact_form"]: return False
+    low = (html or "").lower()
+    years = [int(y) for y in re.findall(r"(?:©|&copy;|copyright)\s*(?:\d{4}\s*[-–]\s*)?((?:19|20)\d{2})", low)]
+    return bool(years) and max(years) <= YEAR - 8
+
 # ---------------- who we target ----------------
 # Must-have: a problem the owner would notice. Skip only the cheapest niches.
 # Spend signals (ads, team, financing...) are NOT required: they raise the score so those businesses get emailed first.

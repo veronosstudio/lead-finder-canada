@@ -293,6 +293,8 @@ def check(c):
             return c, f"modern({pts})", None
         if not R.strong_reasons("; ".join(why)):
             return c, f"not-clearly-dated({pts})", None   # e.g. a nice site with only a 2023 copyright + no tap-to-call
+        if R.looks_abandoned(html):
+            return c, f"maybe-inactive({pts})", None          # Kash (Nov 25): old copyright and nothing current on the page
         title = (re.search(r"<title[^>]*>([^<]{0,200})", html, re.I) or [None, ""])[1]
         svc = R.service_of(c["category"], c["business"], title)
         sig = R.site_signals(html)

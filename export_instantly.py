@@ -157,9 +157,9 @@ def main():
     # Kash (Nov 24): owner/manager emails first, then named people, then shared inboxes; best score within each.
     TYPE_RANK = {"owner": 0, "manager": 1, "named": 2}
     rows.sort(key=lambda x: (TYPE_RANK.get((x.get("email_type") or "").lower(), 3), -int(x.get("score") or 0)))
-    bad_ids = []
+    bad_ids, vres = [], {}
     if args.get("verify", "no") == "yes" and rows:
-        res = EC.verify(sorted({x["email"] for x in rows}))
+        res = EC.verify(sorted({x["email"] for x in rows})); vres = res
         bad = {e for e, v in res.items() if v == "bad"}
         bad_ids = [x["osm_id"] for x in rows if x["email"] in bad]
         rows = [x for x in rows if x["email"] not in bad]
@@ -186,7 +186,8 @@ def main():
             c_ = requests.get(f"https://api.instantly.ai/api/v2/campaigns/{cid}", headers=Hk, timeout=60).json()
             queue = int(a_.get("leads_count") or 0) - int(a_.get("contacted_count") or 0)
             room = max(0, 3 * int(c_.get("daily_max_leads") or c_.get("daily_limit") or 150) - queue)
-            people = [x for x in picked if (x.get("email_type") or "").lower() in ("owner", "manager", "named")]
+            # Kash (Nov 25): only confirmed mailboxes go in first; unconfirmed / catch-all wait with the shared inboxes.
+            people = [x for x in picked if (x.get("email_type") or "").lower() in ("owner", "manager", "named") and vres.get(x["email"], "ok") == "ok"]
             general = [x for x in picked if x not in people]
             keep = general[:max(0, room - len(people))]
             print(f"queue {queue} not yet emailed, room {room}: pushing {len(people)} owner/manager/named + {len(keep)} shared inboxes (holding {len(general) - len(keep)} for later)")
