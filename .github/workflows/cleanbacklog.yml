@@ -1,0 +1,25 @@
+name: Clean the sheet backlog (site, name, nonprofit checks)
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "yes = mark failures in the sheet"
+        default: "no"
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+        run: python clean_backlog.py shard=${{ matrix.shard }} shards=8 apply=${{ github.event.inputs.apply }}

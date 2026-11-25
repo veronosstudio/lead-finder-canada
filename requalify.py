@@ -25,6 +25,7 @@ import export_instantly as X
 args = dict(a.split("=", 1) for a in sys.argv[1:] if "=" in a)
 SHARD, SHARDS, APPLY = int(args.get("shard", 0)), int(args.get("shards", 1)), args.get("apply") == "yes"
 HOLD = {x for x in args.get("hold", "unknown").split(",") if x}
+WHO = args.get("who", "waiting")   # waiting = not yet emailed; contacted = got email 1, no reply yet (failures: follow-ups stopped)
 API = "https://api.instantly.ai/api/v2"
 H = {"Authorization": f"Bearer {os.environ['INSTANTLY_API_KEY'].strip()}", "Content-Type": "application/json"}
 
@@ -54,7 +55,8 @@ for country, cid in X.CAMPAIGNS.items():
         res = ik("POST", "/leads/list", json={"campaign": cid, "limit": 100, **({"starting_after": after} if after else {})})
         items = res.get("items") or []
         for l in items:
-            if l.get("timestamp_last_contact") or l.get("status") in (-1, -2, -3, 3): continue
+            if l.get("status") in (-1, -2, -3, 3) or int(l.get("email_reply_count") or 0) > 0: continue
+            if bool(l.get("timestamp_last_contact")) != (WHO == "contacted"): continue
             l["_country"] = country; leads.append(l)
         after = res.get("next_starting_after")
         if not after or not items: break
@@ -75,7 +77,7 @@ if retry:
     time.sleep(45)
     ver.update({e: v for e, v in EC.verify(retry, workers=4).items() if v != "unknown"})
     print(f"retried {len(retry)} unknown: {sum(1 for e in retry if ver[e] != 'unknown')} now answered")
-mobile = [site_of(l) for l, (st, _) in zip(mine, pages) if st == "up" and (l.get("payload") or {}).get("issue") == "mobile"]
+mobile = [site_of(l) for l, (st, _) in zip(mine, pages) if WHO == "waiting" and st == "up" and (l.get("payload") or {}).get("issue") == "mobile"]
 fit = SC.phone_fit(mobile) if mobile else {}
 print(f"phone test: {len(mobile)} sites opened, {sum(1 for v in fit.values() if v is True)} actually fit a phone")
 
@@ -89,7 +91,7 @@ for l, (site, html) in zip(mine, pages):
     elif site == "abandoned": d, st = "remove: site looks abandoned", "Inactive"
     elif R.nonprofit(raw, site_of(l)): d, st = "remove: nonprofit / gov / school", "Not a fit"
     elif not raw.startswith("your ") and not R.name_on_site(raw, html, site_of(l)): d, st = "remove: name not on their site", "Not a fit"
-    elif v in HOLD: d, st = f"hold: email {v}", "new"
+    elif v in HOLD and WHO == "waiting": d, st = f"hold: email {v}", "new"
     else: d, st = ("keep" if v == "ok" else f"keep: email {v}"), None
     out[f"{l['_country']} {d}"] += 1
     if st is not None:
@@ -98,6 +100,7 @@ for l, (site, html) in zip(mine, pages):
         if APPLY:
             ik("DELETE", f"/leads/{l['id']}"); time.sleep(0.2)
         continue
+    if WHO == "contacted": continue     # email 1 already went out; nothing to reword
     # keep: is there a truer / better problem to mention now?
     p = dict(l.get("payload") or {})
     why = row.get("why_dated") or ""
