@@ -74,6 +74,8 @@ def natural(raw, first_name="", generic="your business", first_names=frozenset()
         if not out or out[-1].lower() != w.lower(): out.append(w)
     n = " ".join(_case(w, i == 0) for i, w in enumerate(out))
     n = re.sub(r"\s+&\s+", " & ", n).strip(" ,")
+    n = re.sub(r"\bsvcs?\b\.?", "Services", n, flags=re.I)              # "Accounting SVC" -> "Accounting Services"
+    n = re.sub(r"(\s*(&|\band\b))+\s*$", "", n).strip(" ,")          # "Ifft &" -> "Ifft"
     if not n or len(n) < 3 or n.lower() in ("your firm", "your practice", "your business"):
         return generic, "your"
     if _person_like(n, first_name, first_names):

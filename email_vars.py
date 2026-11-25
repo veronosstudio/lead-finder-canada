@@ -14,7 +14,6 @@ def pick(why="", hook="", speed=None):
     if speed and speed >= 6: return "speed"
     if not_mobile: return "mobile"
     if not_secure: return "secure"
-    if speed and speed >= 4: return "speed"
     if no_online: return "booking"
     if stale: return "stale"
     if no_tap: return "tap"
