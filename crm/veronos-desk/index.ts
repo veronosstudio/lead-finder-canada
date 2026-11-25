@@ -44,7 +44,7 @@ const hash = (s: string) => { let h = 0; for (const c of s) h = (h * 31 + c.char
 const cleanReply = (body: string) => body.split(/\n\s*(?:On\s[\s\S]{5,200}?wrote:|On (?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,? |From: |-{3,}\s*Original|Sent from my|>)/i)[0].trim();
 const OOO_RX = /out of (the )?office|on vacation|maternity|paternity|away (from|this week|until)|will (return|be back)|be back (in|on)|limited access to (my )?email|auto(matic)?[- ]reply/i;
 // "We received your message" auto-acknowledgements (skipped unless they also say yes).
-const AUTOACK_RX = /thank you for (your (e-?mail|message|inquiry)|contacting)|we have received your (message|e-?mail|inquiry)|(this is an )?automated (response|message)|do not reply to this (e-?mail|message)/i;
+const AUTOACK_RX = /thank(s| you) for (you(r)? )?(e-?mail|message|inquiry|enquiry|contacting|reaching out|getting in touch|writing)|(we|i) ha(ve|s) received your (message|e-?mail|inquiry|enquiry|request)|received your (message|e-?mail|inquiry|enquiry)|(someone|a member of our team|we) will (get back to you|be in touch|contact you|respond)|get back to you (shortly|soon|as soon as|within)|(this is an )?automated (response|message|reply)|do not reply to this (e-?mail|message)|during (regular |normal )?(business|office) hours|if (this|it) is an emergency|(rushed|urgent) situation/i;
 const YES_RX = /\b(yes|yeah|yep|sure|go ahead|go for it|sounds (great|good)|love to|happy to|let'?s (see|do)|send it|interested|why not|please do|ok(ay)?)\b/i;
 const NO_RX = /(?:do not|don'?t|dont) (?:contact|email|e-mail|message) me|going to pass|i'?ll pass|(?:have|got) someone else|not interested|no thanks|no thank you|all set|we'?re (good|set)|remove me|unsubscribe|stop emailing|take me off|not at this time|happy with (our|my)|just (redid|redesigned|updated)/i;
 const OPTOUT_RX = /(?:do not|don'?t|dont) (?:contact|email|e-mail|message) me|unsubscribe|remove me|stop emailing|take me off/i; // always wins over a "yes" word
@@ -213,7 +213,8 @@ Deno.serve(async (req) => {
         seen.add(from);
         const text = cleanReply(String(e.body?.text || e.content_preview || ""));
         const st = Number(e.i_status ?? e.lt_interest_status ?? NaN);
-        if (st === 0 || OOO_RX.test(text) || (AUTOACK_RX.test(text) && !YES_RX.test(text))) continue;
+        // Auto-acknowledgements ("thanks for contacting us, we'll get back to you") are skipped unless it's a short personal yes.
+        if (st === 0 || OOO_RX.test(text) || (AUTOACK_RX.test(text) && !(text.length < 250 && YES_RX.test(text)))) continue;
         const cell = phoneIn(text);
         let w: any = byEmail.get(from) || byEmail.get(String(e.lead || "").toLowerCase());
         if (!w) {
