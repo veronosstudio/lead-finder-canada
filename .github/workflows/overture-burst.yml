@@ -7,6 +7,10 @@ on:
         description: "Leads per search"
         required: false
         default: "25"
+      country:
+        description: "US or CA"
+        required: false
+        default: "US"
 
 permissions:
   contents: write
@@ -18,7 +22,7 @@ concurrency:
 jobs:
   find:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -40,7 +44,7 @@ jobs:
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
-          CONFIG: config_us.json
+          CONFIG: ${{ github.event.inputs.country == 'CA' && 'config.json' || 'config_us.json' }}
           SHARD: ${{ matrix.shard }}
           SHARDS: "20"
         run: python overture_source.py "target=${{ github.event.inputs.per_search }}" metros=auto
