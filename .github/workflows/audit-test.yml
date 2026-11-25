@@ -9,7 +9,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install requests duckdb
+      - run: pip install requests duckdb playwright && python -m playwright install --with-deps chromium
       - name: Get Reacher CLI (MIT)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -20,19 +20,20 @@ jobs:
       - name: Search one US slice (no sheet secrets, so nothing is saved)
         env:
           CONFIG: config_us.json
-          SHARD: "7"
+          SHARD: "3"
           SHARDS: "20"
         run: |
-          python overture_source.py target=40 metros=auto | grep -E "LEAD|DONE|overture:" | tail -60
+          python audit_cases.py
+          wc -l data/seen-overture-s3.csv > before.txt || echo 0 > before.txt
+          python overture_source.py target=40 metros=auto | grep -E "LEAD|DONE" | tail -60
           python - <<'PY'
           import csv, glob, re
           from collections import Counter
           c = Counter()
-          for f in glob.glob("data/seen-overture-s7.csv"):
-              for row in csv.reader(open(f)):
-                  if len(row) >= 4 and row[2] == __import__("datetime").date.today().isoformat():
-                      c[re.sub(r"\(.*", "", row[3]).split(":")[0]] += 1
-          print("TODAY'S RESULTS:", dict(c.most_common()))
+          start = int(open("before.txt").read().split()[0])
+          for i, row in enumerate(csv.reader(open("data/seen-overture-s3.csv"))):
+              if i >= start and len(row) >= 4: c[re.sub(r"\(.*", "", row[3]).split(":")[0]] += 1
+          print("THIS TEST'S RESULTS:", dict(c.most_common()))
           PY
   topup:
     runs-on: ubuntu-latest
@@ -42,7 +43,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install requests
+      - run: pip install requests playwright && python -m playwright install --with-deps chromium
       - name: Get Reacher CLI (MIT)
         env:
           GH_TOKEN: ${{ github.token }}

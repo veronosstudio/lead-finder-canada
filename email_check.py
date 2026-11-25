@@ -22,9 +22,14 @@ def clean_email(e):
     e = e.split("?")[0].strip(" .;,:<>\"'()[]")
     return e if EMAIL_FULL.fullmatch(e) else ""
 
+# Kash (Nov 25): website-template / theme vendors leave their own address in the theme (mikadothemes@gmail.com)
+VENDOR = re.compile(r"theme|template|wpengine|elementor|qodeinteractive|mikado|themeforest|envato|webflow|squarespace|godaddy|wix|weebly|"
+                    r"hostgator|bluehost|siteground|webdesign|web-design|designs?studio|seo|marketing|digital", re.I)
+
 def junk_email(e):
     if not e or not EMAIL_FULL.fullmatch(e): return True
     local, dom = e.split("@", 1)
+    if VENDOR.search(local) or VENDOR.search(dom.split(".")[0]): return True
     return (dom in JUNK_DOMAINS or e.endswith(FILE_EXT) or bool(JUNK_LOCAL.match(local))
             or "@2x" in e or re.search(r"\d{5,}", local) is not None or local.startswith(".") or ".." in e)
 
