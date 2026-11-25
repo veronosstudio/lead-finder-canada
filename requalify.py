@@ -17,10 +17,12 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 import requests
 import email_check as EC, refine as R
+from sitecheck import site_state
 import export_instantly as X
 
 args = dict(a.split("=", 1) for a in sys.argv[1:] if "=" in a)
 SHARD, SHARDS, APPLY = int(args.get("shard", 0)), int(args.get("shards", 1)), args.get("apply") == "yes"
+HOLD = {x for x in args.get("hold", "unknown,catchall").split(",") if x}   # which unconfirmed results get held back
 API = "https://api.instantly.ai/api/v2"
 H = {"Authorization": f"Bearer {os.environ['INSTANTLY_API_KEY'].strip()}", "Content-Type": "application/json"}
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36"
@@ -34,21 +36,6 @@ def ik(method, path, **kw):
         if not r.ok: raise RuntimeError(f"{method} {path} {r.status_code}: {r.text[:200]}")
         return r.json() if r.text else {}
     raise RuntimeError("rate limited")
-
-
-def site_state(url):
-    if not url: return "no site"
-    url = url if url.startswith("http") else "https://" + url
-    s = requests.Session()
-    for u in (url.replace("http://", "https://", 1), url.replace("https://", "http://", 1)):
-        try:
-            r = s.get(u, timeout=20, headers={"User-Agent": UA}, allow_redirects=True)
-        except Exception:
-            continue
-        if r.status_code >= 400: continue
-        if R.looks_abandoned(r.text[:600000]): return "abandoned"
-        return "up"
-    return "down"
 
 
 leads = []
@@ -70,6 +57,12 @@ print(f"shard {SHARD}/{SHARDS}: {len(mine)} of {len(leads)} waiting leads")
 with ThreadPoolExecutor(12) as ex:
     sites = list(ex.map(lambda l: site_state(l.get("website") or (l.get("payload") or {}).get("website") or ""), mine))
 ver = EC.verify([l["email"].lower() for l in mine], workers=24)
+# a second, slower pass on the ones that didn't answer (busy servers often reply the second time)
+retry = [e for e, v in ver.items() if v == "unknown"]
+if retry:
+    time.sleep(60)
+    ver.update({e: v for e, v in EC.verify(retry, workers=4).items() if v != "unknown"})
+    print(f"retried {len(retry)} unknown: {sum(1 for e in retry if ver[e] != 'unknown')} now answered")
 
 out, ex_lines = Counter(), []
 sheet_status = {}
@@ -78,10 +71,10 @@ for l, site in zip(mine, sites):
     if v == "bad": d, st = "remove: bad email", "Bad email"
     elif site == "down": d, st = "remove: site down", "Dead site"
     elif site == "abandoned": d, st = "remove: site looks abandoned", "Inactive"
-    elif v in ("unknown", "catchall"): d, st = f"hold: email {v}", "new"
-    else: d, st = "keep", None
+    elif v in HOLD: d, st = f"hold: email {v}", "new"
+    else: d, st = ("keep" if v == "ok" else f"keep: email {v}"), None
     out[f"{l['_country']} {d}"] += 1
-    if d != "keep":
+    if not d.startswith("keep"):
         if len(ex_lines) < 25: ex_lines.append(f"  {d:32} {e:42} {l.get('company_name') or ''}")
         sheet_status[e] = st
         if APPLY:

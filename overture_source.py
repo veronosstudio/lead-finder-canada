@@ -82,6 +82,12 @@ def main():
     F.append_seen(seen_rows)
     time.sleep(F.SHARD * 4)   # many searches at once: take turns writing to the sheet
     added = F.post_to_sheet([{k: v for k, v in l.items() if not k.startswith("_")} for l in leads]) if leads else 0
+    # Kash (Nov 25): same competitor check as the OSM finder (one search per night does it, so the map API isn't hammered)
+    if added and F.SHARD == 0 and F.CFG.get("competitor_minutes", 12) > 0:
+        try:
+            F.competitor_step(leads, min(10, F.CFG.get("competitor_minutes", 12)) * 60)
+        except Exception as e:
+            F.log("competitor step skipped:", str(e)[:120])
     F.log(f"DONE overture: checked {checked}, leads {len(leads)}, sheet added {added}, "
           f"hit rate {len(leads) / max(1, checked):.1%}, owner/manager emails {sum(1 for l in leads if l.get('email_type') in ('owner', 'manager'))}, "
           f"named greetings {sum(1 for l in leads if l.get('first_name'))}")

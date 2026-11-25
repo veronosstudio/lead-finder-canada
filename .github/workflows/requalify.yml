@@ -5,6 +5,9 @@ on:
       apply:
         description: "yes = apply, anything else = dry run"
         default: "no"
+      hold:
+        description: "unconfirmed results to hold back: unknown,catchall | catchall | none"
+        default: "none"
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -30,4 +33,4 @@ jobs:
           INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
           SHEET_URL: ${{ secrets.SHEET_URL }}
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
-        run: python requalify.py shard=${{ matrix.shard }} shards=8 apply=${{ github.event.inputs.apply }}
+        run: python requalify.py shard=${{ matrix.shard }} shards=8 apply=${{ github.event.inputs.apply }} "hold=${{ github.event.inputs.hold == 'none' && '' || github.event.inputs.hold }}"

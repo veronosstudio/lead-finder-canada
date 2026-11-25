@@ -156,7 +156,9 @@ def main():
     if want: rows = [x for x in rows if (x.get("country") or "CA").upper() == want]   # rows from before the US launch are Canada
     # Kash (Nov 24): owner/manager emails first, then named people, then shared inboxes; best score within each.
     TYPE_RANK = {"owner": 0, "manager": 1, "named": 2}
-    rows.sort(key=lambda x: (TYPE_RANK.get((x.get("email_type") or "").lower(), 3), -int(x.get("score") or 0)))
+    # Kash (Nov 25): within each contact type, businesses showing spend signals (ads, team, financing, years) go first.
+    spends = lambda x: len([p for p in (re.search(r"spends: ([^;]+)", x.get("why_dated") or "") or [None, ""])[1].split(",") if p.strip()])
+    rows.sort(key=lambda x: (TYPE_RANK.get((x.get("email_type") or "").lower(), 3), -spends(x), -int(x.get("score") or 0)))
     bad_ids, vres = [], {}
     if args.get("verify", "no") == "yes" and rows:
         res = EC.verify(sorted({x["email"] for x in rows})); vres = res
@@ -167,7 +169,7 @@ def main():
         print("verify:", dict(Counter(res.values())), f"-> skipped {len(bad)} bad emails")
     limit = int(args.get("limit", "500"))
     out, seen_e, seen_d, picked = args.get("out", "instantly.csv"), set(), set(), []
-    misfit = []
+    misfit, stale_ids = [], []
     for x in rows:
         e, d = x["email"].strip().lower(), dom(x.get("website"))
         if e in seen_e or (d and d in seen_d): continue
@@ -175,6 +177,20 @@ def main():
             misfit.append(x["osm_id"]); continue
         seen_e.add(e); seen_d.add(d); picked.append(x)
         if len(picked) >= limit: break
+    # Kash (Nov 25): a lead found 14+ days ago gets its website re-checked before it's sent (dead or abandoned -> skipped).
+    import datetime as _dt
+    from sitecheck import site_state
+    def _age(x):
+        try: return (_dt.date.today() - _dt.date.fromisoformat(str(x.get("added") or x.get("date") or "")[:10])).days
+        except ValueError: return 0
+    old = [x for x in picked if _age(x) >= 14]
+    if old:
+        from concurrent.futures import ThreadPoolExecutor as _TP0
+        with _TP0(12) as ex: states = dict(zip([x["email"] for x in old], ex.map(lambda x: site_state(x.get("website", "")), old)))
+        gone = {e for e, s_ in states.items() if s_ in ("down", "abandoned")}
+        stale_ids = [x["osm_id"] for x in picked if x["email"] in gone]
+        picked = [x for x in picked if x["email"] not in gone]
+        print(f"rechecked {len(old)} older leads: {len(gone)} sites down or abandoned, skipped")
     # Kash (Nov 24): owners, managers and named people go in every day; shared inboxes (info@, office@)
     # only top up the campaign when its queue of not-yet-emailed people runs low (< 3 days of sending).
     if args.get("generals", "all") == "fill" and want in CAMPAIGNS and picked:
@@ -228,6 +244,11 @@ def main():
             requests.post(url, data=json.dumps({"token": token, "action": "update", "updates": ups[i:i + 300]}),
                           headers={"Content-Type": "application/json"}, timeout=300)
         print(f"marked {len(bad_ids)} rows as Bad email")
+    if args.get("mark", "no") == "yes" and stale_ids:
+        ups = [{"osm_id": i, "status": "Inactive"} for i in stale_ids]
+        for i in range(0, len(ups), 300):
+            requests.post(url, data=json.dumps({"token": token, "action": "update", "updates": ups[i:i + 300]}),
+                          headers={"Content-Type": "application/json"}, timeout=300)
     if misfit: print(f"skipped {len(misfit)} businesses that aren't a fit (web/IT shops, big firms)")
     if args.get("mark", "no") == "yes" and misfit:
         ups = [{"osm_id": i, "status": "Not a fit"} for i in misfit]
