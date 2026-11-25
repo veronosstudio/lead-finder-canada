@@ -1,0 +1,20 @@
+name: Fix queued leads (names, wording, bad fits)
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "yes = apply, anything else = dry run"
+        default: "no"
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+        run: python fix_leads.py apply=${{ github.event.inputs.apply }}

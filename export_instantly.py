@@ -110,6 +110,7 @@ STANDARD = {"email", "firstName", "companyName", "website", "phone"}
 
 # Kash (Nov 24): bounces. Shared cleaning + Reacher check live in email_check.py (the scraper uses them too).
 import email_check as EC
+import names as NM
 
 def push_instantly(rows, country):
     key = os.environ.get("INSTANTLY_API_KEY", "").strip()
@@ -166,9 +167,12 @@ def main():
         print("verify:", dict(Counter(res.values())), f"-> skipped {len(bad)} bad emails")
     limit = int(args.get("limit", "500"))
     out, seen_e, seen_d, picked = args.get("out", "instantly.csv"), set(), set(), []
+    misfit = []
     for x in rows:
         e, d = x["email"].strip().lower(), dom(x.get("website"))
         if e in seen_e or (d and d in seen_d): continue
+        if NM.bad_fit(x.get("business", ""), x.get("website", ""), e):  # Kash (Nov 25): web/IT shops and big firms won't buy
+            misfit.append(x["osm_id"]); continue
         seen_e.add(e); seen_d.add(d); picked.append(x)
         if len(picked) >= limit: break
     # Kash (Nov 24): owners, managers and named people go in every day; shared inboxes (info@, office@)
@@ -203,11 +207,12 @@ def main():
         out_rows = []
         for x in picked:
             fn = (x.get("first_name") or "").strip()
-            row = dict(zip(COLS, [x["email"].strip().lower(), hey(fn), fn, (generic_company(H.service_word(x.get("service", ""))) if person_named(clean_company(x.get("business", ""))) else clean_company(x.get("business", ""))), x.get("town", ""), x.get("province", ""),
+            co, poss = NM.natural(x.get("business", ""), fn, generic_company(H.service_word(x.get("service", ""))), R.FIRST_NAMES)
+            row = dict(zip(COLS, [x["email"].strip().lower(), hey(fn), fn, co, x.get("town", ""), x.get("province", ""),
                         H.service_word(x.get("service", "")), NICHE_LINE.get(x.get("service", ""), "local businesses"), x.get("since") or H.since_year(x.get("why_dated", "")),
                         hook_sentence(niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", ""))), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
                         x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", ""), (x.get("phone") or "").strip()]))
-            row["coPoss"] = co_poss(row["companyName"])
+            row["coPoss"] = poss
             ev = EV.build(x.get("why_dated", ""), row["hook"], speeds.get(x.get("website") or ""))
             row.update({"notice": ev["notice"], "cost": ev["cost"], "tip": ev["tip"], "issue": ev["issue"], "speed": str(ev["speed"])})
             w.writerow([row[c] for c in simple]); out_rows.append({c: row[c] for c in simple})
@@ -221,6 +226,12 @@ def main():
             requests.post(url, data=json.dumps({"token": token, "action": "update", "updates": ups[i:i + 300]}),
                           headers={"Content-Type": "application/json"}, timeout=300)
         print(f"marked {len(bad_ids)} rows as Bad email")
+    if misfit: print(f"skipped {len(misfit)} businesses that aren't a fit (web/IT shops, big firms)")
+    if args.get("mark", "no") == "yes" and misfit:
+        ups = [{"osm_id": i, "status": "Not a fit"} for i in misfit]
+        for i in range(0, len(ups), 300):
+            requests.post(url, data=json.dumps({"token": token, "action": "update", "updates": ups[i:i + 300]}),
+                          headers={"Content-Type": "application/json"}, timeout=300)
     if args.get("mark", "no") == "yes" and picked:
         ups = [{"osm_id": x["osm_id"], "status": "Instantly"} for x in picked]
         done = 0

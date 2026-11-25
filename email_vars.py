@@ -20,8 +20,8 @@ def pick(why="", hook="", speed=None):
 def lines(kind, speed=None):
     s = f"{round(speed)}" if speed else ""
     return {
-        "speed":  (f"takes about {s} seconds to load on a phone.",
-                   "Over half of people leave a site that takes longer than 3.",
+        "speed":  (f"takes about {s} seconds to load on a phone in Google's speed test.",
+                   "Over half of people leave a site that takes longer than 3 seconds.",
                    "shrinking the big photos on your homepage usually cuts the load time in half."),
         "mobile": ("doesn't fit a phone screen, so people have to pinch and zoom.",
                    "Most people searching for you are on their phone, and a lot of them just hit back.",
