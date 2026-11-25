@@ -160,6 +160,11 @@ def main():
     spends = lambda x: len([p for p in (re.search(r"spends: ([^;]+)", x.get("why_dated") or "") or [None, ""])[1].split(",") if p.strip()])
     rows.sort(key=lambda x: (TYPE_RANK.get((x.get("email_type") or "").lower(), 3), -spends(x), -int(x.get("score") or 0)))
     bad_ids, vres = [], {}
+    # Kash (Nov 25): only check the batch we might load (best-ranked first); the rest wait for the next run.
+    vcap = int(args.get("verify_cap", "1200"))
+    if args.get("verify", "no") == "yes" and len(rows) > vcap:
+        print(f"checking the top {vcap} of {len(rows)} waiting rows; the rest wait for the next run")
+        rows = rows[:vcap]
     if args.get("verify", "no") == "yes" and rows:
         res = EC.verify(sorted({x["email"] for x in rows})); vres = res
         bad = {e for e, v in res.items() if v == "bad"}

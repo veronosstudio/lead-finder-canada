@@ -39,7 +39,7 @@ def verify(emails, workers=24):
     def one(e):
         try:
             p = subprocess.run([binp, "--from-email", "hello@veronosstudio.com", "--hello-name", "veronosstudio.com", e],
-                               capture_output=True, text=True, timeout=90)
+                               capture_output=True, text=True, timeout=45)
             j = json.loads(p.stdout); smtp = j.get("smtp") if isinstance(j.get("smtp"), dict) else {}
             r = j.get("is_reachable")
             if r == "invalid": return "bad"
