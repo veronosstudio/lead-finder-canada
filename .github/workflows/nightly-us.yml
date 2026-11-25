@@ -46,7 +46,7 @@ jobs:
           CONFIG: config_us.json
           SHARD: ${{ matrix.shard }}
           SHARDS: "12"
-        run: python overture_source.py "target=${{ github.event.inputs.test_leads || '45' }}" metros=auto
+        run: python overture_source.py "target=${{ github.event.inputs.test_leads || '70' }}" metros=auto
       - name: Save results
         if: always()
         run: |
