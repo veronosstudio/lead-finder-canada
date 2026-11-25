@@ -1,4 +1,4 @@
-name: Nightly lead finder (US, Overture, 4 searches at once)
+name: Nightly lead finder (US, Overture, 12 searches at once, owner-first)
 
 on:
   schedule:
@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -45,7 +45,8 @@ jobs:
           TEST_LEADS: ${{ github.event.inputs.test_leads }}
           CONFIG: config_us.json
           SHARD: ${{ matrix.shard }}
-        run: python overture_source.py "target=${{ github.event.inputs.test_leads || '38' }}" metros=auto
+          SHARDS: "12"
+        run: python overture_source.py "target=${{ github.event.inputs.test_leads || '45' }}" metros=auto
       - name: Save results
         if: always()
         run: |

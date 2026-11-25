@@ -171,6 +171,24 @@ def main():
         if e in seen_e or (d and d in seen_d): continue
         seen_e.add(e); seen_d.add(d); picked.append(x)
         if len(picked) >= limit: break
+    # Kash (Nov 24): owners, managers and named people go in every day; shared inboxes (info@, office@)
+    # only top up the campaign when its queue of not-yet-emailed people runs low (< 3 days of sending).
+    if args.get("generals", "all") == "fill" and want in CAMPAIGNS and picked:
+        try:
+            Hk = {"Authorization": f"Bearer {os.environ['INSTANTLY_API_KEY'].strip()}"}
+            cid = CAMPAIGNS[want]
+            a_ = requests.get("https://api.instantly.ai/api/v2/campaigns/analytics", headers=Hk, params={"id": cid}, timeout=60).json()
+            a_ = a_[0] if isinstance(a_, list) and a_ else a_
+            c_ = requests.get(f"https://api.instantly.ai/api/v2/campaigns/{cid}", headers=Hk, timeout=60).json()
+            queue = int(a_.get("leads_count") or 0) - int(a_.get("contacted_count") or 0)
+            room = max(0, 3 * int(c_.get("daily_max_leads") or c_.get("daily_limit") or 150) - queue)
+            people = [x for x in picked if (x.get("email_type") or "").lower() in ("owner", "manager", "named")]
+            general = [x for x in picked if x not in people]
+            keep = general[:max(0, room - len(people))]
+            print(f"queue {queue} not yet emailed, room {room}: pushing {len(people)} owner/manager/named + {len(keep)} shared inboxes (holding {len(general) - len(keep)} for later)")
+            picked = people + keep
+        except Exception as e:
+            print("queue check failed, pushing everything:", str(e)[:150])
     # Kash (Nov 24, email v4): one measurable business problem per lead (Google mobile speed test + site checks).
     import email_vars as EV, speed as SP
     from concurrent.futures import ThreadPoolExecutor as _TP

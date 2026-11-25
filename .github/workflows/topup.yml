@@ -36,4 +36,4 @@ jobs:
           SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
           INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
           PAGESPEED_KEY: ${{ secrets.PAGESPEED_KEY || secrets.AGESPEED_KEY }}
-        run: python export_instantly.py country=${{ matrix.country }} tiers=A,B limit=5000 push=yes mark=yes verify=yes out=topup.csv
+        run: python export_instantly.py country=${{ matrix.country }} tiers=A,B limit=5000 push=yes mark=yes verify=yes generals=fill out=topup.csv
