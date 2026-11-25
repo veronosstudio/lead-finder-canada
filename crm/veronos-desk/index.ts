@@ -5,7 +5,8 @@
 //  1) Syncs "Interested" leads from the Veronos campaigns (veronos_settings.campaigns) into veronos_leads.
 //  2) Reads every reply to a Veronos inbox. Notes a phone number if they volunteer one (never asks).
 //     Yeses Instantly didn't label still get added; questions/price talk get flagged "needs you".
-//  3) A yes is NOT auto-answered: Kash gets an alert to build the homepage; the first reply they get is the link.
+//  3) A yes is NOT auto-answered. Kash (Nov 25): a "yes" is ONLY a lead Instantly labels Interested (its AI reply
+//     labelling), never our own keyword guess. Kash gets an alert to reply to them himself (mockup engine paused).
 //  4) When a preview_link is saved for a lead, emails it in the thread (status Preview sent).
 //  5) Follow-ups on day 2, 4 and 6 after the preview (link comes down on day 7). Any reply pauses them.
 // Never sends on Sundays; first replies Mon-Sat 8am-8pm Central, follow-ups Mon-Fri only.
@@ -60,10 +61,10 @@ const needsHuman = (t: string) => /\?/.test(t) || /\b(price|cost|how much|pricin
 async function notifyKash(S: any, w: any, text: string) {
   const key = Deno.env.get("RESEND_API_KEY"); const to = S.notify_email;
   if (!key || !to) return;
-  const body = `New Veronos yes: ${w.company || w.email}${w.city ? " (" + w.city + ")" : ""}\n\nThey said: "${text.slice(0, 300)}"\n\nSite: ${w.website || "-"}\nEmail: ${w.email}\nPhone they gave: ${w.cell || "none"}\nWhat we noticed: ${w.hook || "-"}\n\nThey were told it's already built. Build it now and send the link (save the preview link and it goes out in their thread).`;
+  const body = `Instantly marked this reply Interested: ${w.company || w.email}${w.city ? " (" + w.city + ")" : ""}\n\nThey said: "${text.slice(0, 300)}"\n\nSite: ${w.website || "-"}\nEmail: ${w.email}\nPhone they gave: ${w.cell || "none"}\nWhat we noticed: ${w.hook || "-"}\n\nReply to them from Instantly's Unibox (same thread).`;
   try {
     await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: S.notify_from || "Veronos alerts <logan@seriessupply.com>", to: [to], subject: `New yes: ${w.company || w.email}`, text: body }) });
+      body: JSON.stringify({ from: S.notify_from || "Veronos alerts <logan@seriessupply.com>", to: [to], subject: `Interested: ${w.company || w.email}`, text: body }) });
   } catch { /* alert is best-effort */ }
 }
 const PREVIEW = (hi: string, link: string) => `${hi}\n\nHere's your new homepage:\n\n${link}\n\nIt's live for 7 days so you can click around on your phone and computer. Let me know what you think! Happy to walk you through it over the phone too if that's easier.\n\nKash`;
@@ -78,7 +79,7 @@ const COLS: [string, string][] = [["replied_at", "Date replied"], ["status", "St
   ["cell", "Cell (text it here)"], ["website", "Website"], ["city", "City"], ["niche", "Niche"], ["hook", "What's wrong with their site"], ["reply_snippet", "Their last reply"],
   ["preview_link", "Preview link"], ["preview_sent_at", "Preview sent"], ["expires", "Preview expires"], ["fu1_at", "Follow-up 1"], ["fu2_at", "Follow-up 2"], ["fu3_at", "Follow-up 3"],
   ["meeting_at", "Meeting"], ["plan", "Plan"], ["notes", "Notes"], ["office_phone", "Office phone"], ["campaign_name", "Campaign"]];
-const ORDER = ["New yes", "Asked for cell", "Building", "Preview sent", "Meeting booked", "Won", "Lost"];
+const ORDER = ["New yes", "Interested", "Asked for cell", "Building", "Preview sent", "Meeting booked", "Won", "Lost"];
 function csv(rows: any[]) {
   const esc = (v: unknown) => { if (v === null || v === undefined) return ""; const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const day = (v: string) => (v ? local(new Date(v).getTime()).toISOString().slice(0, 10) : "");
@@ -218,11 +219,11 @@ Deno.serve(async (req) => {
         const cell = phoneIn(text);
         let w: any = byEmail.get(from) || byEmail.get(String(e.lead || "").toLowerCase());
         if (!w) {
-          const no = NO_RX.test(text) || [-1, -2, -3].includes(st);
-          if (no) continue; // Instantly already stopped their sequence
+          // Kash (Nov 25): only Instantly's Interested label makes someone a yes. Everything else stays in Instantly's Unibox.
+          if (st !== 1) continue;
           let l: any = {};
           try { const lr = await ik("/leads/list", { method: "POST", body: JSON.stringify({ search: from, limit: 1 }) }); l = (lr.items || [])[0] || {}; await sleep(800); } catch { /* blank */ }
-          const yes = YES_RX.test(text) || st === 1;
+          const yes = true;
           const row = fromLead(l, from, { inbox: e.eaccount, replied_at: new Date(t).toISOString(), last_reply_at: new Date(t).toISOString(), reply_snippet: text.slice(0, 400),
             status: "New yes", ...(yes ? {} : { needs_you: true, needs_you_at: now.toISOString(), needs_you_why: "Maybe: reply personally" }) });
           if (!dry) { const { data } = await sb.from("veronos_leads").insert(row).select("*").single(); w = data || row; } else w = row;
@@ -258,10 +259,10 @@ Deno.serve(async (req) => {
       if (w.status === "New yes" && !w.asked_cell_at && !w.needs_you) {
         const thread = await lastReceived(w.email);
         const text = thread ? cleanReply(String(thread.body?.text || thread.content_preview || "")) : String(w.reply_snippet || "");
-        const why = needsHuman(text) ? "Build their homepage, then reply with the link (they asked something too)" : "Build their homepage, then send the link";
-        await save(w, { asked_cell_at: now.toISOString(), status: "Building", needs_you: true, needs_you_at: now.toISOString(), needs_you_why: why, reply_snippet: text.slice(0, 400) });
+        const why = needsHuman(text) ? "Interested (Instantly), and they asked something: reply to them" : "Interested (Instantly): reply to them";
+        await save(w, { asked_cell_at: now.toISOString(), status: "Interested", needs_you: true, needs_you_at: now.toISOString(), needs_you_why: why, reply_snippet: text.slice(0, 400) });
         if (!dry) await notifyKash(S, w, text);
-        report.push({ email: w.email, action: "yes: flagged for Kash to build" });
+        report.push({ email: w.email, action: "interested: flagged for Kash to reply" });
         continue;
       }
       // c) Preview saved: email it.
