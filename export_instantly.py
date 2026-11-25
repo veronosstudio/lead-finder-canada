@@ -202,8 +202,8 @@ def main():
             c_ = requests.get(f"https://api.instantly.ai/api/v2/campaigns/{cid}", headers=Hk, timeout=60).json()
             queue = int(a_.get("leads_count") or 0) - int(a_.get("contacted_count") or 0)
             room = max(0, 3 * int(c_.get("daily_max_leads") or c_.get("daily_limit") or 150) - queue)
-            # Kash (Nov 25): only confirmed mailboxes go in first; unconfirmed / catch-all wait with the shared inboxes.
-            people = [x for x in picked if (x.get("email_type") or "").lower() in ("owner", "manager", "named") and vres.get(x["email"], "ok") == "ok"]
+            # Kash (Nov 25): confirmed and catch-all mailboxes go in first; ones that can't be confirmed wait with the shared inboxes.
+            people = [x for x in picked if (x.get("email_type") or "").lower() in ("owner", "manager", "named") and vres.get(x["email"], "ok") in ("ok", "catchall")]
             general = [x for x in picked if x not in people]
             keep = general[:max(0, room - len(people))]
             print(f"queue {queue} not yet emailed, room {room}: pushing {len(people)} owner/manager/named + {len(keep)} shared inboxes (holding {len(general) - len(keep)} for later)")
