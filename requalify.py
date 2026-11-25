@@ -77,7 +77,9 @@ if retry:
     time.sleep(45)
     ver.update({e: v for e, v in EC.verify(retry, workers=4).items() if v != "unknown"})
     print(f"retried {len(retry)} unknown: {sum(1 for e in retry if ver[e] != 'unknown')} now answered")
-mobile = [site_of(l) for l, (st, _) in zip(mine, pages) if WHO == "waiting" and st == "up" and (l.get("payload") or {}).get("issue") == "mobile"]
+# any lead that could end up saying "doesn't fit a phone" gets the real phone test (not just the ones saying it now)
+mobile = [site_of(l) for l, (st, _) in zip(mine, pages) if WHO == "waiting" and st == "up" and
+          ((l.get("payload") or {}).get("issue") == "mobile" or "not built for phones" in (sheet.get(l["email"].lower(), {}).get("why_dated") or "").lower())]
 fit = SC.phone_fit(mobile) if mobile else {}
 print(f"phone test: {len(mobile)} sites opened, {sum(1 for v in fit.values() if v is True)} actually fit a phone")
 
