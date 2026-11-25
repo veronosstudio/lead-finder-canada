@@ -19,8 +19,9 @@ def pick(why="", hook="", speed=None):
 
 def lines(kind, speed=None):
     s = f"{round(speed)}" if speed else ""
+    over = bool(speed and speed > 25)  # Google's test sometimes times out at 60-130s; nobody believes that number
     return {
-        "speed":  (f"takes about {s} seconds to load on a phone in Google's speed test.",
+        "speed":  ((f"takes over 20 seconds to load on a phone in Google's speed test." if over else f"takes about {s} seconds to load on a phone in Google's speed test."),
                    "Over half of people leave a site that takes longer than 3 seconds.",
                    "shrinking the big photos on your homepage usually cuts the load time in half."),
         "mobile": ("doesn't fit a phone screen, so people have to pinch and zoom.",

@@ -58,7 +58,7 @@ for country, cid in X.CAMPAIGNS.items():
             continue
         gen = X.generic_company(p.get("service", ""))
         co, poss = NM.natural(raw, fn, gen, R.FIRST_NAMES)
-        want = {"coPoss": poss}
+        want = {"coPoss": poss, "subjA": NM.subject_a(co)}
         if p.get("issue") == "speed" and p.get("speed"):
             try:
                 n, c, t = V.lines("speed", float(p["speed"]))

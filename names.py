@@ -83,6 +83,11 @@ def natural(raw, first_name="", generic="your business", first_names=frozenset()
     return n, n + ("'" if n.lower().endswith("s") else "'s")
 
 
+def subject_a(company):
+    """Subject A: "Custom Air website", or "your website" when there's no natural name."""
+    return "your website" if company.startswith("your ") else f"{company} website"
+
+
 NOT_A_FIT = re.compile(r"web ?(design|dev|site|studio|solutions|services)|websites?\b|\bmarketing\b|\bseo\b|digital (agency|marketing|media|studio|solutions)|"
                        r"\bsoftware\b|\bit (services|solutions|support)\b|tech(nology)? (services|solutions)|computer|\bhosting\b|\bapps?\b|"
                        r"branding|advertising|creative agency|marketing agency|ad agency|graphic design|\bmedia group\b", re.I)

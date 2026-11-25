@@ -201,7 +201,7 @@ def main():
     if os.environ.get("PAGESPEED_KEY") and sites:
         with _TP(8) as ex: speeds = dict(zip(sites, ex.map(SP.mobile_load, sites)))
         print(f"speed measured for {sum(1 for v in speeds.values() if v)} of {len(sites)} sites")
-    simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType", "phone", "notice", "coPoss", "cost", "tip", "issue", "speed"]
+    simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType", "phone", "notice", "coPoss", "cost", "tip", "issue", "speed", "subjA"]
     with open(out, "w", newline="") as f:
         w = csv.writer(f); w.writerow(simple)
         out_rows = []
@@ -213,6 +213,7 @@ def main():
                         hook_sentence(niche_hook((x.get("hook") or "").strip() or H.hook(x.get("why_dated", "")), x.get("service", ""))), x.get("tier", ""), x.get("score", ""), x.get("website", ""),
                         x.get("email_type") or ("named" if fn else "general"), x.get("contact_role", ""), (x.get("phone") or "").strip()]))
             row["coPoss"] = poss
+            row["subjA"] = NM.subject_a(co)
             ev = EV.build(x.get("why_dated", ""), row["hook"], speeds.get(x.get("website") or ""))
             row.update({"notice": ev["notice"], "cost": ev["cost"], "tip": ev["tip"], "issue": ev["issue"], "speed": str(ev["speed"])})
             w.writerow([row[c] for c in simple]); out_rows.append({c: row[c] for c in simple})

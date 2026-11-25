@@ -95,7 +95,7 @@ def mode_seq():
         seqs = c["sequences"]; steps = seqs[0]["steps"]
         print(f"[{country}] before: steps={len(steps)} delays={[s.get('delay') for s in steps]}")
         a = dict(steps[0]["variants"][0]); b = dict(a); b.pop("id", None)
-        a.update({"subject": "{{companyName}} website", "body": E1A, "v_disabled": False})
+        a.update({"subject": "{{subjA}}", "body": E1A, "v_disabled": False})
         b.update({"subject": "quick idea for {{companyName}}", "body": E1B, "v_disabled": False})
         steps[0]["variants"] = [a, b]
         tmpl = steps[-1]
