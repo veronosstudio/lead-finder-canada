@@ -208,20 +208,20 @@ def site_signals(html):
     }
 
 # ---------- Kash (Nov 25): list-cleaning checks on the pages we already download ----------
-PARKED = re.compile(r"domain (is|may be) for sale|buy this domain|this domain (name )?(has expired|is parked)|parked (free|domain|by)|"
-                    r"website (is )?coming soon|site (is )?(under construction|coming soon)|under construction|lorem ipsum|"
-                    r"welcome to nginx|apache2? (ubuntu )?default page|it works!|account (has been )?suspended|future home of|"
-                    r"this site can.t be reached|hosting provider|web hosting by|default web site page", re.I)
+PARKED = re.compile(r"(this )?domain (name )?(is|may be) for sale|buy this domain|this domain (name )?(has expired|is parked)|"
+                    r"parked free|domain parking|(our |this )?(web)?site is (currently )?(under construction|coming soon)|"
+                    r"website coming soon|lorem ipsum dolor|welcome to nginx|apache2? (ubuntu )?default page|"
+                    r"this account has been suspended|account suspended|future home of|default web site page", re.I)
 
 def parked(html):
     """Placeholder / for-sale / suspended / 'coming soon' pages: the business is gone or never launched."""
     text = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)[\s\S]*?</\1>", " ", html or ""))
     return bool(PARKED.search(text[:20000])) and len(text.split()) < 600
 
-NONPROFIT = re.compile(r"\b(foundation|society|association|legal aid|non-?profit|charit(y|able)|ministr(y|ies)|church|parish|"
-                       r"coalition|alliance|council|federation|institute|union|cooperative|co-op|volunteer|outreach|"
-                       r"community (center|centre|services|legal|clinic)|legal (clinic|services) (of|for)|justice (for|center|centre)|"
-                       r"center for|centre for|school district|university|college|academy of)\b", re.I)
+NONPROFIT = re.compile(r"\b(legal aid|non-?profit|charit(y|able)|ministr(y|ies)|church|parish|pro bono|volunteer|"
+                       r"community (center|centre|legal|clinic)|legal (clinic|services) (of|for)|justice (for all|center|centre)|"
+                       r"center for|centre for|school district|university|college|academy of|credit union)\b|"
+                       r"\b(foundation|society|association|coalition|council)\s*$", re.I)
 BIZ_SUFFIX = re.compile(r"\b(llc|l\.l\.c|inc|ltd|pllc|p\.?c|p\.?a|llp|corp|co)\b\.?", re.I)
 
 def nonprofit(name, website):
@@ -229,13 +229,15 @@ def nonprofit(name, website):
     host = re.sub(r"^https?://(www\.)?", "", (website or "").lower()).split("/")[0]
     if re.search(r"\.(gov|edu|mil)(\.[a-z]{2})?$|\.gc\.ca$|\.(gov|edu)\.[a-z]{2}$", host): return True
     if NONPROFIT.search(name or ""): return True
-    return host.endswith(".org") and not BIZ_SUFFIX.search(name or "")
+    return host.endswith(".org") and bool(re.search(r"\b(clinic|center|centre|services|project|network|aid|fund)\b", name or "", re.I)) \
+        and not BIZ_SUFFIX.search(name or "")
 
 GENERIC_NAME = set("""the and of at in for a an & law laws lawyer lawyers attorney attorneys legal office offices firm group associates partners
 pc pa pllc llc llp inc ltd co corp company dental dentistry dentist dds dmd family clinic centre center care health medical
 services service solutions plumbing heating cooling air electric electrical roofing construction contracting contractors
 home homes landscaping lawn pest auto body collision repair insurance agency financial tax accounting chiropractic physical
 therapy physiotherapy orthodontics smile smiles studio shop salon spa fitness professional corporation enterprises
+chartered limited incorporated
 north south east west central city valley mountain river lake""".split())
 
 def distinctive(name):
@@ -244,11 +246,17 @@ def distinctive(name):
     surnames = [w for w in out if w not in FIRST_NAMES]          # "Friedman Mark B" -> check "friedman", not "mark"
     return surnames or out
 
-def name_on_site(name, html):
+def name_on_site(name, html, site_url=None):
     """Does the business name (its distinctive words) appear anywhere on their site? If not: sold, renamed, or wrong site.
     Names made only of generic words ("Family Dental") can't be checked and pass."""
     words = distinctive(name)
     if not words: return True
+    text = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)[\s\S]*?</\1>", " ", html or ""))
+    if len(text.split()) < 150: return True                    # page builds its text with scripts: can't judge
+    m = re.search(r"<link[^>]+rel=[\"']canonical[\"'][^>]+href=[\"']([^\"']+)|og:url[\"'][^>]+content=[\"']([^\"']+)", html or "", re.I)
+    if site_url is None and m: site_url = m.group(1) or m.group(2)
+    host = re.sub(r"[^a-z0-9]", "", re.sub(r"^https?://(www\.)?", "", (site_url or "").lower()).split("/")[0])
+    if host and any(w[:5] in host for w in words): return True   # "Fraidenburg & Associates" on fraidenburg.com
     low = (html or "").lower()
     low = re.sub(r"[^a-z0-9']+", " ", low)
     return any(re.search(rf"\b{re.escape(w)}", low) for w in words) or any(re.search(rf"\b{re.escape(w[:5])}", low) for w in words if len(w) >= 7)

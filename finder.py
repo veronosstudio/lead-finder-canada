@@ -290,7 +290,7 @@ def check(c):
             return c, "parked", None                          # Kash (Nov 25): for-sale / coming soon / suspended pages
         if R.nonprofit(c["business"], r.url):
             return c, "nonprofit", None                       # Kash (Nov 25): nonprofits, government, schools
-        if not R.name_on_site(c["business"], html):
+        if not R.name_on_site(c["business"], html, r.url):
             return c, "name-not-on-site", None                # Kash (Nov 25): sold, renamed, or the wrong website
         pts, why = score(html, r.url, https_ok)
         why += R.stale_signals(html)

@@ -66,8 +66,11 @@ print(f"shard {SHARD}/{SHARDS}: {len(mine)} of {len(leads)} waiting leads; {len(
 site_of = lambda l: l.get("website") or (l.get("payload") or {}).get("website") or ""
 with ThreadPoolExecutor(12) as ex:
     pages = list(ex.map(lambda l: SC.fetch(site_of(l)), mine))
-ver = EC.verify([l["email"].lower() for l in mine], workers=16)
-retry = [e for e, v in ver.items() if v == "unknown"]
+# Kash (Nov 25): each address gets checked once. Checking the same mail servers again and again from GitHub's shared
+# machines makes them start refusing, which looks like "bad" -- so this pass can skip the email check (verify=no).
+VERIFY = args.get("verify", "yes") == "yes"
+ver = EC.verify([l["email"].lower() for l in mine], workers=16) if VERIFY else {l["email"].lower(): "ok" for l in mine}
+retry = [e for e, v in ver.items() if v == "unknown"] if VERIFY else []
 if retry:
     time.sleep(45)
     ver.update({e: v for e, v in EC.verify(retry, workers=4).items() if v != "unknown"})
@@ -85,7 +88,7 @@ for l, (site, html) in zip(mine, pages):
     elif site == "parked": d, st = "remove: parked / coming soon", "Dead site"
     elif site == "abandoned": d, st = "remove: site looks abandoned", "Inactive"
     elif R.nonprofit(raw, site_of(l)): d, st = "remove: nonprofit / gov / school", "Not a fit"
-    elif not raw.startswith("your ") and not R.name_on_site(raw, html): d, st = "remove: name not on their site", "Not a fit"
+    elif not raw.startswith("your ") and not R.name_on_site(raw, html, site_of(l)): d, st = "remove: name not on their site", "Not a fit"
     elif v in HOLD: d, st = f"hold: email {v}", "new"
     else: d, st = ("keep" if v == "ok" else f"keep: email {v}"), None
     out[f"{l['_country']} {d}"] += 1
