@@ -1,31 +1,32 @@
 """Kash (Nov 25): re-check every not-yet-emailed lead in the Veronos campaigns before relaunch.
 
-  python requalify.py shard=0 shards=8 [apply=yes]
+  python requalify.py shard=0 shards=8 [apply=yes] [hold=unknown]
 
 For each waiting lead:
-  site     - does the website still load?  does it show signs of life (refine.looks_abandoned)?
-  email    - Reacher: ok / catchall / unknown / bad
+  site   - loads? parked / for sale / coming soon? abandoned (old copyright, nothing current)?
+  name   - does the business name appear on its own site? (sold, renamed or the wrong site if not)
+  type   - nonprofit / government / school?
+  email  - Reacher: ok / catchall / unknown / bad (unknowns get a second, slower try)
+  need   - real phone-size browser test for "doesn't fit a phone"; old COVID / holiday notices; no online booking
 Decision:
-  keep     - site up, not abandoned, email confirmed ("ok")
-  hold     - email unconfirmed or catch-all: taken out now, sheet row back to "new"; the top-up adds it later
-             only when the campaign runs low (same as info@ inboxes)
-  remove   - email bad -> sheet "Bad email"; site down -> "Dead site"; site abandoned -> "Inactive"
-Dry run by default: prints the counts and examples, changes nothing.
+  remove - bad email, site down/parked/abandoned, name not on site, nonprofit   (sheet status says why)
+  hold   - email in HOLD (default: unknown): out of the campaign, sheet row back to "new" (fills in later)
+  keep   - the rest; if the best problem to mention changed, the email lines are rewritten
+Dry run by default.
 """
 import os, re, sys, json, time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 import requests
-import email_check as EC, refine as R
-from sitecheck import site_state
+import email_check as EC, refine as R, email_vars as V
+import sitecheck as SC
 import export_instantly as X
 
 args = dict(a.split("=", 1) for a in sys.argv[1:] if "=" in a)
 SHARD, SHARDS, APPLY = int(args.get("shard", 0)), int(args.get("shards", 1)), args.get("apply") == "yes"
-HOLD = {x for x in args.get("hold", "unknown,catchall").split(",") if x}   # which unconfirmed results get held back
+HOLD = {x for x in args.get("hold", "unknown").split(",") if x}
 API = "https://api.instantly.ai/api/v2"
 H = {"Authorization": f"Bearer {os.environ['INSTANTLY_API_KEY'].strip()}", "Content-Type": "application/json"}
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36"
 
 
 def ik(method, path, **kw):
@@ -37,6 +38,14 @@ def ik(method, path, **kw):
         return r.json() if r.text else {}
     raise RuntimeError("rate limited")
 
+
+url, token = os.environ.get("SHEET_URL", "").strip().strip('"\''), os.environ.get("SHEET_TOKEN", "").strip().strip('"\'')
+m = re.search(r"macros/s/([A-Za-z0-9_-]{20,})", url)
+if m: url = f"https://script.google.com/macros/s/{m.group(1)}/exec"
+sheet = {}
+if url and token:
+    for x in requests.get(url, params={"token": token, "status": "Instantly", "limit": "30000"}, timeout=300).json().get("rows", []):
+        sheet[(x.get("email") or "").strip().lower()] = x
 
 leads = []
 for country, cid in X.CAMPAIGNS.items():
@@ -52,45 +61,64 @@ for country, cid in X.CAMPAIGNS.items():
         time.sleep(0.4)
 leads.sort(key=lambda l: l["email"])
 mine = [l for i, l in enumerate(leads) if i % SHARDS == SHARD]
-print(f"shard {SHARD}/{SHARDS}: {len(mine)} of {len(leads)} waiting leads")
+print(f"shard {SHARD}/{SHARDS}: {len(mine)} of {len(leads)} waiting leads; {len(sheet)} sheet rows")
 
+site_of = lambda l: l.get("website") or (l.get("payload") or {}).get("website") or ""
 with ThreadPoolExecutor(12) as ex:
-    sites = list(ex.map(lambda l: site_state(l.get("website") or (l.get("payload") or {}).get("website") or ""), mine))
-ver = EC.verify([l["email"].lower() for l in mine], workers=24)
-# a second, slower pass on the ones that didn't answer (busy servers often reply the second time)
+    pages = list(ex.map(lambda l: SC.fetch(site_of(l)), mine))
+ver = EC.verify([l["email"].lower() for l in mine], workers=16)
 retry = [e for e, v in ver.items() if v == "unknown"]
 if retry:
-    time.sleep(60)
+    time.sleep(45)
     ver.update({e: v for e, v in EC.verify(retry, workers=4).items() if v != "unknown"})
     print(f"retried {len(retry)} unknown: {sum(1 for e in retry if ver[e] != 'unknown')} now answered")
+mobile = [site_of(l) for l, (st, _) in zip(mine, pages) if st == "up" and (l.get("payload") or {}).get("issue") == "mobile"]
+fit = SC.phone_fit(mobile) if mobile else {}
+print(f"phone test: {len(mobile)} sites opened, {sum(1 for v in fit.values() if v is True)} actually fit a phone")
 
-out, ex_lines = Counter(), []
-sheet_status = {}
-for l, site in zip(mine, sites):
-    e = l["email"].lower(); v = ver.get(e, "unknown")
+out, ex_lines, sheet_status = Counter(), [], {}
+for l, (site, html) in zip(mine, pages):
+    e = l["email"].lower(); v = ver.get(e, "unknown"); row = sheet.get(e, {})
+    raw = row.get("business") or l.get("company_name") or ""
     if v == "bad": d, st = "remove: bad email", "Bad email"
-    elif site == "down": d, st = "remove: site down", "Dead site"
+    elif site in ("down", "no site"): d, st = "remove: site down", "Dead site"
+    elif site == "parked": d, st = "remove: parked / coming soon", "Dead site"
     elif site == "abandoned": d, st = "remove: site looks abandoned", "Inactive"
+    elif R.nonprofit(raw, site_of(l)): d, st = "remove: nonprofit / gov / school", "Not a fit"
+    elif not raw.startswith("your ") and not R.name_on_site(raw, html): d, st = "remove: name not on their site", "Not a fit"
     elif v in HOLD: d, st = f"hold: email {v}", "new"
     else: d, st = ("keep" if v == "ok" else f"keep: email {v}"), None
     out[f"{l['_country']} {d}"] += 1
-    if not d.startswith("keep"):
-        if len(ex_lines) < 25: ex_lines.append(f"  {d:32} {e:42} {l.get('company_name') or ''}")
+    if st is not None:
+        if len(ex_lines) < 30: ex_lines.append(f"  {d:34} {e:40} {raw[:40]}")
         sheet_status[e] = st
         if APPLY:
             ik("DELETE", f"/leads/{l['id']}"); time.sleep(0.2)
+        continue
+    # keep: is there a truer / better problem to mention now?
+    p = dict(l.get("payload") or {})
+    why = row.get("why_dated") or ""
+    fits = fit.get(site_of(l)) is True
+    if fits: why = re.sub(r"not built for phones;?\s*", "", why)
+    stale = R.stale_signals(html)
+    if stale: why += "; " + "; ".join(stale)
+    if (p.get("service") or row.get("service")) in R.APPOINTMENT and not R.site_signals(html).get("booking") and "no online booking" not in why:
+        why += "; no online booking"
+    try: speed = float(p.get("speed")) if p.get("speed") else None
+    except ValueError: speed = None
+    nv = V.build(why, "" if fits else p.get("hook", ""), speed)
+    if nv["issue"] != p.get("issue"):
+        out[f"{l['_country']} keep: problem {p.get('issue')} -> {nv['issue']}"] += 1
+        if APPLY:
+            p.update({"notice": nv["notice"], "cost": nv["cost"], "tip": nv["tip"], "issue": nv["issue"]})
+            ik("PATCH", f"/leads/{l['id']}", json={"custom_variables": p}); time.sleep(0.12)
 
 print("\n".join(ex_lines))
 print("RESULT", json.dumps(dict(sorted(out.items()))), "" if APPLY else "(dry run, nothing changed)")
 
-if APPLY and sheet_status:
+if APPLY and sheet_status and url and token:
     time.sleep(SHARD * 10)   # shards take turns writing to the sheet
-    url, token = os.environ.get("SHEET_URL", "").strip().strip('"\''), os.environ.get("SHEET_TOKEN", "").strip().strip('"\'')
-    m = re.search(r"macros/s/([A-Za-z0-9_-]{20,})", url)
-    if m: url = f"https://script.google.com/macros/s/{m.group(1)}/exec"
-    rows = requests.get(url, params={"token": token, "status": "Instantly", "limit": "30000"}, timeout=300).json().get("rows", [])
-    ups = [{"osm_id": x["osm_id"], "status": sheet_status[(x.get("email") or "").strip().lower()]}
-           for x in rows if (x.get("email") or "").strip().lower() in sheet_status]
+    ups = [{"osm_id": sheet[e]["osm_id"], "status": st} for e, st in sheet_status.items() if e in sheet and sheet[e].get("osm_id")]
     done = 0
     for i in range(0, len(ups), 300):
         done += requests.post(url, data=json.dumps({"token": token, "action": "update", "updates": ups[i:i + 300]}),

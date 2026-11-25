@@ -286,7 +286,14 @@ def check(c):
         html = r.text[:600000]
         if domain(r.url) != c["domain"] and any(b in r.url for b in BAD_HOSTS):
             return c, "redirects-away", None
+        if R.parked(html):
+            return c, "parked", None                          # Kash (Nov 25): for-sale / coming soon / suspended pages
+        if R.nonprofit(c["business"], r.url):
+            return c, "nonprofit", None                       # Kash (Nov 25): nonprofits, government, schools
+        if not R.name_on_site(c["business"], html):
+            return c, "name-not-on-site", None                # Kash (Nov 25): sold, renamed, or the wrong website
         pts, why = score(html, r.url, https_ok)
+        why += R.stale_signals(html)
         if R.is_chain(c["business"], html):
             return c, "chain", None
         if pts < CFG["min_dated_score"]:
@@ -298,6 +305,8 @@ def check(c):
         title = (re.search(r"<title[^>]*>([^<]{0,200})", html, re.I) or [None, ""])[1]
         svc = R.service_of(c["category"], c["business"], title)
         sig = R.site_signals(html)
+        if svc in R.APPOINTMENT and not sig.get("booking"):
+            why.append("no online booking")                   # Kash (Nov 25): appointment businesses with no way to book online
         no = R.qualifies("; ".join(why), svc, sig, c.get("since", ""))
         if no:
             return c, "not-target:" + no, None             # no visible problem, or a cheap niche
@@ -340,7 +349,8 @@ def check(c):
         why_s = "; ".join(why) + (f"; licensed since {c['since']}" if c.get("since") else "")
         money = R.money_signals(sig, c.get("since", ""))
         if money: why_s += "; spends: " + ", ".join(R.MONEY_LABELS[k] for k in money)
-        total, parts = R.score(why_s, svc, c.get("since", ""), sig, "", best, fname, c["phone"], c["category"])
+        phone_ok = R.phone_on_site(c["phone"], "\n".join(texts) + html)   # listing phone missing from the site counts as one strike
+        total, parts = R.score(why_s, svc, c.get("since", ""), sig, "", best, fname, c["phone"] if phone_ok else "", c["category"])
         tier = R.tier_of(total, parts["need"], why_s)
         if tier == "skip":
             return c, f"weak({total})", None

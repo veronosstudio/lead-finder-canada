@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install requests
+      - run: pip install requests playwright && python -m playwright install --with-deps chromium
       - name: Get Reacher CLI (MIT, reacherhq/check-if-email-exists) to check emails before upload
         env:
           GH_TOKEN: ${{ github.token }}

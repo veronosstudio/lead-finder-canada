@@ -158,7 +158,8 @@ def main():
     TYPE_RANK = {"owner": 0, "manager": 1, "named": 2}
     # Kash (Nov 25): within each contact type, businesses showing spend signals (ads, team, financing, years) go first.
     spends = lambda x: len([p for p in (re.search(r"spends: ([^;]+)", x.get("why_dated") or "") or [None, ""])[1].split(",") if p.strip()])
-    rows.sort(key=lambda x: (TYPE_RANK.get((x.get("email_type") or "").lower(), 3), -spends(x), -int(x.get("score") or 0)))
+    ads = lambda x: "runs ads" in (x.get("why_dated") or "")   # paying for clicks that land on a bad site: need + budget
+    rows.sort(key=lambda x: (TYPE_RANK.get((x.get("email_type") or "").lower(), 3), not ads(x), -spends(x), -int(x.get("score") or 0)))
     bad_ids, vres = [], {}
     # Kash (Nov 25): only check the batch we might load (best-ranked first); the rest wait for the next run.
     vcap = int(args.get("verify_cap", "1200"))
@@ -223,6 +224,19 @@ def main():
     if os.environ.get("PAGESPEED_KEY") and sites:
         with _TP(8) as ex: speeds = dict(zip(sites, ex.map(SP.mobile_load, sites)))
         print(f"speed measured for {sum(1 for v in speeds.values() if v)} of {len(sites)} sites")
+    # Kash (Nov 25): open "doesn't fit a phone" sites on a real phone-sized browser; if it actually fits, name a different problem.
+    mob = [x for x in picked if "not built for phones" in (x.get("why_dated") or "").lower()]
+    if mob and args.get("phonetest", "yes") == "yes":
+        try:
+            import sitecheck as SC
+            fit = SC.phone_fit([x.get("website", "") for x in mob])
+            fixed = 0
+            for x in mob:
+                if fit.get(x.get("website", "")) is True:
+                    x["why_dated"] = re.sub(r"not built for phones;?\s*", "", x["why_dated"]); x["hook"] = ""; fixed += 1
+            print(f"phone test: {len(mob)} 'doesn't fit a phone' sites opened, {fixed} actually fit (claim dropped)")
+        except Exception as e:
+            print("phone test skipped:", str(e)[:150])
     simple = ["email", "firstName", "companyName", "website", "greeting", "city", "nicheLine", "hook", "service", "tier", "score", "emailType", "phone", "notice", "coPoss", "cost", "tip", "issue", "speed", "subjA"]
     with open(out, "w", newline="") as f:
         w = csv.writer(f); w.writerow(simple)

@@ -174,6 +174,9 @@ def badness(why_dated=""):
         elif y <= YEAR - 4: add(2, f"copyright {y}")
     for k in ("diy ", "template builder", "old slider", "old jquery", "old wordpress", "old default theme"):
         if k in w: add(2, k.strip())
+    if "old covid notice" in w: add(2, "old COVID notice")
+    if "old holiday hours" in w: add(2, "old holiday hours")
+    if "no online booking" in w: add(2, "no online booking")
     for k in ("no main headline", "phone not tappable", "no contact form"):
         if k in w: add(1, k)
     return pts, out
@@ -201,7 +204,71 @@ def site_signals(html):
         "locations": bool(re.search(r"our locations|(two|three|four|five|\d+) locations|second location|multiple locations|offices in|service areas?\b", text)),
         "established": bool(re.search(r"\b(since|established|est\.?|founded( in)?|serving [a-z ,]+ since)\s*(19\d\d|200\d|201[0-6])\b|\b([1-9]\d)\+?\s*years (of experience|in business|serving)", text)),
         "emergency": bool(re.search(r"24/7|24 hours?|24-hour|emergency service|same[- ]day service", text)),
+        "hiring": bool(re.search(r"now hiring|we.re hiring|join our team|careers|job openings|employment opportunit", text)),
     }
+
+# ---------- Kash (Nov 25): list-cleaning checks on the pages we already download ----------
+PARKED = re.compile(r"domain (is|may be) for sale|buy this domain|this domain (name )?(has expired|is parked)|parked (free|domain|by)|"
+                    r"website (is )?coming soon|site (is )?(under construction|coming soon)|under construction|lorem ipsum|"
+                    r"welcome to nginx|apache2? (ubuntu )?default page|it works!|account (has been )?suspended|future home of|"
+                    r"this site can.t be reached|hosting provider|web hosting by|default web site page", re.I)
+
+def parked(html):
+    """Placeholder / for-sale / suspended / 'coming soon' pages: the business is gone or never launched."""
+    text = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)[\s\S]*?</\1>", " ", html or ""))
+    return bool(PARKED.search(text[:20000])) and len(text.split()) < 600
+
+NONPROFIT = re.compile(r"\b(foundation|society|association|legal aid|non-?profit|charit(y|able)|ministr(y|ies)|church|parish|"
+                       r"coalition|alliance|council|federation|institute|union|cooperative|co-op|volunteer|outreach|"
+                       r"community (center|centre|services|legal|clinic)|legal (clinic|services) (of|for)|justice (for|center|centre)|"
+                       r"center for|centre for|school district|university|college|academy of)\b", re.I)
+BIZ_SUFFIX = re.compile(r"\b(llc|l\.l\.c|inc|ltd|pllc|p\.?c|p\.?a|llp|corp|co)\b\.?", re.I)
+
+def nonprofit(name, website):
+    """Nonprofits, government and schools: no budget for us."""
+    host = re.sub(r"^https?://(www\.)?", "", (website or "").lower()).split("/")[0]
+    if re.search(r"\.(gov|edu|mil)(\.[a-z]{2})?$|\.gc\.ca$|\.(gov|edu)\.[a-z]{2}$", host): return True
+    if NONPROFIT.search(name or ""): return True
+    return host.endswith(".org") and not BIZ_SUFFIX.search(name or "")
+
+GENERIC_NAME = set("""the and of at in for a an & law laws lawyer lawyers attorney attorneys legal office offices firm group associates partners
+pc pa pllc llc llp inc ltd co corp company dental dentistry dentist dds dmd family clinic centre center care health medical
+services service solutions plumbing heating cooling air electric electrical roofing construction contracting contractors
+home homes landscaping lawn pest auto body collision repair insurance agency financial tax accounting chiropractic physical
+therapy physiotherapy orthodontics smile smiles studio shop salon spa fitness professional corporation enterprises
+north south east west central city valley mountain river lake""".split())
+
+def distinctive(name):
+    words = re.findall(r"[a-z0-9']+", BIZ_SUFFIX.sub(" ", (name or "").lower()))
+    out = [w.strip("'") for w in words if len(w) >= 4 and w not in GENERIC_NAME and not w.isdigit()]
+    surnames = [w for w in out if w not in FIRST_NAMES]          # "Friedman Mark B" -> check "friedman", not "mark"
+    return surnames or out
+
+def name_on_site(name, html):
+    """Does the business name (its distinctive words) appear anywhere on their site? If not: sold, renamed, or wrong site.
+    Names made only of generic words ("Family Dental") can't be checked and pass."""
+    words = distinctive(name)
+    if not words: return True
+    low = (html or "").lower()
+    low = re.sub(r"[^a-z0-9']+", " ", low)
+    return any(re.search(rf"\b{re.escape(w)}", low) for w in words) or any(re.search(rf"\b{re.escape(w[:5])}", low) for w in words if len(w) >= 7)
+
+def phone_on_site(phone, html):
+    d = re.sub(r"\D", "", phone or "")[-10:]
+    if len(d) < 10: return True
+    digits = re.sub(r"\D", "", html or "")
+    return d in digits or d[-7:] in digits
+
+APPOINTMENT = {"dentist", "orthodontist", "chiropractor", "physio", "optometrist", "medical", "vet", "massage", "beauty", "hair"}
+
+def stale_signals(html):
+    """Signs nobody maintains the site: COVID notices, old holiday hours, no date newer than 3 years outside the copyright."""
+    low = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)[\s\S]*?</\1>", " ", (html or "").lower()))
+    out = []
+    if re.search(r"covid|coronavirus|pandemic", low): out.append("old COVID notice")
+    m = re.findall(r"(?:holiday|christmas|thanksgiving|new year).{0,60}?\b(20\d\d)\b", low)
+    if m and max(int(y) for y in m) <= YEAR - 2: out.append(f"old holiday hours ({max(int(y) for y in m)})")
+    return out
 
 def looks_abandoned(html, why_dated=""):
     """Kash (Nov 25): a dated site is our target, an abandoned one isn't. Abandoned = an old copyright (8+ years)
@@ -218,7 +285,7 @@ def looks_abandoned(html, why_dated=""):
 LOW_NICHES = {k for k, v in SERVICES.items() if v[1] < 0.5}
 
 MONEY_LABELS = {"ads": "runs ads", "team": "has a team", "financing": "offers financing", "locations": "multiple locations/service areas",
-                "established": "10+ years in business", "emergency": "24/7 or emergency service"}
+                "established": "10+ years in business", "emergency": "24/7 or emergency service", "hiring": "hiring"}
 
 def money_signals(sig, since=""):
     out = [k for k in MONEY_LABELS if (sig or {}).get(k)]

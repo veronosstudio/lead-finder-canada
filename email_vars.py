@@ -9,10 +9,14 @@ def pick(why="", hook="", speed=None):
     no_tap = "phone not tappable" in w
     m = re.search(r"easy way (?:for people )?to ([^.]+)", hook or "")
     no_book = bool(m)
+    no_online = "no online booking" in w
+    stale = "old covid notice" in w or "old holiday hours" in w
     if speed and speed >= 6: return "speed"
     if not_mobile: return "mobile"
     if not_secure: return "secure"
     if speed and speed >= 4: return "speed"
+    if no_online: return "booking"
+    if stale: return "stale"
     if no_tap: return "tap"
     if no_book: return "book"
     return "dated"
@@ -33,6 +37,12 @@ def lines(kind, speed=None):
         "tap":    ("has a phone number you can't tap to call on mobile.",
                    "Some people won't bother copying it, so the call goes to whoever's next on Google.",
                    "make your phone number a tap-to-call link so people can reach you in one tap."),
+        "booking": ("doesn't have a way to book online.",
+                   "A lot of people look after hours, and they book with whoever lets them do it right then.",
+                   "add an online booking button at the top of your homepage, even a simple request form helps."),
+        "stale":  ("still has an old notice up (COVID or past holiday hours).",
+                   "It makes people wonder if you're still open.",
+                   "take down the old notice and put your current hours near the top of the homepage."),
         "book":   ("has no quick way to book or send a message.",
                    "People who aren't ready to call right then just leave.",
                    "add a simple contact form so people can reach you after hours."),
