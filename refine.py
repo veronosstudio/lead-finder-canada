@@ -220,8 +220,8 @@ def parked(html):
 
 NONPROFIT = re.compile(r"\b(legal aid|non-?profit|charit(y|able)|ministr(y|ies)|church|parish|pro bono|volunteer|"
                        r"community (center|centre|legal|clinic)|legal (clinic|services) (of|for)|justice (for all|center|centre)|"
-                       r"center for|centre for|school district|university|college|academy of|credit union)\b|"
-                       r"\b(foundation|society|association|coalition|council)\s*$", re.I)
+                       r"center for|centre for|school district|university of|college of|academy of|credit union)\b|"
+                       r"\b(foundation|society|association|coalition|council|university|college)\s*$", re.I)
 BIZ_SUFFIX = re.compile(r"\b(llc|l\.l\.c|inc|ltd|pllc|p\.?c|p\.?a|llp|corp|co)\b\.?", re.I)
 
 def nonprofit(name, website):
