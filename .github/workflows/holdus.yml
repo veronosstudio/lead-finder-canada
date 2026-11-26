@@ -1,0 +1,20 @@
+name: Hold US sends until a date
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "YYYY-MM-DD the US campaign starts sending again"
+        default: "2026-11-30"
+jobs:
+  h:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+        run: python hold_us.py ${{ github.event.inputs.day }}
