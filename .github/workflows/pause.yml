@@ -5,6 +5,9 @@ on:
       action:
         description: "pause or resume"
         default: "pause"
+      only:
+        description: "both, US or CA"
+        default: "both"
 jobs:
   p:
     runs-on: ubuntu-latest
@@ -17,4 +20,4 @@ jobs:
       - run: pip install requests
       - env:
           INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
-        run: python pause_campaigns.py ${{ github.event.inputs.action }}
+        run: python pause_campaigns.py ${{ github.event.inputs.action }} ${{ github.event.inputs.only }}

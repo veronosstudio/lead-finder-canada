@@ -1,0 +1,18 @@
+name: Resume US campaign Monday Nov 30 (one-time, Thanksgiving)
+on:
+  schedule:
+    - cron: "37 12 30 11 *"   # Mon Nov 30, about 6:37am Calgary / 6:37 Chicago-ish; US window opens 9am Central
+  workflow_dispatch:
+jobs:
+  r:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+        run: python pause_campaigns.py resume US
